@@ -1,0 +1,42 @@
+---
+import { process } from '../content/site';
+---
+
+<section id="prozess" class="scroll-mt-24 bg-paper py-20 sm:py-28">
+  <div class="mx-auto max-w-6xl px-6">
+    <h1 class="max-w-2xl text-balance break-words font-display text-3xl font-bold leading-tight text-navy-800 sm:text-4xl">
+      Von der Anfrage bis zum Notdienst
+    </h1>
+    <p class="mt-4 max-w-xl text-base leading-relaxed text-slate-600">
+      Sieben Schritte, ein Ansprechpartner — von der ersten Bedarfserhebung bis zur laufenden Betreuung Ihrer Anlage.
+    </p>
+
+    <ol class="mt-14 divide-y divide-line border-t border-b border-line">
+      {
+        process.map((step, index) => {
+          const isLast = index === process.length - 1;
+          return (
+            <li class:list={['grid gap-3 py-8 sm:grid-cols-[5rem_1fr] sm:gap-8', isLast && 'bg-navy-900 -mx-6 px-6']}>
+              <span
+                class:list={[
+                  'font-mono text-3xl font-medium tabular-nums',
+                  isLast ? 'text-copper-500' : 'text-slate-300',
+                ]}
+              >
+                {String(index + 1).padStart(2, '0')}
+              </span>
+              <div>
+                <h3 class:list={['font-display text-lg font-semibold', isLast ? 'text-white' : 'text-navy-800']}>
+                  {step.title}
+                </h3>
+                <p class:list={['mt-2 max-w-2xl text-base leading-relaxed', isLast ? 'text-slate-300' : 'text-slate-600']}>
+                  {step.text}
+                </p>
+              </div>
+            </li>
+          );
+        })
+      }
+    </ol>
+  </div>
+</section>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SG Technik – Logo animiert</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:  #183A59;
+    --mid:   #788C9E;
+    --light: #C7CFD6;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px;
+    font-family:'Montserrat', system-ui, sans-serif;
+    /* Schachbrett nur zur Demo der Transparenz – das SVG selbst hat keinen Hintergrund */
+    --sq: 26px;
+    background:
+      repeating-conic-gradient(#e9ecef 0% 25%, #f8f9fa 0% 50%) 0 0 / calc(var(--sq)*2) calc(var(--sq)*2);
+    transition: background .3s;
+  }
+  body.hell  { background:#ffffff; }
+  body.dunkel{ background:#20262c; }
+
+  .logo{ width:min(78vmin, 640px); height:auto; display:block; }
+
+  /* ---------- Animation: fließende Balken ---------- */
+
+  /* sanftes, versetztes Wogen der drei Balken */
+  .chev{ animation: sway 4.6s ease-in-out infinite; }
+  .chev.c1{ animation-delay: 0s;    }
+  .chev.c2{ animation-delay: -1.5s; }
+  .chev.c3{ animation-delay: -3s;   }
+  @keyframes sway{
+    0%,100%{ transform: translateY(0px); }
+    50%    { transform: translateY(6px); }
+  }
+
+  /* Lichtimpulse, die durch die Balken strömen (pathLength=100 normalisiert) */
+  .flow{
+    fill:none;
+    stroke-linecap:round;
+    stroke-dasharray: 12 38;          /* zwei Impulse pro Balken */
+    animation: flow 3.4s linear infinite;
+    mix-blend-mode: normal;
+  }
+  .flow.f1{ stroke:#3E6A94; animation-delay: 0s;     }
+  .flow.f2{ stroke:#9FB2C2; animation-delay: -1.15s; }
+  .flow.f3{ stroke:#E6EBF0; animation-delay: -2.3s;  }
+  @keyframes flow{
+    from{ stroke-dashoffset: 100; }
+    to  { stroke-dashoffset: 0;   }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .chev, .flow{ animation:none; }
+    .flow{ display:none; }
+  }
+
+  /* kleine Kontrollleiste zum Testen des Hintergrunds */
+  .bar{ display:flex; gap:8px; }
+  .bar button{
+    font:500 13px 'Montserrat', sans-serif;
+    padding:7px 14px; border:1px solid #b8c2cc; border-radius:999px;
+    background:rgba(255,255,255,.85); color:#183A59; cursor:pointer;
+  }
+  .bar button:hover{ background:#fff; }
+  .bar button:focus-visible{ outline:2px solid #183A59; outline-offset:2px; }
+</style>
+</head>
+<body>
+
+<!-- Das Logo: komplett Vektor, Hintergrund transparent -->
+<svg class="logo" viewBox="0 0 900 900" xmlns="http://www.w3.org/2000/svg" role="img"
+     aria-label="SG Technik – Silo- und Soleanlagenbau">
+
+  <!-- Kreisbogen (unterbrochen dort, wo der gebogene Text verläuft) -->
+  <path d="M 326.9 851.1 A 425 425 0 1 1 705.7 107.6"
+        fill="none" stroke="var(--navy)" stroke-width="9" stroke-linecap="round"/>
+
+  <!-- Gebogener Text entlang des Kreises -->
+  <defs>
+    <path id="arcText" d="M 391.3 871.3 A 432 432 0 0 0 749.5 137.0"/>
+  </defs>
+  <text font-family="Montserrat, sans-serif" font-size="40" font-weight="600"
+        letter-spacing="6" fill="var(--navy)">
+    <textPath href="#arcText" startOffset="50%" text-anchor="middle">SILO- UND SOLEANLAGENBAU</textPath>
+  </text>
+
+  <!-- Die drei fließenden Balken (hinten -> vorne: hell, mittel, navy) -->
+  <g stroke-width="28" fill="none" stroke-linejoin="miter" stroke-linecap="butt">
+    <g class="chev c3">
+      <path d="M346,192 L346,580 L545,758 L736,590" stroke="var(--light)"/>
+      <path class="flow f3" d="M346,192 L346,580 L545,758 L736,590" pathLength="100" stroke-width="15"/>
+    </g>
+    <g class="chev c2">
+      <path d="M270,192 L270,580 L469,758 L660,590" stroke="var(--mid)"/>
+      <path class="flow f2" d="M270,192 L270,580 L469,758 L660,590" pathLength="100" stroke-width="15"/>
+    </g>
+    <g class="chev c1">
+      <path d="M193,192 L193,580 L392,758 L583,590" stroke="var(--navy)"/>
+      <path class="flow f1" d="M193,192 L193,580 L392,758 L583,590" pathLength="100" stroke-width="15"/>
+    </g>
+  </g>
+
+  <!-- Wortmarke -->
+  <g fill="var(--navy)" font-family="Montserrat, sans-serif" font-weight="600">
+    <text x="396" y="366" font-size="93" textLength="108" lengthAdjust="spacingAndGlyphs">SG</text>
+    <text x="391" y="483" font-size="90" textLength="55" lengthAdjust="spacingAndGlyphs">T</text>
+    <!-- stilisiertes "E" aus drei Balken (wie im Original) -->
+    <rect x="451" y="418" width="42" height="11"/>
+    <rect x="451" y="445" width="42" height="11"/>
+    <rect x="451" y="472" width="42" height="11"/>
+    <text x="501" y="483" font-size="90" textLength="271" lengthAdjust="spacingAndGlyphs">CHNIK</text>
+  </g>
+</svg>
+
+<div class="bar" aria-label="Hintergrund zum Testen wechseln">
+  <button onclick="document.body.className=''">Transparenz-Check</button>
+  <button onclick="document.body.className='hell'">Hell</button>
+  <button onclick="document.body.className='dunkel'">Dunkel</button>
+</div>
+
+</body>
+</html>

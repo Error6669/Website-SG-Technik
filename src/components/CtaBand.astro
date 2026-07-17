@@ -1,0 +1,25 @@
+---
+import { closingCta, hero } from '../content/site';
+---
+
+<section class="bg-paper py-16 sm:py-20">
+  <div class="mx-auto max-w-6xl px-6">
+    <div class="flex flex-col items-start gap-8 border-t border-line pt-12 sm:flex-row sm:items-end sm:justify-between">
+      <div class="max-w-xl">
+        <h2 class="text-balance font-display text-2xl font-bold leading-tight text-navy-800 sm:text-3xl">
+          {closingCta.headline}
+        </h2>
+        <p class="mt-3 text-base leading-relaxed text-slate-600">
+          {closingCta.lead}
+        </p>
+      </div>
+
+      <a
+        href={hero.primaryCta.href}
+        class="inline-block flex-none rounded-sm bg-copper-600 px-6 py-3.5 text-center font-body text-sm font-semibold text-white transition-colors hover:bg-[#7a3a1d]"
+      >
+        {hero.primaryCta.label}
+      </a>
+    </div>
+  </div>
+</section>

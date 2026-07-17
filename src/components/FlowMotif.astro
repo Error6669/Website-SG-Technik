@@ -1,0 +1,56 @@
+---
+interface Props {
+  class?: string;
+  tone?: 'light' | 'dark';
+}
+
+const { class: className = '', tone = 'light' } = Astro.props;
+
+const strokes =
+  tone === 'light'
+    ? ['#183a59', '#6b8299', '#a9b7c4']
+    : ['#c7cfd6', '#a9b7c4', '#6b8299'];
+---
+
+<svg
+  class={className}
+  viewBox="0 0 560 200"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+  aria-hidden="true"
+>
+  <path d="M40 20 V120 L160 200" stroke={strokes[0]} stroke-width="10" class="flow-line" />
+  <path
+    d="M90 20 V100 L200 178"
+    stroke={strokes[1]}
+    stroke-width="10"
+    class="flow-line"
+    style="animation-delay:-0.6s"
+  />
+  <path
+    d="M140 20 V85 L235 155"
+    stroke={strokes[2]}
+    stroke-width="10"
+    class="flow-line"
+    style="animation-delay:-1.2s"
+  />
+</svg>
+
+<style>
+  .flow-line {
+    stroke-dasharray: 14 10;
+    animation: flow 5s linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .flow-line {
+      animation: none;
+    }
+  }
+
+  @keyframes flow {
+    to {
+      stroke-dashoffset: -240;
+    }
+  }
+</style>

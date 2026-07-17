@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-16T00:00:00.000Z",
+  "title": "Design System: SG Technik GmbH",
+  "extensions": {
+    "colorMeta": {
+      "navy-900": { "role": "primary", "displayName": "Night Steel", "canonical": "#0d2436", "tonalRamp": ["#060f18", "#0d2436", "#122f45", "#183a59", "#2a5075", "#526376", "#a9b7c4", "#e4e9ed"] },
+      "navy-800": { "role": "primary", "displayName": "Signal Navy", "canonical": "#183a59", "tonalRamp": ["#0d2436", "#122f45", "#183a59", "#20496e", "#2f5f88", "#526376", "#a9b7c4", "#e4e9ed"] },
+      "copper-500": { "role": "secondary", "displayName": "Oxide Copper", "canonical": "#b15a2e", "tonalRamp": ["#4a2412", "#6e3419", "#8f4523", "#b15a2e", "#c67849", "#d99b70", "#eac2a5", "#f7e5d7"] },
+      "copper-600": { "role": "secondary", "displayName": "Burnt Copper", "canonical": "#8f4523", "tonalRamp": ["#3a1c0d", "#5c2c16", "#7a3a1d", "#8f4523", "#a85731", "#c17752", "#dda480", "#f2d9c2"] },
+      "slate-600": { "role": "neutral", "displayName": "Graphite Slate", "canonical": "#526376", "tonalRamp": ["#0d2436", "#183a59", "#3a4d5d", "#526376", "#6b8299", "#8ba0b3", "#a9b7c4", "#e4e9ed"] },
+      "slate-500": { "role": "neutral", "displayName": "Muted Steel", "canonical": "#6b8299", "tonalRamp": ["#183a59", "#2f5171", "#526376", "#6b8299", "#8395a8", "#a9b7c4", "#c7d0d8", "#e4e9ed"] },
+      "slate-300": { "role": "neutral", "displayName": "Cool Mist", "canonical": "#a9b7c4", "tonalRamp": ["#526376", "#6b8299", "#8ba0b3", "#a9b7c4", "#bcc7d0", "#d0d8dd", "#e4e9ed", "#f5f7f8"] },
+      "mist-100": { "role": "neutral", "displayName": "Pale Mist", "canonical": "#e4e9ed", "tonalRamp": ["#a9b7c4", "#c7d0d8", "#dbe1e6", "#e4e9ed", "#eef1f3", "#f5f7f8", "#fbfcfc", "#ffffff"] },
+      "fog-50": { "role": "neutral", "displayName": "Fog White", "canonical": "#f5f7f8", "tonalRamp": ["#a9b7c4", "#c7d0d8", "#dbe1e6", "#e4e9ed", "#eef1f3", "#f5f7f8", "#fbfcfc", "#ffffff"] },
+      "paper": { "role": "neutral", "displayName": "Paper White", "canonical": "#fbfcfc", "tonalRamp": ["#c7d0d8", "#dbe1e6", "#e4e9ed", "#eef1f3", "#f5f7f8", "#f9fafb", "#fbfcfc", "#ffffff"] },
+      "line": { "role": "neutral", "displayName": "Hairline Navy", "canonical": "oklch(30% 0.04 240 / 12%)", "tonalRamp": ["rgba(24,58,89,0.06)", "rgba(24,58,89,0.09)", "rgba(24,58,89,0.12)", "rgba(24,58,89,0.18)", "rgba(24,58,89,0.24)", "rgba(24,58,89,0.32)", "rgba(24,58,89,0.45)", "rgba(24,58,89,0.6)"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero headline only." },
+      "headline": { "displayName": "Headline", "purpose": "Section h2 titles (Leistungen, Über uns, Referenzen, process section)." },
+      "title": { "displayName": "Title", "purpose": "Sub-headings inside a section." },
+      "body": { "displayName": "Body", "purpose": "Running prose copy." },
+      "label": { "displayName": "Label", "purpose": "Eyebrows, service tags, mini-headers — reserved for measured/counted/tagged content." }
+    },
+    "shadows": [],
+    "motion": [
+      { "name": "logomark-sway", "value": "translateY(0 -> 6px), 4.6s ease-in-out infinite, staggered per chevron", "purpose": "Continuous ambient sway on the three logo chevrons, echoing material flow through a silo." },
+      { "name": "logomark-flow", "value": "stroke-dashoffset 100 -> 0, 3.4s linear infinite, staggered per chevron", "purpose": "Light-pulse flowing through each logo chevron." },
+      { "name": "flow-motif", "value": "stroke-dashoffset 0 -> -240, 5s linear infinite", "purpose": "Decorative flowing-line motif (FlowMotif.astro) used as a section accent." },
+      { "name": "color-transition", "value": "transition-colors, default duration", "purpose": "Hover/focus state changes on buttons and nav links; no transform or shadow accompanies it." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single solid-fill CTA button, used for 'Kostenloses Erstgespräch vereinbaren' and its repeats.",
+      "html": "<a href=\"#\" class=\"ds-btn-primary\">Kostenloses Erstgespräch vereinbaren</a>",
+      "css": ".ds-btn-primary { display: inline-block; background: #8f4523; color: #ffffff; border-radius: 2px; padding: 14px 24px; font-family: 'Plex Sans', sans-serif; font-size: 14px; font-weight: 600; text-decoration: none; transition: background-color 0.2s; } .ds-btn-primary:hover, .ds-btn-primary:focus-visible { background: #7a3a1d; } .ds-btn-primary:focus-visible { outline: 2px solid #183a59; outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Outlined fallback CTA, e.g. 'Unsere Leistungen'.",
+      "html": "<a href=\"#\" class=\"ds-btn-secondary\">Unsere Leistungen</a>",
+      "css": ".ds-btn-secondary { display: inline-block; background: transparent; color: #183a59; border: 1px solid #a9b7c4; border-radius: 2px; padding: 10px 20px; font-family: 'Plex Sans', sans-serif; font-size: 14px; font-weight: 600; text-decoration: none; transition: border-color 0.2s; } .ds-btn-secondary:hover, .ds-btn-secondary:focus-visible { border-color: #183a59; }"
+    },
+    {
+      "name": "Hairline Stat Cell",
+      "kind": "card",
+      "refersTo": "stat-cell",
+      "description": "One cell in the hero's ruled stat grid — cells share hairline borders instead of being individually boxed.",
+      "html": "<div class=\"ds-stat-grid\"><div class=\"ds-stat-cell\"><div class=\"ds-stat-value\">100–980 t</div><div class=\"ds-stat-label\">Silo-Kapazität, individuell geplant</div></div><div class=\"ds-stat-cell\"><div class=\"ds-stat-value\">15.000 l/h</div><div class=\"ds-stat-label\">Löseleistung der Soleaufbereitung</div></div></div>",
+      "css": ".ds-stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: rgba(24,58,89,0.12); border: 1px solid rgba(24,58,89,0.12); border-radius: 2px; overflow: hidden; } .ds-stat-cell { background: #fbfcfc; padding: 24px 20px; } .ds-stat-value { font-family: 'Plex Mono', monospace; font-size: 24px; font-weight: 500; font-variant-numeric: tabular-nums; color: #183a59; } .ds-stat-label { margin-top: 6px; font-size: 12px; line-height: 1.4; color: #526376; }"
+    },
+    {
+      "name": "Divided List",
+      "kind": "custom",
+      "refersTo": "divided-list",
+      "description": "The system's default 'collection of things' pattern: hairline dividers between entries, no card backgrounds.",
+      "html": "<ul class=\"ds-divided-list\"><li class=\"ds-divided-item\">Planung und Montage von GFK- und Edelstahlsilos</li><li class=\"ds-divided-item\">Bau von Soleaufbereitungsanlagen und Soletankanlagen</li><li class=\"ds-divided-item\">Wartung, Service und Störungsnotdienst bestehender Anlagen</li></ul>",
+      "css": ".ds-divided-list { list-style: none; margin: 0; padding: 0; } .ds-divided-item { display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid rgba(24,58,89,0.12); font-family: 'Plex Sans', sans-serif; font-size: 16px; color: #526376; } .ds-divided-item:first-child { border-top: none; padding-top: 0; } .ds-divided-item::before { content: ''; flex: none; width: 6px; height: 6px; margin-top: 8px; border-radius: 50%; background: #b15a2e; }"
+    },
+    {
+      "name": "Header Nav",
+      "kind": "nav",
+      "refersTo": "nav-link",
+      "description": "Fixed, translucent, blurred header with nav links and a repeated primary CTA.",
+      "html": "<header class=\"ds-header\"><span class=\"ds-header-logo\">SG Technik GmbH</span><nav class=\"ds-header-nav\"><a href=\"#\" class=\"ds-nav-link\">Über uns</a><a href=\"#\" class=\"ds-nav-link\">Leistungen</a></nav></header>",
+      "css": ".ds-header { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 20px 24px; background: rgba(13,36,54,0.9); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.1); } .ds-header-logo { font-family: 'Plex Sans', sans-serif; font-size: 18px; font-weight: 600; color: #f5f7f8; } .ds-header-nav { display: flex; gap: 32px; } .ds-nav-link { font-family: 'Plex Sans', sans-serif; font-size: 16px; color: #a9b7c4; text-decoration: none; transition: color 0.2s; } .ds-nav-link:hover, .ds-nav-link:focus-visible { color: #f5f7f8; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Site Plan",
+    "overview": "This system reads like a technical drawing, not a marketing page. Every surface is flat — there is no shadow anywhere in the codebase. Structure comes from hairline rules (border-line, a 12%-opacity navy) that divide content the way a drawing separates one detail from the next, and from mono, tabular-numeral readouts (stat values, process-step numbers) that behave like instrument labels rather than decoration. The palette is a deep navy-to-copper range pulled directly from the company's logo mark: navy for authority and ink, copper as the single, deliberately rare accent that marks calls to action and enumerated tags. Nothing here performs — it demonstrates. Per PRODUCT.md, the system explicitly rejects the flashy startup/SaaS look (no gradients, no glassmorphism, no hero-metric-dashboard clichés), the generic corporate-stock-photo site, and anything that reads cheap or DIY. It should feel like it was engineered by the same people who engineer the silos.",
+    "keyCharacteristics": [
+      "Flat by construction — zero box-shadow declarations anywhere in the codebase.",
+      "Dividers, not containers — sections separate content with 1px hairline rules and background zebra-striping, never with cards.",
+      "Mono tabular numerals for anything measured or sequenced (stats, process steps).",
+      "One accent color (copper), used sparingly: primary CTA, tag labels, bullet marks, small dashes.",
+      "Self-hosted IBM Plex Sans/Mono throughout; no external font requests."
+    ],
+    "rules": [
+      { "name": "The One Accent Rule", "body": "Copper appears only as a mark, a dash, a bullet, or a CTA fill — never as a section background or a large shape. If copper is covering more than a button or a hairline, it's wrong.", "section": "colors" },
+      { "name": "The Hairline-Not-Gray Rule", "body": "Every divider and border on this site is line (rgba(24, 58, 89, 0.12)), a translucent tint of navy — never a flat neutral gray like #e5e5e5.", "section": "colors" },
+      { "name": "The Mono-Means-Measured Rule", "body": "Plex Mono is reserved for numbers and labels that represent something counted, sequenced, or tagged — never for narrative prose.", "section": "typography" },
+      { "name": "The No-Shadow Rule", "body": "Never add box-shadow to convey elevation. Depth is expressed with hairline dividers and background contrast only.", "section": "elevation" },
+      { "name": "The No-Card Rule", "body": "Any new 'collection of things' component should default to a hairline-divided grid or list, never a set of individually-boxed cards.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep every divider and border as line (rgba(24, 58, 89, 0.12)), never a flat gray.",
+      "Do use hairline-divided grids/lists for any new collection of items — stats, steps, references, features.",
+      "Do reserve copper for CTAs, tags, bullets, and small marks — never a section background.",
+      "Do use Plex Mono only for numbers, tags, and uppercase labels; Plex Sans for everything else.",
+      "Do keep motion purposeful and rare: the logo sway/flow and the FlowMotif dash animation are the only continuous animations on the site, and both already respect prefers-reduced-motion."
+    ],
+    "donts": [
+      "Don't introduce box-shadow anywhere — this system has none, by the Named No-Shadow Rule.",
+      "Don't wrap content in cards. Per PRODUCT.md's anti-references and the No-Card Rule, boxed/shadowed containers read as generic-corporate or SaaS-template, which this brand explicitly rejects.",
+      "Don't use gradients, glassmorphism, or a hero-metric-dashboard layout — PRODUCT.md names these directly as what the site should not look like.",
+      "Don't use stock photography or generic corporate imagery; the site currently ships with no photography at all, relying on typography, the logo mark, and named/measured proof instead.",
+      "Don't let copper cover more than a button, a tag, or a hairline mark — if it's filling a large surface, that violates the One Accent Rule."
+    ]
+  }
+}

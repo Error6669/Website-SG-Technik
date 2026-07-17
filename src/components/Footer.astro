@@ -1,0 +1,32 @@
+---
+import { navigation } from '../content/navigation';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="border-t border-line bg-navy-900 text-slate-300">
+  <div class="mx-auto max-w-6xl px-6 py-7">
+    <div class="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+      <a href="/" class="flex items-center gap-3">
+        <img
+          src="/logo/sg-technik-logo-invert.svg"
+          alt="SG Technik GmbH"
+          class="h-14 w-auto"
+        />
+        <span class="font-display text-base font-semibold text-fog-50">SG Technik GmbH</span>
+      </a>
+
+      <nav class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+        {navigation.map((item) => <a href={item.href} class="hover:text-fog-50">{item.label}</a>)}
+      </nav>
+    </div>
+
+    <div class="mt-6 flex flex-col gap-3 border-t border-white/10 pt-5 text-xs sm:flex-row sm:items-center sm:justify-between">
+      <p>&copy; {year} SG Technik GmbH. Alle Rechte vorbehalten.</p>
+      <div class="flex gap-5">
+        <a href="/impressum" class="hover:text-fog-50">Impressum</a>
+        <a href="/datenschutz" class="hover:text-fog-50">Datenschutz</a>
+      </div>
+    </div>
+  </div>
+</footer>

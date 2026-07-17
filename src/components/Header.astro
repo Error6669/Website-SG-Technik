@@ -1,0 +1,111 @@
+---
+import { navigation } from '../content/navigation';
+import { hero } from '../content/site';
+
+const { primaryCta } = hero;
+---
+
+<header class="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-navy-900/90 backdrop-blur-md">
+  <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+    <a href="/" class="flex items-center gap-3">
+      <span class="font-display text-lg font-semibold tracking-wide text-fog-50">
+        SG Technik GmbH
+      </span>
+    </a>
+
+    <nav class="hidden items-center gap-6 lg:flex">
+      {
+        navigation.map((item) => (
+          <a
+            href={item.href}
+            class="font-body text-base text-slate-300 transition-colors hover:text-fog-50"
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <a
+      href={primaryCta.href}
+      class="hidden rounded-sm border border-copper-500 px-4 py-2 font-body text-sm font-semibold text-fog-50 transition-colors hover:bg-copper-600 hover:border-copper-600 lg:inline-block"
+    >
+      {primaryCta.label}
+    </a>
+
+    <button
+      type="button"
+      class="inline-flex h-9 w-9 items-center justify-center text-fog-50 lg:hidden"
+      aria-label="Menü öffnen"
+      aria-expanded="false"
+      data-menu-toggle
+    >
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+        <path d="M2 5H20M2 11H20M2 17H20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+      </svg>
+    </button>
+  </div>
+
+  <nav
+    class="hidden flex-col gap-1 border-t border-white/10 bg-navy-900 px-6 py-4 lg:hidden"
+    data-mobile-menu
+  >
+    {
+      navigation.map((item) => (
+        <a href={item.href} class="py-2 font-body text-base text-slate-300 hover:text-fog-50">
+          {item.label}
+        </a>
+      ))
+    }
+    <a
+      href={primaryCta.href}
+      class="mt-2 rounded-sm bg-copper-600 px-4 py-2 text-center font-body text-sm font-semibold text-white"
+    >
+      {primaryCta.label}
+    </a>
+  </nav>
+</header>
+
+<script>
+  const toggle = document.querySelector('[data-menu-toggle]');
+  const menu = document.querySelector('[data-mobile-menu]');
+
+  const isMenuOpen = () => menu?.classList.contains('flex') ?? false;
+
+  const closeMenu = () => {
+    if (!isMenuOpen()) return;
+    menu?.classList.remove('flex');
+    menu?.classList.add('hidden');
+    toggle?.setAttribute('aria-expanded', 'false');
+  };
+
+  const openMenu = () => {
+    menu?.classList.add('flex');
+    menu?.classList.remove('hidden');
+    toggle?.setAttribute('aria-expanded', 'true');
+    menu?.querySelector('a')?.focus();
+  };
+
+  toggle?.addEventListener('click', () => {
+    if (isMenuOpen()) {
+      closeMenu();
+      (toggle as HTMLElement).focus();
+    } else {
+      openMenu();
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && isMenuOpen()) {
+      closeMenu();
+      (toggle as HTMLElement)?.focus();
+    }
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!isMenuOpen()) return;
+    const target = event.target as Node;
+    if (menu?.contains(target) || toggle?.contains(target)) return;
+    closeMenu();
+  });
+</script>

@@ -1,0 +1,93 @@
+@import 'tailwindcss';
+
+/* ---------------------------------------------------
+   Fonts — self-hosted IBM Plex (no external requests)
+--------------------------------------------------- */
+@font-face {
+  font-family: 'Plex Sans';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/plexsans-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Plex Sans';
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/plexsans-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Plex Sans';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/plexsans-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Plex Mono';
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/plexmono-500.woff2') format('woff2');
+}
+
+/* Used only inside the animated logo mark (SG/TECHNIK wordmark + ring text) */
+@font-face {
+  font-family: 'Logo Montserrat'; /* impeccable-disable-line design-system-font -- logo-mark exception, see DESIGN.md */
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/montserrat-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Logo Montserrat'; /* impeccable-disable-line design-system-font -- logo-mark exception, see DESIGN.md */
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/montserrat-600.woff2') format('woff2');
+}
+
+/* ---------------------------------------------------
+   Design tokens — derived from the SG Technik logo
+   (see /Konzept 01 moodboard for rationale)
+--------------------------------------------------- */
+@theme {
+  --color-navy-900: #0d2436;
+  --color-navy-800: #183a59;
+  --color-slate-600: #526376;
+  --color-slate-500: #6b8299;
+  --color-slate-300: #a9b7c4;
+  --color-mist-100: #e4e9ed;
+  --color-fog-50: #f5f7f8;
+  --color-paper: #fbfcfc;
+  --color-copper-500: #b15a2e;
+  --color-copper-600: #8f4523;
+  --color-line: rgba(24, 58, 89, 0.12);
+
+  --font-display: 'Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'Plex Mono', 'SFMono-Regular', Consolas, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-fog-50);
+  color: var(--color-navy-900);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

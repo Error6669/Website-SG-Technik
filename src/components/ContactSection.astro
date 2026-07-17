@@ -1,0 +1,117 @@
+---
+import { contact } from '../content/site';
+
+const hasPhone = contact.phone.trim().length > 0;
+const hasEmail = contact.email.trim().length > 0;
+
+const fieldClass =
+  'w-full rounded-sm border border-white/20 bg-transparent px-3 py-2.5 text-base text-fog-50 placeholder:text-slate-400 transition-colors focus:border-copper-500 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-copper-500/60';
+const labelClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-300';
+---
+
+<section id="kontakt" class="scroll-mt-24 bg-navy-900 py-20 text-slate-300 sm:py-28">
+  <div class="mx-auto max-w-6xl px-6">
+    <div class="grid gap-12 lg:grid-cols-[minmax(0,26rem)_1fr] lg:gap-20">
+      <div>
+        <p class="flex items-center gap-3 font-mono text-xs uppercase tracking-[0.14em] text-slate-300">
+          <span class="inline-block h-px w-6 bg-copper-500"></span>
+          {contact.eyebrow}
+        </p>
+        <h2 class="mt-4 text-balance font-display text-3xl font-bold leading-tight text-fog-50 sm:text-4xl">
+          {contact.headline}
+        </h2>
+        <p class="mt-5 max-w-md text-base leading-relaxed text-slate-300">
+          {contact.lead}
+        </p>
+
+        <dl class="mt-10 divide-y divide-white/10 border-y border-white/10">
+          <div class="grid items-center gap-1 py-4 sm:grid-cols-[9rem_1fr] sm:gap-4">
+            <dt class={labelClass}>Ansprechpartner</dt>
+            <dd class="text-base font-semibold text-fog-50">{contact.person}</dd>
+          </div>
+
+          <div class="grid items-center gap-1 py-4 sm:grid-cols-[9rem_1fr] sm:gap-4">
+            <dt class={labelClass}>Telefon</dt>
+            <dd class="text-base text-fog-50">
+              {
+                hasPhone ? (
+                  <a href={`tel:${contact.phone}`} class="hover:text-white">
+                    {contact.phone}
+                  </a>
+                ) : (
+                  <span class="italic text-slate-300">Telefonnummer folgt in Kürze</span>
+                )
+              }
+            </dd>
+          </div>
+
+          <div class="grid items-center gap-1 py-4 sm:grid-cols-[9rem_1fr] sm:gap-4">
+            <dt class={labelClass}>E-Mail</dt>
+            <dd class="text-base text-fog-50">
+              {
+                hasEmail ? (
+                  <a href={`mailto:${contact.email}`} class="hover:text-white">
+                    {contact.email}
+                  </a>
+                ) : (
+                  <span class="italic text-slate-300">E-Mail-Adresse folgt in Kürze</span>
+                )
+              }
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="max-w-md">
+        <form
+          name="kontakt"
+          method="POST"
+          data-netlify="true"
+          netlify-honeypot="bot-field"
+          action="/danke"
+          class="space-y-5"
+        >
+          <input type="hidden" name="form-name" value="kontakt" />
+          <p class="hidden">
+            <label>
+              Nicht ausfüllen: <input name="bot-field" />
+            </label>
+          </p>
+
+          <div>
+            <label for="kontakt-name" class={labelClass}>Name</label>
+            <input id="kontakt-name" name="name" type="text" autocomplete="name" required class:list={['mt-2', fieldClass]} />
+          </div>
+
+          <div>
+            <label for="kontakt-email" class={labelClass}>E-Mail</label>
+            <input id="kontakt-email" name="email" type="email" autocomplete="email" required class:list={['mt-2', fieldClass]} />
+          </div>
+
+          <div>
+            <label for="kontakt-telefon" class={labelClass}>Telefon (optional)</label>
+            <input id="kontakt-telefon" name="telefon" type="tel" autocomplete="tel" class:list={['mt-2', fieldClass]} />
+          </div>
+
+          <div>
+            <label for="kontakt-nachricht" class={labelClass}>Nachricht</label>
+            <textarea
+              id="kontakt-nachricht"
+              name="nachricht"
+              rows="4"
+              required
+              class:list={['mt-2 resize-y', fieldClass]}
+            ></textarea>
+          </div>
+
+          <button
+            type="submit"
+            class="inline-block rounded-sm bg-copper-600 px-6 py-3.5 text-center font-body text-sm font-semibold text-white transition-colors hover:bg-[#7a3a1d] focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-copper-500/60"
+          >
+            Nachricht senden
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,119 @@
+---
+// Animated SG Technik logo mark.
+// Source: Logo/sg-technik-logo-animiert.html — solid chevrons with a gentle
+// sway, plus normalized (pathLength=100) light pulses flowing through them.
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+---
+
+<svg
+  class={className}
+  viewBox="0 0 900 900"
+  xmlns="http://www.w3.org/2000/svg"
+  role="img"
+  aria-label="SG Technik – Silo- und Soleanlagenbau"
+>
+  <path
+    d="M 459.0 867.3 A 425 425 0 1 1 812.2 230.1"
+    fill="none"
+    stroke="#183a59"
+    stroke-width="9"
+    stroke-linecap="round"
+  />
+
+  <defs>
+    <path id="logomark-arc-text" d="M 391.3 871.3 A 432 432 0 0 0 749.5 137.0" />
+  </defs>
+  <text font-family="'Logo Montserrat', sans-serif" font-size="40" font-weight="600" letter-spacing="6" fill="#183a59">
+    <textPath href="#logomark-arc-text" startOffset="50%" text-anchor="middle">
+      SILO- UND SOLEANLAGENBAU
+    </textPath>
+  </text>
+
+  <g stroke-width="28" fill="none" stroke-linejoin="miter" stroke-linecap="butt">
+    <g class="logomark-chev logomark-chev-3">
+      <path d="M346,192 L346,580 L545,758 L736,590" stroke="#c7cfd6" />
+      <path class="logomark-flow logomark-flow-3" d="M346,192 L346,580 L545,758 L736,590" pathLength="100" stroke-width="15" />
+    </g>
+    <g class="logomark-chev logomark-chev-2">
+      <path d="M270,192 L270,580 L469,758 L660,590" stroke="#788c9e" />
+      <path class="logomark-flow logomark-flow-2" d="M270,192 L270,580 L469,758 L660,590" pathLength="100" stroke-width="15" />
+    </g>
+    <g class="logomark-chev logomark-chev-1">
+      <path d="M193,192 L193,580 L392,758 L583,590" stroke="#183a59" />
+      <path class="logomark-flow logomark-flow-1" d="M193,192 L193,580 L392,758 L583,590" pathLength="100" stroke-width="15" />
+    </g>
+  </g>
+
+  <g fill="#183a59" font-family="'Logo Montserrat', sans-serif" font-weight="600">
+    <text x="396" y="366" font-size="93" textLength="108" lengthAdjust="spacingAndGlyphs">SG</text>
+    <text x="391" y="483" font-size="90" textLength="55" lengthAdjust="spacingAndGlyphs">T</text>
+    <rect x="451" y="418" width="42" height="11" />
+    <rect x="451" y="445" width="42" height="11" />
+    <rect x="451" y="472" width="42" height="11" />
+    <text x="501" y="483" font-size="90" textLength="271" lengthAdjust="spacingAndGlyphs">CHNIK</text>
+  </g>
+</svg>
+
+<style>
+  .logomark-chev {
+    animation: logomark-sway 4.6s ease-in-out infinite;
+  }
+  .logomark-chev-1 {
+    animation-delay: 0s;
+  }
+  .logomark-chev-2 {
+    animation-delay: -1.5s;
+  }
+  .logomark-chev-3 {
+    animation-delay: -3s;
+  }
+  @keyframes logomark-sway {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(6px);
+    }
+  }
+
+  .logomark-flow {
+    stroke-linecap: round;
+    stroke-dasharray: 12 38;
+    animation: logomark-flow 3.4s linear infinite;
+  }
+  .logomark-flow-1 {
+    stroke: #3e6a94; /* impeccable-disable-line design-system-color -- logo-mark exception, see DESIGN.md */
+    animation-delay: 0s;
+  }
+  .logomark-flow-2 {
+    stroke: #9fb2c2; /* impeccable-disable-line design-system-color -- logo-mark exception, see DESIGN.md */
+    animation-delay: -1.15s;
+  }
+  .logomark-flow-3 {
+    stroke: #e6ebf0; /* impeccable-disable-line design-system-color -- logo-mark exception, see DESIGN.md */
+    animation-delay: -2.3s;
+  }
+  @keyframes logomark-flow {
+    from {
+      stroke-dashoffset: 100;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .logomark-chev,
+    .logomark-flow {
+      animation: none;
+    }
+    .logomark-flow {
+      display: none;
+    }
+  }
+</style>

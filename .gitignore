@@ -1,0 +1,25 @@
+# build output
+dist/
+.astro/
+
+# dependencies
+node_modules/
+
+# environment
+.env
+.env.production
+
+# macOS
+.DS_Store
+
+# editor
+.vscode/*
+!.vscode/extensions.json
+
+# local Claude Code settings (machine-specific, not shared)
+.claude/settings.local.json
+
+# original source briefing docs (internal, not for the public repo)
+Aufbau Website 2.0.docx
+~$fbau Website 2.0.docx
+Website-Struktur_SG_Technik_GmbH.csv

@@ -1,0 +1,43 @@
+---
+import { services } from '../content/services';
+---
+
+<section id="leistungen" class="scroll-mt-24 bg-fog-50 py-20 sm:py-28">
+  <div class="mx-auto max-w-6xl px-6">
+    <h2 class="max-w-2xl text-balance break-words font-display text-3xl font-bold leading-tight text-navy-800 sm:text-4xl">
+      Unsere Produkte
+    </h2>
+
+    <div class="mt-16 divide-y divide-line border-t border-line">
+      {
+        services.map((service, index) => {
+          const mirrored = index % 2 === 1;
+
+          const heading = (
+            <div class:list={mirrored ? 'lg:pl-10 lg:text-right' : 'lg:pr-10'}>
+              <h3 class="text-balance font-display text-2xl font-bold leading-tight text-copper-600">
+                {service.name}
+              </h3>
+              <p class="mt-2 font-display text-base font-semibold text-slate-600">{service.tagline}</p>
+            </div>
+          );
+
+          const body = (
+            <div class="space-y-4">
+              <p class="text-justify text-base leading-relaxed text-navy-900">{service.intro}</p>
+              {service.paragraphs.map((paragraph) => (
+                <p class="text-justify text-base leading-relaxed text-slate-600">{paragraph}</p>
+              ))}
+            </div>
+          );
+
+          return (
+            <article id={service.slug} class="scroll-mt-24 grid gap-8 py-14 lg:grid-cols-2 lg:gap-x-0">
+              {mirrored ? [body, heading] : [heading, body]}
+            </article>
+          );
+        })
+      }
+    </div>
+  </div>
+</section>

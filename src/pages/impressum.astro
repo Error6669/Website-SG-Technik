@@ -1,0 +1,98 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { legalEntity } from '../content/legal';
+import { contact } from '../content/site';
+
+const val = (v: string, fallback = 'wird ergänzt') => (v.trim().length > 0 ? v : fallback);
+const isPlaceholder = (v: string) => v.trim().length === 0;
+---
+
+<BaseLayout title="Impressum — SG Technik GmbH" description="Angaben gemäß § 5 ECG.">
+  <section class="bg-paper py-20 sm:py-28">
+    <div class="mx-auto max-w-3xl px-6">
+      <p class="flex items-center gap-3 font-mono text-xs uppercase tracking-[0.14em] text-slate-600">
+        <span class="inline-block h-px w-6 bg-copper-500"></span>
+        Impressum
+      </p>
+      <h1 class="mt-4 text-balance break-words font-display text-3xl font-bold leading-tight text-navy-800 sm:text-4xl">
+        Angaben gemäß § 5 ECG
+      </h1>
+
+      <dl class="mt-12 divide-y divide-line border-t border-b border-line">
+        <div class="grid gap-1 py-4 sm:grid-cols-[11rem_1fr] sm:gap-4">
+          <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Firma</dt>
+          <dd class="text-base text-navy-900">{legalEntity.name}</dd>
+        </div>
+        <div class="grid gap-1 py-4 sm:grid-cols-[11rem_1fr] sm:gap-4">
+          <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Sitz</dt>
+          <dd class:list={['text-base', isPlaceholder(legalEntity.address) ? 'italic text-slate-600' : 'text-navy-900']}>
+            {val(legalEntity.address)}
+          </dd>
+        </div>
+        <div class="grid gap-1 py-4 sm:grid-cols-[11rem_1fr] sm:gap-4">
+          <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Firmenbuchnummer</dt>
+          <dd class:list={['text-base', isPlaceholder(legalEntity.firmenbuchnummer) ? 'italic text-slate-600' : 'text-navy-900']}>
+            {val(legalEntity.firmenbuchnummer)}
+          </dd>
+        </div>
+        <div class="grid gap-1 py-4 sm:grid-cols-[11rem_1fr] sm:gap-4">
+          <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Firmenbuchgericht</dt>
+          <dd class:list={['text-base', isPlaceholder(legalEntity.firmenbuchgericht) ? 'italic text-slate-600' : 'text-navy-900']}>
+            {val(legalEntity.firmenbuchgericht)}
+          </dd>
+        </div>
+        <div class="grid gap-1 py-4 sm:grid-cols-[11rem_1fr] sm:gap-4">
+          <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">UID-Nummer</dt>
+          <dd class:list={['text-base', isPlaceholder(legalEntity.uid) ? 'italic text-slate-600' : 'text-navy-900']}>
+            {val(legalEntity.uid)}
+          </dd>
+        </div>
+        <div class="grid gap-1 py-4 sm:grid-cols-[11rem_1fr] sm:gap-4">
+          <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Geschäftsführer</dt>
+          <dd class:list={['text-base', isPlaceholder(legalEntity.geschaeftsfuehrer) ? 'italic text-slate-600' : 'text-navy-900']}>
+            {val(legalEntity.geschaeftsfuehrer)}
+          </dd>
+        </div>
+        <div class="grid gap-1 py-4 sm:grid-cols-[11rem_1fr] sm:gap-4">
+          <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Mitgliedschaft</dt>
+          <dd class:list={['text-base', isPlaceholder(legalEntity.kammer) ? 'italic text-slate-600' : 'text-navy-900']}>
+            {val(legalEntity.kammer)}
+          </dd>
+        </div>
+        <div class="grid gap-1 py-4 sm:grid-cols-[11rem_1fr] sm:gap-4">
+          <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Telefon</dt>
+          <dd class:list={['text-base', isPlaceholder(contact.phone) ? 'italic text-slate-600' : 'text-navy-900']}>
+            {val(contact.phone, 'wird ergänzt')}
+          </dd>
+        </div>
+        <div class="grid gap-1 py-4 sm:grid-cols-[11rem_1fr] sm:gap-4">
+          <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">E-Mail</dt>
+          <dd class:list={['text-base', isPlaceholder(contact.email) ? 'italic text-slate-600' : 'text-navy-900']}>
+            {val(contact.email, 'wird ergänzt')}
+          </dd>
+        </div>
+      </dl>
+
+      <div class="mt-14 space-y-6 text-sm leading-relaxed text-slate-600">
+        <div>
+          <h2 class="font-display text-base font-semibold text-navy-800">Haftung für Inhalte</h2>
+          <p class="mt-2">
+            Die Inhalte dieser Website wurden mit größtmöglicher Sorgfalt erstellt. Für die Richtigkeit,
+            Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen. Als
+            Diensteanbieter sind wir für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen
+            verantwortlich; wir sind jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde
+            Informationen zu überwachen.
+          </p>
+        </div>
+        <div>
+          <h2 class="font-display text-base font-semibold text-navy-800">Haftung für Links</h2>
+          <p class="mt-2">
+            Unsere Website enthält gegebenenfalls Links zu externen Websites Dritter, auf deren Inhalte wir
+            keinen Einfluss haben. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter
+            verantwortlich.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

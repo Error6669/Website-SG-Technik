@@ -1,0 +1,37 @@
+---
+import { productsAndTech, technicalCategories } from '../content/technicalData';
+---
+
+<section id="produkte-technik" class="scroll-mt-24 bg-paper py-20 sm:py-28">
+  <div class="mx-auto max-w-6xl px-6">
+    <p class="flex items-center gap-3 font-mono text-xs uppercase tracking-[0.14em] text-slate-600">
+      <span class="inline-block h-px w-6 bg-copper-500"></span>
+      {productsAndTech.eyebrow}
+    </p>
+
+    <h1 class="mt-4 max-w-2xl text-balance break-words font-display text-3xl font-bold leading-tight text-navy-800 sm:text-4xl">
+      {productsAndTech.headline}
+    </h1>
+    <p class="mt-4 max-w-xl text-base leading-relaxed text-slate-600">
+      {productsAndTech.lead}
+    </p>
+
+    <div class="mt-16 grid gap-x-16 gap-y-14 sm:grid-cols-2">
+      {
+        technicalCategories.map((category) => (
+          <div>
+            <h3 class="font-display text-lg font-semibold text-navy-800">{category.name}</h3>
+            <dl class="mt-4 divide-y divide-line border-t border-line">
+              {category.specs.map((spec) => (
+                <div class="grid gap-1 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4">
+                  <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">{spec.label}</dt>
+                  <dd class="min-w-0 text-sm leading-relaxed text-navy-900 break-words">{spec.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

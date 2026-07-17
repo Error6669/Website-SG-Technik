@@ -1,0 +1,108 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { legalEntity } from '../content/legal';
+import { contact } from '../content/site';
+
+const val = (v: string, fallback = 'wird ergänzt') => (v.trim().length > 0 ? v : fallback);
+const isPlaceholder = (v: string) => v.trim().length === 0;
+---
+
+<BaseLayout title="Datenschutz — SG Technik GmbH" description="Datenschutzerklärung gemäß DSGVO.">
+  <section class="bg-paper py-20 sm:py-28">
+    <div class="mx-auto max-w-3xl px-6">
+      <p class="flex items-center gap-3 font-mono text-xs uppercase tracking-[0.14em] text-slate-600">
+        <span class="inline-block h-px w-6 bg-copper-500"></span>
+        Datenschutz
+      </p>
+      <h1 class="mt-4 text-balance break-words font-display text-3xl font-bold leading-tight text-navy-800 sm:text-4xl">
+        Datenschutzerklärung
+      </h1>
+
+      <div class="mt-12 space-y-10 text-sm leading-relaxed text-slate-600">
+        <div>
+          <h2 class="font-display text-lg font-semibold text-navy-800">1. Verantwortlicher</h2>
+          <p class="mt-2">
+            Verantwortlicher im Sinne der Datenschutz-Grundverordnung (DSGVO) für die Datenverarbeitung auf
+            dieser Website ist:
+          </p>
+          <dl class="mt-4 divide-y divide-line border-t border-b border-line">
+            <div class="grid gap-1 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4">
+              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Firma</dt>
+              <dd class="text-navy-900">{legalEntity.name}</dd>
+            </div>
+            <div class="grid gap-1 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4">
+              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Sitz</dt>
+              <dd class:list={isPlaceholder(legalEntity.address) ? 'italic text-slate-600' : 'text-navy-900'}>
+                {val(legalEntity.address)}
+              </dd>
+            </div>
+            <div class="grid gap-1 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4">
+              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">E-Mail</dt>
+              <dd class:list={isPlaceholder(contact.email) ? 'italic text-slate-600' : 'text-navy-900'}>
+                {val(contact.email)}
+              </dd>
+            </div>
+          </dl>
+        </div>
+
+        <div>
+          <h2 class="font-display text-lg font-semibold text-navy-800">2. Allgemeines zur Datenverarbeitung</h2>
+          <p class="mt-2">
+            Wir verarbeiten personenbezogene Daten unserer Nutzer grundsätzlich nur, soweit dies zur
+            Bereitstellung einer funktionsfähigen Website sowie unserer Inhalte und Leistungen erforderlich
+            ist. Diese Website verwendet keine Analyse- oder Tracking-Dienste und setzt keine Cookies zu
+            Marketing- oder Statistikzwecken ein.
+          </p>
+        </div>
+
+        <div>
+          <h2 class="font-display text-lg font-semibold text-navy-800">3. Server-Logfiles</h2>
+          <p class="mt-2">
+            Der Hosting-Anbieter dieser Website erhebt und speichert automatisch Informationen in sogenannten
+            Server-Logfiles, die Ihr Browser automatisch übermittelt (z. B. Browsertyp, verwendetes
+            Betriebssystem, Referrer-URL, IP-Adresse, Uhrzeit der Serveranfrage). Diese Daten dienen
+            ausschließlich der technischen Sicherheit und Stabilität des Betriebs und werden nicht mit
+            anderen Datenquellen zusammengeführt.
+          </p>
+        </div>
+
+        <div>
+          <h2 class="font-display text-lg font-semibold text-navy-800">4. Kontaktaufnahme</h2>
+          <p class="mt-2">
+            Wenn Sie per Telefon, E-Mail oder Kontaktformular mit uns in Kontakt treten, werden die von Ihnen
+            mitgeteilten Daten (z. B. Name, Kontaktdaten, Ihre Nachricht) bei uns zum Zweck der Bearbeitung
+            Ihrer Anfrage gespeichert und verarbeitet. Rechtsgrundlage hierfür ist Art. 6 Abs. 1 lit. b DSGVO,
+            sofern die Kontaktaufnahme der Anbahnung eines Vertrags dient, andernfalls Art. 6 Abs. 1 lit. f
+            DSGVO (berechtigtes Interesse an der Beantwortung Ihrer Anfrage).
+          </p>
+        </div>
+
+        <div>
+          <h2 class="font-display text-lg font-semibold text-navy-800">5. Ihre Rechte</h2>
+          <p class="mt-2">
+            Ihnen stehen grundsätzlich die Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung der
+            Verarbeitung, Datenübertragbarkeit sowie Widerspruch gegen die Verarbeitung Ihrer
+            personenbezogenen Daten zu. Wenden Sie sich dazu an die oben genannte Kontaktadresse.
+          </p>
+        </div>
+
+        <div>
+          <h2 class="font-display text-lg font-semibold text-navy-800">6. Beschwerderecht</h2>
+          <p class="mt-2">
+            Sie haben das Recht, sich bei einer Datenschutz-Aufsichtsbehörde über die Verarbeitung Ihrer
+            personenbezogenen Daten zu beschweren. Zuständige Aufsichtsbehörde in Österreich ist die
+            Österreichische Datenschutzbehörde, Barichgasse 40–42, 1030 Wien.
+          </p>
+        </div>
+
+        <div>
+          <h2 class="font-display text-lg font-semibold text-navy-800">7. Änderungen dieser Datenschutzerklärung</h2>
+          <p class="mt-2">
+            Wir behalten uns vor, diese Datenschutzerklärung anzupassen, damit sie stets den aktuellen
+            rechtlichen Anforderungen entspricht oder um Änderungen unserer Leistungen umzusetzen.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

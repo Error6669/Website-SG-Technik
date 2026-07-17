@@ -1,0 +1,62 @@
+---
+import LogoMark from './LogoMark.astro';
+import { hero, stats } from '../content/site';
+---
+
+<section class="relative overflow-hidden bg-fog-50 pt-36 pb-16 text-navy-900">
+  <div class="relative mx-auto max-w-6xl px-6">
+    <div class="pointer-events-none absolute right-6 top-1/2 hidden w-[24rem] -translate-y-1/2 opacity-90 lg:block">
+      <LogoMark class="h-auto w-full" />
+    </div>
+
+    <div class="lg:max-w-lg xl:max-w-xl">
+      <p class="relative flex items-center gap-3 font-mono text-xs uppercase tracking-[0.14em] text-slate-600">
+        <span class="inline-block h-px w-6 bg-copper-500"></span>
+        {hero.eyebrow}
+      </p>
+
+      <h1 class="mt-6 max-w-3xl text-balance font-display text-4xl font-bold leading-[1.05] tracking-tight text-navy-800 sm:text-5xl lg:text-6xl">
+        {hero.headline}
+      </h1>
+
+      <p class="mt-5 font-display text-xl font-semibold text-slate-600 sm:text-2xl">
+        {hero.subheadline}
+      </p>
+
+      <p class="mt-6 max-w-xl text-base leading-relaxed text-slate-600">
+        {hero.lead}
+      </p>
+
+      <div class="mt-10 flex flex-col gap-4 sm:flex-row">
+        <a
+          href={hero.primaryCta.href}
+          class="inline-block rounded-sm bg-copper-600 px-6 py-3.5 text-center font-body text-sm font-semibold text-white transition-colors hover:bg-[#7a3a1d]"
+        >
+          {hero.primaryCta.label}
+        </a>
+        <a
+          href={hero.secondaryCta.href}
+          class="inline-block rounded-sm border border-slate-300 px-6 py-3.5 text-center font-body text-sm font-semibold text-navy-800 transition-colors hover:border-navy-800"
+        >
+          {hero.secondaryCta.label}
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="relative mx-auto mt-20 max-w-6xl px-6">
+    <dl class="grid grid-cols-2 gap-px overflow-hidden rounded-sm border border-line bg-line md:grid-cols-4">
+      {
+        stats.map((stat) => (
+          <div class="bg-paper px-5 py-6">
+            <dt class="sr-only">{stat.label}</dt>
+            <dd class="font-mono text-2xl font-medium tabular-nums text-navy-800 sm:text-3xl">
+              {stat.value}
+            </dd>
+            <p class="mt-1.5 text-xs leading-snug text-slate-600">{stat.label}</p>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>
