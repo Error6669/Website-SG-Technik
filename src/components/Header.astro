@@ -3,19 +3,45 @@ import { navigation } from '../content/navigation';
 import { hero } from '../content/site';
 
 const { primaryCta } = hero;
+const [homeItem, ...restItems] = navigation;
 ---
 
-<header class="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-navy-900/90 backdrop-blur-md">
+<header class="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-navy-900">
   <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-    <a href="/" class="flex items-center gap-3">
-      <span class="font-display text-lg font-semibold tracking-wide text-fog-50">
-        SG Technik GmbH
-      </span>
+    <a
+      href={homeItem.href}
+      aria-label={homeItem.label}
+      class="text-slate-300 transition-colors hover:text-fog-50 lg:hidden"
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path
+          d="M3 11.5L12 4l9 7.5M5.5 9.5V20a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V9.5M9.5 21v-6h5v6"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
     </a>
 
     <nav class="hidden items-center gap-6 lg:flex">
+      <a
+        href={homeItem.href}
+        aria-label={homeItem.label}
+        class="text-slate-300 transition-colors hover:text-fog-50"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M3 11.5L12 4l9 7.5M5.5 9.5V20a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V9.5M9.5 21v-6h5v6"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </a>
       {
-        navigation.map((item) => (
+        restItems.map((item) => (
           <a
             href={item.href}
             class="font-body text-base text-slate-300 transition-colors hover:text-fog-50"
@@ -51,7 +77,7 @@ const { primaryCta } = hero;
     data-mobile-menu
   >
     {
-      navigation.map((item) => (
+      restItems.map((item) => (
         <a href={item.href} class="py-2 font-body text-base text-slate-300 hover:text-fog-50">
           {item.label}
         </a>

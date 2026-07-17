@@ -9,7 +9,10 @@ export const hero = {
   subheadline: 'Robust. Präzise. Vernetzt.',
   lead: 'Maßgeschneidert auf Ihre Anforderungen. Wir schaffen langlebige Lösungen für Ihre Winterdienstanlage – mit langjähriger Erfahrung und Handschlagqualität.',
   primaryCta: { label: 'Kostenloses Erstgespräch vereinbaren', href: '/#kontakt' },
-  secondaryCta: { label: 'Unsere Leistungen', href: '/produkte-technik' },
+  secondaryCtas: [
+    { label: 'Leistungen', href: '/leistungen' },
+    { label: 'Produkte & Technik', href: '/produkte-technik' },
+  ],
 };
 
 export interface Stat {
@@ -31,14 +34,6 @@ export const about = {
   whatWeDo: {
     headline: 'Was wir tun',
     text: 'Wir begleiten unsere Kunden von der Planung über die Lieferung bis hin zur fachgerechten Montage ihrer Anlage. Dabei stehen wir auch nach Projektabschluss mit Wartung, Service und Störungsbehebungen verlässlich zur Seite.',
-  },
-  scope: {
-    headline: 'Unser Leistungsspektrum umfasst',
-    items: [
-      'Planung und Montage von GFK- und Edelstahlsilos',
-      'Bau von Soleaufbereitungsanlagen und Soletankanlagen',
-      'Wartung, Service und Störungsnotdienst bestehender Anlagen',
-    ],
   },
 };
 

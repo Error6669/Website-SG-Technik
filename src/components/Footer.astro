@@ -2,22 +2,25 @@
 import { navigation } from '../content/navigation';
 
 const year = new Date().getFullYear();
+const [homeItem, ...restItems] = navigation;
 ---
 
 <footer class="border-t border-line bg-navy-900 text-slate-300">
   <div class="mx-auto max-w-6xl px-6 py-7">
     <div class="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-      <a href="/" class="flex items-center gap-3">
-        <img
-          src="/logo/sg-technik-logo-invert.svg"
-          alt="SG Technik GmbH"
-          class="h-14 w-auto"
-        />
-        <span class="font-display text-base font-semibold text-fog-50">SG Technik GmbH</span>
-      </a>
-
-      <nav class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-        {navigation.map((item) => <a href={item.href} class="hover:text-fog-50">{item.label}</a>)}
+      <nav class="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+        <a href={homeItem.href} aria-label={homeItem.label} class="hover:text-fog-50">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M3 11.5L12 4l9 7.5M5.5 9.5V20a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V9.5M9.5 21v-6h5v6"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </a>
+        {restItems.map((item) => <a href={item.href} class="hover:text-fog-50">{item.label}</a>)}
       </nav>
     </div>
 

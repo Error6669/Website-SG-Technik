@@ -4,6 +4,7 @@ export interface NavItem {
 }
 
 export const navigation: NavItem[] = [
+  { label: 'Home', href: '/' },
   { label: 'Über uns', href: '/#ueber-uns' },
   { label: 'Leistungen', href: '/leistungen' },
   { label: 'Produkte & Technik', href: '/produkte-technik' },
