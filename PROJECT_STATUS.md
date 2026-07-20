@@ -2,6 +2,12 @@
 
 Grundlage: `Aufbau Website 2.0.docx`, `Website-Struktur_SG_Technik_GmbH.csv`, `Logo/` (siehe diese Dateien für Originalinhalte).
 
+## Deployment (Stand aktuell)
+- **GitHub-Repo:** https://github.com/Error6669/Website-SG-Technik (Branch `main`). Ausgeschlossen (siehe `.gitignore`): Original-Briefingdokumente (`Aufbau Website 2.0.docx`, `Website-Struktur_SG_Technik_GmbH.csv`), lokale Claude-Code-Einstellungen. `.claude/skills/` (Tooling) ist bewusst mit eingecheckt.
+- **Hosting:** Netlify, verbunden mit dem GitHub-Repo → **jeder Push auf `main` löst automatisch einen neuen Build + Deploy aus**, kein manueller Schritt nötig. Live-URL: **https://sg-technik.netlify.app**
+- **Kontaktformular:** Netlify Forms ist bestätigt aktiv — "kontakt" wird nach einem "Clear cache and deploy" korrekt erkannt (vorher musste unter Site settings → Build & deploy → Post processing → **"Form detection"** aktiviert werden, war zunächst aus). E-Mail-Benachrichtigung wird im Netlify-Dashboard unter Forms → kontakt → Settings and usage → Form notifications eingerichtet (nicht im Code).
+- **Noch offen:** eigene Domain (`sg-technik.at`, bereits in `astro.config.mjs` als `site` hinterlegt) noch nicht mit Netlify verbunden (DNS-Eintrag beim Domain-Anbieter nötig, sobald gewünscht).
+
 ## Stack
 Astro + TypeScript + Tailwind v4 (CSS-first, `@theme` Tokens in `src/styles/global.css`). Selbst gehostete Fonts (IBM Plex Sans/Mono, Montserrat nur fürs Logo) unter `public/fonts/`. Kein CMS, kein Backend.
 
@@ -50,7 +56,7 @@ Astro + TypeScript + Tailwind v4 (CSS-first, `@theme` Tokens in `src/styles/glob
 ## Noch offen (nächste Schritte, konsolidiert aus Projektstatus + Critique)
 
 ### Phase 1 — Conversion-Blocker beheben (P0, höchste Priorität) — ✅ erledigt
-1. ~~Kontaktbereich bauen + alle CTAs anschließen.~~ `ContactSection.astro` gebaut, `id="kontakt"` existiert, alle CTAs funktionieren. Enthält jetzt ein echtes Kontaktformular (Name, E-Mail, Telefon optional, Nachricht) via **Netlify Forms** (`data-netlify="true"`, Honeypot-Feld `bot-field`, `action="/danke"`, Erfolgsseite `src/pages/danke.astro`). Verifiziert: statischer Build enthält alle von Netlify benötigten Attribute. **Achtung:** Netlify Forms wird erst nach dem echten Deploy auf Netlify aktiv/testbar, nicht lokal im Dev-Server. Benachrichtigungs-E-Mail fürs Formular wird im Netlify-Dashboard eingetragen (Site configuration → Forms → Notifications), nicht im Code.
+1. ~~Kontaktbereich bauen + alle CTAs anschließen.~~ `ContactSection.astro` gebaut, `id="kontakt"` existiert, alle CTAs funktionieren. Enthält ein echtes Kontaktformular (Name, E-Mail, Telefon optional, Nachricht) via **Netlify Forms** (`data-netlify="true"`, Honeypot-Feld `bot-field`, `action="/danke"`, Erfolgsseite `src/pages/danke.astro`). **Live bestätigt:** Seite ist auf Netlify deployed (https://sg-technik.netlify.app), Formular "kontakt" wird erkannt (siehe Deployment-Abschnitt oben). E-Mail-Benachrichtigung noch vom Nutzer im Netlify-Dashboard einzurichten.
    **Update:** Zusätzlich zum Formular zeigt die Kontaktsektion links wieder einen kompakten Info-Block (Ansprechpartner/Telefon/E-Mail) als hairline-getrennte Liste — Ansprechpartner "Gregor Hofer" ist gefüllt, Telefon/E-Mail zeigen ehrlich "folgt in Kürze" bis `contact.phone`/`contact.email` in `site.ts` befüllt werden (dann automatisch klickbare `tel:`/`mailto:`-Links, keine Code-Änderung nötig). Zeilen sind vertikal zentriert (`items-center`) zwischen ihren Trennlinien. Diese Werte erscheinen weiterhin zusätzlich im Impressum (Pflichtangabe) und in der Datenschutzerklärung (E-Mail als DSGVO-"Verantwortlicher"-Kontakt).
 2. ~~CTA-Beschriftung vereinheitlichen~~ — erledigt, einheitlich "Kostenloses Erstgespräch vereinbaren".
 3. ~~Produkte & Technik-Sektion bauen~~ — erledigt (`ProductsSection.astro`, Nav-Link ergänzt), bündelt bestehende technische Fakten aus den Leistungen.
@@ -84,3 +90,4 @@ Verifiziert: `npx astro build` erfolgreich nach allen Änderungen.
 
 ## Bekannte Stolperfallen
 - Astro-Dev-Server kann nach mehreren schnellen Datei-Überschreibungen eine veraltete Vite-Style-Cache-Version ausliefern (war schon einmal der Fall bei `LogoMark.astro`). Falls Animationen/Styles im Browser nicht aktuell aussehen: Dev-Server neu starten (`pkill -f "astro dev"`, `rm -rf .astro node_modules/.astro`, neu starten) statt lange zu debuggen.
+- **Netlify Forms wird nicht erkannt, obwohl der Code korrekt ist:** Site settings → Build & deploy → Post processing → **"Form detection"** kann deaktiviert sein (war bei diesem Projekt zunächst der Fall). Aktivieren, dann Deploys → "Trigger deploy" → **"Clear cache and deploy site"** (nicht nur "Retry deploy") — erst danach taucht das Formular unter "Forms" auf.
