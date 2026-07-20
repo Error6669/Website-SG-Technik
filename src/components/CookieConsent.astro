@@ -1,0 +1,522 @@
+---
+// ---------------------------------------------------------------------------
+// CookieConsent.astro — DSGVO-/ePrivacy-konformes Consent-Management
+//
+// Zwei Betriebsmodi, automatisch gewählt anhand der Config (consent.ts):
+//
+//   • "notice"  (aktuell): Es gibt keine einwilligungspflichtigen Dienste.
+//     Angezeigt wird nur ein schlanker, NICHT blockierender Info-Hinweis über
+//     die technisch notwendige Speicherung. Kein Accept/Reject, da es nichts
+//     einzuwilligen gibt (empfohlen für den Ist-Zustand).
+//
+//   • "consent" (automatisch, sobald ein Statistik-/Marketing-Dienst in
+//     consent.ts eingetragen wird): vollständiges Einwilligungs-Banner mit
+//     gleichwertigen Buttons "Alle ablehnen"/"Alle akzeptieren", Einstellungs-
+//     Dialog und Skript-Gating. Kein Umbau nötig — nur Dienst eintragen.
+//
+// Die gespeicherte Auswahl/Kenntnisnahme läuft nach 12 Monaten ab und wird
+// erneut abgefragt (Frist aus der Config).
+// ---------------------------------------------------------------------------
+import { consentCategories, consentClientConfig } from '../content/consent';
+
+const mode = consentClientConfig.mode;
+const optionalCategories = consentCategories.filter((c) => !c.required);
+const requiredCategories = consentCategories.filter((c) => c.required);
+
+// Gleichwertige Aktions-Buttons (navy statt kupfer → "Akzeptieren" und
+// "Ablehnen" sind exakt gleich prominent, kein Dark Pattern).
+const actionBtn =
+  'inline-flex flex-1 items-center justify-center rounded-sm bg-navy-800 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-navy-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-copper-500';
+const noticeBtn =
+  'inline-flex shrink-0 items-center justify-center rounded-sm bg-navy-800 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-navy-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-copper-500';
+const linkBtn =
+  'text-sm font-semibold text-navy-800 underline underline-offset-4 transition-colors hover:text-navy-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-copper-500';
+const policyLink =
+  'text-navy-800 underline underline-offset-2 transition-colors hover:text-copper-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-copper-500';
+---
+
+{/* Konfiguration für das clientseitige Skript (als JSON, CSP-freundlich). */}
+<script type="application/json" id="sg-consent-config" set:html={JSON.stringify(consentClientConfig)} />
+
+{
+  mode === 'notice' ? (
+    /* ---------------------------------------------------------------- */
+    /* Info-Hinweis (nicht blockierend) — Ist-Zustand ohne Tracker      */
+    /* ---------------------------------------------------------------- */
+    <div id="sg-cookie-notice" class="sg-cookie-notice" role="region" aria-label="Hinweis zur Datenspeicherung" hidden>
+      <div class="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+        <p class="text-sm leading-relaxed text-slate-600">
+          Diese Website nutzt nur technisch notwendige Speicherung, damit sie funktioniert. Es findet
+          kein Tracking statt. Mehr dazu in der{' '}
+          <a href="/cookie-richtlinie" class={policyLink}>Cookie-Richtlinie</a> und{' '}
+          <a href="/datenschutz" class={policyLink}>Datenschutzerklärung</a>.
+        </p>
+        <button type="button" class={noticeBtn} data-consent-action="acknowledge">
+          Verstanden
+        </button>
+      </div>
+    </div>
+  ) : (
+    /* ---------------------------------------------------------------- */
+    /* Vollständiges Einwilligungs-Banner + Einstellungs-Dialog         */
+    /* ---------------------------------------------------------------- */
+    <>
+      <dialog
+        id="sg-consent-banner"
+        class="sg-consent"
+        aria-labelledby="sg-consent-banner-title"
+        aria-describedby="sg-consent-banner-text"
+      >
+        <div class="mx-auto w-full max-w-6xl px-6 py-7 sm:py-8">
+          <p class="flex items-center gap-3 font-mono text-xs uppercase tracking-[0.14em] text-slate-600">
+            <span class="inline-block h-px w-6 bg-copper-500" />
+            Datenschutz
+          </p>
+          <h2
+            id="sg-consent-banner-title"
+            tabindex="-1"
+            class="mt-3 font-display text-xl font-bold leading-tight text-navy-800 focus:outline-none sm:text-2xl"
+          >
+            Wir respektieren Ihre Privatsphäre
+          </h2>
+          <p id="sg-consent-banner-text" class="mt-3 max-w-3xl text-sm leading-relaxed text-slate-600">
+            Notwendige Funktionen sind immer aktiv. Optionale Dienste für Statistik oder Marketing werden
+            nur mit Ihrer Einwilligung geladen. Sie können Ihre Auswahl jederzeit über
+            „Cookie-Einstellungen" im Seitenfuß ändern oder widerrufen. Mehr dazu in der{' '}
+            <a href="/cookie-richtlinie" class={policyLink}>Cookie-Richtlinie</a>, der{' '}
+            <a href="/datenschutz" class={policyLink}>Datenschutzerklärung</a> und im{' '}
+            <a href="/impressum" class={policyLink}>Impressum</a>.
+          </p>
+
+          <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div class="flex flex-col gap-3 sm:flex-row sm:flex-1">
+              <button type="button" class={actionBtn} data-consent-action="reject-all">
+                Alle ablehnen
+              </button>
+              <button type="button" class={actionBtn} data-consent-action="accept-all">
+                Alle akzeptieren
+              </button>
+            </div>
+            <button type="button" class={`${linkBtn} py-2 sm:ml-2`} data-consent-action="open-settings">
+              Einstellungen
+            </button>
+          </div>
+        </div>
+      </dialog>
+
+      <dialog id="sg-consent-settings" class="sg-consent" aria-labelledby="sg-consent-settings-title">
+        <form id="sg-consent-form" method="dialog" class="flex max-h-[85vh] flex-col">
+          <div class="border-b border-line px-6 py-5">
+            <h2 id="sg-consent-settings-title" class="font-display text-xl font-bold text-navy-800">
+              Cookie-Einstellungen
+            </h2>
+            <p class="mt-2 text-sm leading-relaxed text-slate-600">
+              Legen Sie fest, welche Kategorien Sie zulassen möchten. Notwendige Speicherung ist für den
+              Betrieb der Seite erforderlich und lässt sich nicht deaktivieren.
+            </p>
+          </div>
+
+          <div class="flex-1 overflow-y-auto px-6">
+            <ul class="divide-y divide-line">
+              {requiredCategories.map((cat) => (
+                <li class="flex items-start justify-between gap-4 py-5">
+                  <div class="min-w-0">
+                    <h3 class="font-display text-base font-semibold text-navy-800">{cat.label}</h3>
+                    <p class="mt-1.5 text-sm leading-relaxed text-slate-600">{cat.description}</p>
+                  </div>
+                  <span class="mt-1 shrink-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">
+                    Immer aktiv
+                  </span>
+                </li>
+              ))}
+              {optionalCategories.map((cat) => (
+                <li class="flex items-start justify-between gap-4 py-5">
+                  <div class="min-w-0">
+                    <label class="font-display text-base font-semibold text-navy-800" for={`sg-cat-${cat.id}`}>
+                      {cat.label}
+                    </label>
+                    <p class="mt-1.5 text-sm leading-relaxed text-slate-600">{cat.description}</p>
+                  </div>
+                  <span class="sg-switch mt-1 shrink-0">
+                    <input type="checkbox" id={`sg-cat-${cat.id}`} role="switch" data-consent-category={cat.id} />
+                    <span class="track" aria-hidden="true" />
+                    <span class="thumb" aria-hidden="true" />
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div class="flex flex-col gap-3 border-t border-line px-6 py-5 sm:flex-row">
+            <button type="button" class={actionBtn} data-consent-action="reject-all">
+              Alle ablehnen
+            </button>
+            <button type="button" class={actionBtn} data-consent-action="save">
+              Auswahl speichern
+            </button>
+            <button type="button" class={actionBtn} data-consent-action="accept-all">
+              Alle akzeptieren
+            </button>
+          </div>
+        </form>
+      </dialog>
+    </>
+  )
+}
+
+<style>
+  /* --- Info-Hinweis (notice-Modus): schlanke Leiste am unteren Rand --- */
+  .sg-cookie-notice {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 50;
+    background: var(--color-paper);
+    border-top: 1px solid var(--color-line);
+  }
+  .sg-cookie-notice:not([hidden]) {
+    animation: sg-consent-slide-up 0.28s ease-out;
+  }
+
+  /* --- Vollständiges Banner/Dialog (consent-Modus) --- */
+  dialog.sg-consent {
+    border: none;
+    padding: 0;
+    margin: 0;
+    max-width: none;
+    max-height: none;
+    background: transparent;
+    color: inherit;
+  }
+  dialog.sg-consent::backdrop {
+    /* navy-900 mit Transparenz statt Schatten (No-Shadow-Regel) */
+    background: rgba(13, 36, 54, 0.55);
+  }
+  #sg-consent-banner {
+    position: fixed;
+    inset: auto 0 0 0;
+    width: 100%;
+    background: var(--color-paper);
+    border-top: 1px solid var(--color-line);
+  }
+  #sg-consent-banner[open] {
+    animation: sg-consent-slide-up 0.28s ease-out;
+  }
+  #sg-consent-settings {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    width: min(40rem, calc(100vw - 2rem));
+    background: var(--color-paper);
+    border: 1px solid var(--color-line);
+    border-radius: 2px;
+  }
+  #sg-consent-settings[open] {
+    animation: sg-consent-fade-in 0.24s ease-out;
+  }
+
+  /* --- Toggle-Schalter (barrierefrei: echtes Checkbox-Input darunter) --- */
+  .sg-switch {
+    position: relative;
+    display: inline-block;
+    width: 2.75rem;
+    height: 1.5rem;
+  }
+  .sg-switch input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .sg-switch .track {
+    position: absolute;
+    inset: 0;
+    /* rounded-sm (2px) statt Pille — bleibt beim flachen "Instrument"-Stil */
+    border-radius: 2px;
+    background: var(--color-slate-300);
+    transition: background-color 0.2s ease;
+    pointer-events: none;
+  }
+  .sg-switch .thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 1.125rem;
+    height: 1.125rem;
+    border-radius: 2px;
+    background: #ffffff;
+    transition: transform 0.2s ease;
+    pointer-events: none;
+  }
+  .sg-switch input:checked ~ .track {
+    background: var(--color-navy-800);
+  }
+  .sg-switch input:checked ~ .thumb {
+    transform: translateX(1.25rem);
+  }
+  .sg-switch input:focus-visible ~ .track {
+    outline: 2px solid var(--color-copper-500);
+    outline-offset: 2px;
+  }
+  .sg-switch input:disabled {
+    cursor: not-allowed;
+  }
+
+  @keyframes sg-consent-slide-up {
+    from {
+      transform: translateY(16px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  @keyframes sg-consent-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+</style>
+
+<script>
+  // -------------------------------------------------------------------------
+  // Consent-Manager (vanilla, keine externen Abhängigkeiten).
+  //
+  // Speichermodell (localStorage-Schlüssel aus der Config):
+  //   notice-Modus:  { v, ts, acknowledged: true }
+  //   consent-Modus: { v, ts, categories: { notwendig: true, … } }
+  // Ein Eintrag gilt nach `maxAgeMonths` als abgelaufen und wird erneut abgefragt.
+  //
+  // Skript-Gating (nur consent-Modus): Ein Dienst, der Einwilligung braucht, wird
+  // als deaktivierter Platzhalter eingebunden — ein script-Element mit
+  // type="text/plain", das per data-consent="statistik" seiner Kategorie
+  // zugeordnet ist und die URL in data-src (statt src) bzw. Inline-Code im Rumpf
+  // trägt. Erst nach erteilter Einwilligung wird daraus ein echtes Skript.
+  // -------------------------------------------------------------------------
+  interface StoredConsent {
+    v: number;
+    ts: string;
+    acknowledged?: boolean;
+    categories?: Record<string, boolean>;
+  }
+
+  (() => {
+    const cfgEl = document.getElementById('sg-consent-config');
+    if (!cfgEl || !cfgEl.textContent) return;
+    const cfg = JSON.parse(cfgEl.textContent) as {
+      storageKey: string;
+      version: number;
+      maxAgeMonths: number;
+      mode: 'notice' | 'consent';
+      categories: { id: string; required: boolean }[];
+    };
+
+    const MAX_AGE_MS = cfg.maxAgeMonths * 30.4 * 24 * 60 * 60 * 1000;
+
+    // --- Speicherung (mit Ablauf) -----------------------------------------
+    const read = (): StoredConsent | null => {
+      try {
+        const raw = localStorage.getItem(cfg.storageKey);
+        if (!raw) return null;
+        const data = JSON.parse(raw) as StoredConsent;
+        if (!data || data.v !== cfg.version) return null; // Version veraltet
+        if (data.ts && Date.now() - Date.parse(data.ts) > MAX_AGE_MS) return null; // abgelaufen
+        return data;
+      } catch {
+        return null;
+      }
+    };
+
+    const write = (payload: Partial<StoredConsent>): StoredConsent => {
+      const data: StoredConsent = { v: cfg.version, ts: new Date().toISOString(), ...payload };
+      try {
+        localStorage.setItem(cfg.storageKey, JSON.stringify(data));
+      } catch {
+        /* localStorage nicht verfügbar (z. B. Privatmodus) — gilt für die Sitzung. */
+      }
+      return data;
+    };
+
+    // =====================================================================
+    // Modus A: schlanker Info-Hinweis
+    // =====================================================================
+    if (cfg.mode === 'notice') {
+      const notice = document.getElementById('sg-cookie-notice');
+      const showNotice = () => notice?.removeAttribute('hidden');
+      const hideNotice = () => notice?.setAttribute('hidden', '');
+
+      document.querySelectorAll<HTMLElement>('[data-consent-action="acknowledge"]').forEach((el) => {
+        el.addEventListener('click', () => {
+          write({ acknowledged: true });
+          hideNotice();
+        });
+      });
+
+      // Dauerhafte Einstiegspunkte (z. B. aus der Cookie-Richtlinie) zeigen den
+      // Hinweis erneut an.
+      document.querySelectorAll<HTMLElement>('[data-consent-open]').forEach((el) => {
+        el.addEventListener('click', (e) => {
+          e.preventDefault();
+          showNotice();
+        });
+      });
+
+      // Öffentliche Mini-API.
+      (window as unknown as { sgConsent: Record<string, unknown> }).sgConsent = {
+        openSettings: showNotice,
+        get: (): StoredConsent | null => read(),
+      };
+
+      // Beim ersten (oder abgelaufenen) Besuch anzeigen.
+      if (!read()) showNotice();
+      return;
+    }
+
+    // =====================================================================
+    // Modus B: vollständiges Einwilligungs-Banner
+    // =====================================================================
+    const banner = document.getElementById('sg-consent-banner') as HTMLDialogElement | null;
+    const settings = document.getElementById('sg-consent-settings') as HTMLDialogElement | null;
+
+    const buildState = (optionalValue: boolean): Record<string, boolean> => {
+      const out: Record<string, boolean> = {};
+      cfg.categories.forEach((c) => {
+        out[c.id] = c.required ? true : optionalValue;
+      });
+      return out;
+    };
+
+    const stateFromToggles = (): Record<string, boolean> => {
+      const out: Record<string, boolean> = {};
+      cfg.categories.forEach((c) => {
+        if (c.required) {
+          out[c.id] = true;
+          return;
+        }
+        const el = document.querySelector<HTMLInputElement>(`[data-consent-category="${c.id}"]`);
+        out[c.id] = !!el && el.checked;
+      });
+      return out;
+    };
+
+    const syncToggles = (categories: Record<string, boolean>): void => {
+      cfg.categories.forEach((c) => {
+        const el = document.querySelector<HTMLInputElement>(`[data-consent-category="${c.id}"]`);
+        if (!el) return;
+        el.checked = c.required ? true : !!categories[c.id];
+        if (c.required) el.disabled = true;
+      });
+    };
+
+    // Aktiviert wartende Platzhalter-Skripte eingewilligter Kategorien.
+    const activateScripts = (categories: Record<string, boolean>): void => {
+      document
+        .querySelectorAll<HTMLScriptElement>('script[type="text/plain"][data-consent]')
+        .forEach((node) => {
+          const cat = node.getAttribute('data-consent');
+          if (!cat || !categories[cat] || node.dataset.sgActivated) return;
+
+          const activated = document.createElement('script');
+          Array.from(node.attributes).forEach(({ name, value }) => {
+            if (name === 'type' || name === 'data-consent' || name === 'data-src') return;
+            activated.setAttribute(name, value);
+          });
+          const src = node.getAttribute('data-src');
+          if (src) activated.src = src;
+          else activated.textContent = node.textContent;
+
+          node.dataset.sgActivated = 'true';
+          node.after(activated);
+        });
+    };
+
+    const wasRevoked = (
+      prev: Record<string, boolean> | undefined,
+      next: Record<string, boolean>,
+    ): boolean => !!prev && cfg.categories.some((c) => !c.required && prev[c.id] && !next[c.id]);
+
+    const openBanner = (): void => {
+      if (banner && !banner.open) banner.showModal();
+      const title = document.getElementById('sg-consent-banner-title');
+      if (title) (title as HTMLElement).focus();
+    };
+    const closeBanner = (): void => {
+      if (banner && banner.open) banner.close();
+    };
+    const openSettings = (): void => {
+      const stored = read();
+      syncToggles(stored?.categories ?? buildState(false));
+      closeBanner();
+      if (settings && !settings.open) settings.showModal();
+    };
+    const closeSettings = (): void => {
+      if (settings && settings.open) settings.close();
+    };
+
+    const apply = (categories: Record<string, boolean>): void => {
+      const previous = read();
+      const data = write({ categories });
+      syncToggles(categories);
+      closeSettings();
+      closeBanner();
+      activateScripts(categories);
+      window.dispatchEvent(new CustomEvent('sg:consentchange', { detail: data }));
+      if (wasRevoked(previous?.categories, categories) && document.querySelector('[data-sg-activated]')) {
+        window.location.reload();
+      }
+    };
+
+    document.querySelectorAll<HTMLElement>('[data-consent-action]').forEach((el) => {
+      el.addEventListener('click', () => {
+        switch (el.dataset.consentAction) {
+          case 'accept-all':
+            apply(buildState(true));
+            break;
+          case 'reject-all':
+            apply(buildState(false));
+            break;
+          case 'save':
+            apply(stateFromToggles());
+            break;
+          case 'open-settings':
+            openSettings();
+            break;
+        }
+      });
+    });
+
+    document.querySelectorAll<HTMLElement>('[data-consent-open]').forEach((el) => {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        openSettings();
+      });
+    });
+
+    banner?.addEventListener('cancel', (e) => e.preventDefault());
+    settings?.addEventListener('close', () => {
+      if (!read()) openBanner();
+    });
+
+    (window as unknown as { sgConsent: Record<string, unknown> }).sgConsent = {
+      openSettings,
+      hasConsent: (id: string): boolean => !!read()?.categories?.[id],
+      get: (): StoredConsent | null => read(),
+    };
+
+    const stored = read();
+    if (stored?.categories) {
+      syncToggles(stored.categories);
+      activateScripts(stored.categories);
+      window.dispatchEvent(new CustomEvent('sg:consentchange', { detail: stored }));
+    } else {
+      syncToggles(buildState(false));
+      openBanner();
+    }
+  })();
+</script>

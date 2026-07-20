@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { legalEntity } from '../content/legal';
+import { legalEntity, gewerbe } from '../content/legal';
 import { contact } from '../content/site';
 
 const val = (v: string, fallback = 'wird ergänzt') => (v.trim().length > 0 ? v : fallback);
@@ -57,7 +57,41 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
           <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Mitgliedschaft</dt>
           <dd class:list={['text-base', isPlaceholder(legalEntity.kammer) ? 'italic text-slate-600' : 'text-navy-900']}>
             {val(legalEntity.kammer)}
+            {
+              gewerbe.fachorganisationen.length > 0 && (
+                <ul class="mt-1.5 space-y-0.5 text-sm text-slate-600">
+                  {gewerbe.fachorganisationen.map((f) => (
+                    <li>{f}</li>
+                  ))}
+                </ul>
+              )
+            }
           </dd>
+        </div>
+        <div class="grid gap-1 py-4 sm:grid-cols-[11rem_1fr] sm:gap-4">
+          <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Gewerbe</dt>
+          <dd class="min-w-0 break-words text-base text-navy-900">
+            <ul class="space-y-2">
+              {
+                gewerbe.berechtigungen.map((b) => (
+                  <li>
+                    {b.wortlaut}
+                    <span class="mt-0.5 block font-mono text-xs uppercase tracking-[0.1em] text-slate-600">
+                      GISA-Zahl {b.gisa}
+                    </span>
+                  </li>
+                ))
+              }
+            </ul>
+          </dd>
+        </div>
+        <div class="grid gap-1 py-4 sm:grid-cols-[11rem_1fr] sm:gap-4">
+          <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Rechtsvorschrift</dt>
+          <dd class="min-w-0 break-words text-base text-navy-900">{gewerbe.rechtsvorschrift}</dd>
+        </div>
+        <div class="grid gap-1 py-4 sm:grid-cols-[11rem_1fr] sm:gap-4">
+          <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Behörde gem. ECG</dt>
+          <dd class="min-w-0 break-words text-base text-navy-900">{gewerbe.behoerdeEcg}</dd>
         </div>
         <div class="grid gap-1 py-4 sm:grid-cols-[11rem_1fr] sm:gap-4">
           <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Telefon</dt>

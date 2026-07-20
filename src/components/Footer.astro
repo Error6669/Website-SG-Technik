@@ -1,5 +1,6 @@
 ---
 import { navigation } from '../content/navigation';
+import { hasOptionalServices } from '../content/consent';
 
 const year = new Date().getFullYear();
 const [homeItem, ...restItems] = navigation;
@@ -26,9 +27,22 @@ const [homeItem, ...restItems] = navigation;
 
     <div class="mt-6 flex flex-col gap-3 border-t border-white/10 pt-5 text-xs sm:flex-row sm:items-center sm:justify-between">
       <p>&copy; {year} SG Technik GmbH. Alle Rechte vorbehalten.</p>
-      <div class="flex gap-5">
+      <div class="flex flex-wrap gap-x-5 gap-y-2">
         <a href="/impressum" class="hover:text-fog-50">Impressum</a>
         <a href="/datenschutz" class="hover:text-fog-50">Datenschutz</a>
+        <a href="/cookie-richtlinie" class="hover:text-fog-50">Cookie-Richtlinie</a>
+        {/* Nur relevant, sobald einwilligungspflichtige Dienste existieren: öffnet den Consent-Dialog. */}
+        {
+          hasOptionalServices && (
+            <button
+              type="button"
+              data-consent-open
+              class="text-left underline-offset-2 hover:text-fog-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-copper-500"
+            >
+              Cookie-Einstellungen
+            </button>
+          )
+        }
       </div>
     </div>
   </div>

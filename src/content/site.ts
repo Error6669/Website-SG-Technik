@@ -111,7 +111,7 @@ export const contact = {
   headline: 'Ihr direkter Draht zu uns',
   lead: 'Sie haben Fragen oder planen ein Projekt? Wir freuen uns, Sie kennenzulernen und stehen gerne für ein persönliches Gespräch zur Verfügung.',
   person: 'Gregor Hofer',
-  // TODO: Telefonnummer, E-Mail und Adresse ergänzen, sobald verfügbar.
+  // TODO: Telefonnummer ergänzen, sobald verfügbar.
   phone: '',
-  email: '',
+  email: 'office@sgt.co.at',
 };

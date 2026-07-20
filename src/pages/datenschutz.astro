@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { legalEntity } from '../content/legal';
+import { privacy } from '../content/privacy';
 import { contact } from '../content/site';
 
 const val = (v: string, fallback = 'wird ergänzt') => (v.trim().length > 0 ? v : fallback);
@@ -19,88 +20,234 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
       </h1>
 
       <div class="mt-12 space-y-10 text-sm leading-relaxed text-slate-600">
+        {/* --- 1. Verantwortlicher --- */}
         <div>
           <h2 class="font-display text-lg font-semibold text-navy-800">1. Verantwortlicher</h2>
           <p class="mt-2">
-            Verantwortlicher im Sinne der Datenschutz-Grundverordnung (DSGVO) für die Datenverarbeitung auf
-            dieser Website ist:
+            Verantwortlicher im Sinne der Datenschutz-Grundverordnung (DSGVO) für die Datenverarbeitung
+            auf dieser Website ist:
           </p>
           <dl class="mt-4 divide-y divide-line border-t border-b border-line">
             <div class="grid gap-1 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4">
               <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Firma</dt>
-              <dd class="text-navy-900">{legalEntity.name}</dd>
+              <dd class="min-w-0 break-words text-navy-900">{legalEntity.name}</dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4">
-              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Sitz</dt>
-              <dd class:list={isPlaceholder(legalEntity.address) ? 'italic text-slate-600' : 'text-navy-900'}>
+              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Anschrift</dt>
+              <dd class:list={['min-w-0 break-words', isPlaceholder(legalEntity.address) ? 'italic text-slate-600' : 'text-navy-900']}>
                 {val(legalEntity.address)}
               </dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4">
               <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">E-Mail</dt>
-              <dd class:list={isPlaceholder(contact.email) ? 'italic text-slate-600' : 'text-navy-900'}>
-                {val(contact.email)}
+              <dd class:list={['min-w-0 break-words', isPlaceholder(contact.email) ? 'italic text-slate-600' : 'text-navy-900']}>
+                {
+                  isPlaceholder(contact.email) ? (
+                    val(contact.email)
+                  ) : (
+                    <a href={`mailto:${contact.email}`} class="underline underline-offset-2 hover:text-copper-600">
+                      {contact.email}
+                    </a>
+                  )
+                }
+              </dd>
+            </div>
+          </dl>
+          <p class="mt-4">
+            Ein Datenschutzbeauftragter wurde nicht bestellt. Für Fragen zum Datenschutz erreichen Sie uns
+            unter den vorstehenden Kontaktdaten.
+          </p>
+        </div>
+
+        {/* --- 2. Grundsätze --- */}
+        <div>
+          <h2 class="font-display text-lg font-semibold text-navy-800">2. Grundsätze der Datenverarbeitung</h2>
+          <p class="mt-2">
+            Wir verarbeiten personenbezogene Daten nur, soweit dies zur Bereitstellung einer
+            funktionsfähigen Website sowie zur Beantwortung Ihrer Anfragen erforderlich ist. Diese Website
+            verwendet derzeit keine Analyse-, Statistik- oder Marketing-Dienste; es findet kein Tracking und
+            kein Profiling statt, und es werden keine automatisierten Entscheidungen im Sinne des Art. 22
+            DSGVO getroffen. Es sind keine Karten, Videos, Captcha-Dienste oder externen Schriftarten
+            eingebunden; die verwendeten Schriften werden von unserem Server ausgeliefert.
+          </p>
+        </div>
+
+        {/* --- 3. Hosting & Bereitstellung der Website --- */}
+        <div>
+          <h2 class="font-display text-lg font-semibold text-navy-800">3. Hosting und Bereitstellung der Website</h2>
+          <p class="mt-2">
+            Wir hosten diese Website bei einem Auftragsverarbeiter, der die Seite in unserem Auftrag
+            ausliefert. Mit dem Anbieter besteht ein Auftragsverarbeitungsvertrag gemäß Art. 28 DSGVO.
+          </p>
+          <dl class="mt-4 divide-y divide-line border-t border-b border-line">
+            <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
+              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Anbieter</dt>
+              <dd class="min-w-0 break-words text-navy-900">{privacy.hosting.provider}, {privacy.hosting.providerAddress}</dd>
+            </div>
+            <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
+              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Datenarten</dt>
+              <dd class="min-w-0 break-words text-navy-900">
+                IP-Adresse, Datum und Uhrzeit des Zugriffs, aufgerufene URL, Referrer-URL, HTTP-Statuscode,
+                übertragene Datenmenge sowie Browser- und Betriebssysteminformationen
+              </dd>
+            </div>
+            <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
+              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Zweck</dt>
+              <dd class="min-w-0 break-words text-navy-900">
+                technische Auslieferung der Website, Gewährleistung der IT-Sicherheit sowie Erkennung und
+                Abwehr missbräuchlicher Zugriffe
+              </dd>
+            </div>
+            <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
+              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Rechtsgrundlage</dt>
+              <dd class="min-w-0 break-words text-navy-900">
+                Art. 6 Abs. 1 lit. f DSGVO. Unser berechtigtes Interesse liegt im sicheren, stabilen und
+                störungsfreien Betrieb der Website.
+              </dd>
+            </div>
+            <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
+              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Speicherdauer</dt>
+              <dd class="min-w-0 break-words text-navy-900">
+                {
+                  privacy.hosting.analyticsEnabled
+                    ? 'Serverseitige Zugriffsstatistiken werden für maximal 30 Tage vorgehalten.'
+                    : 'Zugriffsdaten werden zur Auslieferung und Absicherung nur flüchtig verarbeitet; darüber hinausgehende serverseitige Zugriffslogs speichern wir nicht.'
+                }
+              </dd>
+            </div>
+            <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
+              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Drittlandbezug</dt>
+              <dd class="min-w-0 break-words text-navy-900">
+                Der Anbieter ist ein US-Unternehmen; eine Verarbeitung in den USA ist nicht auszuschließen.
+                Die Übermittlung wird durch {privacy.hosting.transferSafeguards} abgesichert.
               </dd>
             </div>
           </dl>
         </div>
 
+        {/* --- 4. Cookies und lokale Speicherung --- */}
         <div>
-          <h2 class="font-display text-lg font-semibold text-navy-800">2. Allgemeines zur Datenverarbeitung</h2>
+          <h2 class="font-display text-lg font-semibold text-navy-800">4. Cookies und lokale Speicherung</h2>
           <p class="mt-2">
-            Wir verarbeiten personenbezogene Daten unserer Nutzer grundsätzlich nur, soweit dies zur
-            Bereitstellung einer funktionsfähigen Website sowie unserer Inhalte und Leistungen erforderlich
-            ist. Diese Website verwendet keine Analyse- oder Tracking-Dienste und setzt keine Cookies zu
-            Marketing- oder Statistikzwecken ein.
+            Diese Website setzt keine Tracking-Cookies. Gespeichert wird ausschließlich Ihre im
+            Cookie-Hinweis getroffene Auswahl – und zwar lokal in Ihrem Browser (im lokalen Speicher,
+            Eintrag „sg-consent"); diese Angabe wird nicht an unsere Server übermittelt.
+          </p>
+          <p class="mt-2">
+            Diese Speicherung ist unbedingt erforderlich, damit Ihre Datenschutz-Auswahl bei weiteren
+            Seitenaufrufen berücksichtigt werden kann und der Hinweis nicht bei jedem Besuch erneut
+            erscheint. Sie erfolgt daher ohne Einwilligung gemäß § 165 Abs. 3 TKG 2021. Da hierbei keine
+            personenbezogenen Daten verarbeitet werden, ist die DSGVO für diesen Vorgang nicht einschlägig.
+            Der Eintrag bleibt für {privacy.retention.consentMonths} Monate gespeichert und wird danach
+            automatisch erneut abgefragt; Sie können ihn jederzeit über Ihre Browsereinstellungen löschen.
+          </p>
+          <p class="mt-2">
+            Sollten künftig optionale Dienste (etwa für Statistik oder Marketing) eingesetzt werden, werden
+            diese erst nach Ihrer ausdrücklichen Einwilligung geladen (Art. 6 Abs. 1 lit. a DSGVO, § 165
+            Abs. 3 TKG 2021). Ein Widerruf ist dann jederzeit mit Wirkung für die Zukunft möglich und ebenso
+            einfach wie die Erteilung; die Rechtmäßigkeit der bis zum Widerruf erfolgten Verarbeitung bleibt
+            unberührt. Der Zugang zu den grundlegenden Funktionen der Website bleibt davon unberührt;
+            einzelne optionale Inhalte können gegebenenfalls nicht verfügbar sein. Einzelheiten enthält die{' '}
+            <a href="/cookie-richtlinie" class="text-navy-800 underline underline-offset-2 hover:text-copper-600">
+              Cookie-Richtlinie</a>.
           </p>
         </div>
 
+        {/* --- 5. Kontaktaufnahme --- */}
         <div>
-          <h2 class="font-display text-lg font-semibold text-navy-800">3. Server-Logfiles</h2>
+          <h2 class="font-display text-lg font-semibold text-navy-800">5. Kontaktaufnahme</h2>
           <p class="mt-2">
-            Der Hosting-Anbieter dieser Website erhebt und speichert automatisch Informationen in sogenannten
-            Server-Logfiles, die Ihr Browser automatisch übermittelt (z. B. Browsertyp, verwendetes
-            Betriebssystem, Referrer-URL, IP-Adresse, Uhrzeit der Serveranfrage). Diese Daten dienen
-            ausschließlich der technischen Sicherheit und Stabilität des Betriebs und werden nicht mit
-            anderen Datenquellen zusammengeführt.
+            Wenn Sie uns über das Kontaktformular, per E-Mail oder telefonisch kontaktieren, verarbeiten wir
+            die von Ihnen mitgeteilten Daten zur Bearbeitung Ihrer Anfrage.
+          </p>
+          <dl class="mt-4 divide-y divide-line border-t border-b border-line">
+            <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
+              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Datenarten</dt>
+              <dd class="min-w-0 break-words text-navy-900">
+                Name (Pflicht), E-Mail-Adresse (Pflicht), Nachricht (Pflicht), Telefonnummer (freiwillig)
+              </dd>
+            </div>
+            <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
+              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Zweck</dt>
+              <dd class="min-w-0 break-words text-navy-900">Bearbeitung und Beantwortung Ihrer Anfrage</dd>
+            </div>
+            <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
+              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Rechtsgrundlage</dt>
+              <dd class="min-w-0 break-words text-navy-900">
+                Art. 6 Abs. 1 lit. b DSGVO, sofern Ihre Anfrage der Anbahnung oder Durchführung eines
+                Vertrags dient; andernfalls Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der
+                Beantwortung Ihrer Anfrage).
+              </dd>
+            </div>
+            <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
+              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Empfänger</dt>
+              <dd class="min-w-0 break-words text-navy-900">
+                Formulareinsendungen werden über den Formulardienst unseres Hosting-Anbieters
+                ({privacy.hosting.provider}, USA) verarbeitet und an unser E-Mail-Postfach weitergeleitet.
+                Ein Auftragsverarbeitungsvertrag besteht; zur Drittlandübermittlung siehe Punkt 3.
+              </dd>
+            </div>
+            <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
+              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Speicherdauer</dt>
+              <dd class="min-w-0 break-words text-navy-900">{privacy.retention.contact}</dd>
+            </div>
+            <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
+              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Bereitstellung</dt>
+              <dd class="min-w-0 break-words text-navy-900">
+                Die als Pflicht gekennzeichneten Angaben sind für die Bearbeitung erforderlich; ohne sie
+                können wir Ihre Anfrage nicht beantworten. Zum Spam-Schutz nutzt das Formular ein für Sie
+                unsichtbares Feld (Honeypot); ein Captcha-Dienst kommt nicht zum Einsatz.
+              </dd>
+            </div>
+          </dl>
+        </div>
+
+        {/* --- 6. Betroffenenrechte --- */}
+        <div>
+          <h2 class="font-display text-lg font-semibold text-navy-800">6. Ihre Rechte</h2>
+          <p class="mt-2">
+            Ihnen stehen nach Maßgabe der gesetzlichen Voraussetzungen die Rechte auf Auskunft (Art. 15),
+            Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18) sowie
+            Datenübertragbarkeit (Art. 20 DSGVO) zu.
+          </p>
+          <p class="mt-2">
+            Soweit eine Verarbeitung auf Ihrer Einwilligung beruht, können Sie diese jederzeit mit Wirkung
+            für die Zukunft widerrufen. Die Rechtmäßigkeit der bis zum Widerruf erfolgten Verarbeitung
+            bleibt unberührt.
+          </p>
+          <p class="mt-2">
+            <strong class="font-semibold text-navy-800">Widerspruchsrecht:</strong> Soweit wir Ihre
+            personenbezogenen Daten auf Grundlage berechtigter Interessen gemäß Art. 6 Abs. 1 lit. f DSGVO
+            verarbeiten, können Sie aus Gründen, die sich aus Ihrer besonderen Situation ergeben, jederzeit
+            Widerspruch gegen diese Verarbeitung einlegen.
+          </p>
+          <p class="mt-2">Zur Ausübung Ihrer Rechte genügt eine formlose Mitteilung an die unter Punkt 1 genannte Adresse.</p>
+        </div>
+
+        {/* --- 7. Beschwerderecht --- */}
+        <div>
+          <h2 class="font-display text-lg font-semibold text-navy-800">7. Beschwerderecht</h2>
+          <p class="mt-2">
+            Sie haben gemäß Art. 77 DSGVO das Recht, sich bei einer Datenschutz-Aufsichtsbehörde zu
+            beschweren – insbesondere in dem Mitgliedstaat Ihres Aufenthaltsorts, Ihres Arbeitsplatzes oder
+            des Orts des mutmaßlichen Verstoßes. In Österreich ist dies die Österreichische
+            Datenschutzbehörde, Barichgasse 40–42, 1030 Wien, E-Mail:{' '}
+            <a href="mailto:dsb@dsb.gv.at" class="text-navy-800 underline underline-offset-2 hover:text-copper-600">
+              dsb@dsb.gv.at</a>.
           </p>
         </div>
 
+        {/* --- 8. Änderungen --- */}
         <div>
-          <h2 class="font-display text-lg font-semibold text-navy-800">4. Kontaktaufnahme</h2>
+          <h2 class="font-display text-lg font-semibold text-navy-800">8. Änderungen dieser Datenschutzerklärung</h2>
           <p class="mt-2">
-            Wenn Sie per Telefon, E-Mail oder Kontaktformular mit uns in Kontakt treten, werden die von Ihnen
-            mitgeteilten Daten (z. B. Name, Kontaktdaten, Ihre Nachricht) bei uns zum Zweck der Bearbeitung
-            Ihrer Anfrage gespeichert und verarbeitet. Rechtsgrundlage hierfür ist Art. 6 Abs. 1 lit. b DSGVO,
-            sofern die Kontaktaufnahme der Anbahnung eines Vertrags dient, andernfalls Art. 6 Abs. 1 lit. f
-            DSGVO (berechtigtes Interesse an der Beantwortung Ihrer Anfrage).
+            Wir aktualisieren diese Datenschutzerklärung, wenn sich unsere Datenverarbeitungen oder die
+            rechtlichen Rahmenbedingungen ändern. Die jeweils aktuelle Fassung ist auf dieser Website
+            abrufbar. Soweit gesetzlich erforderlich, informieren wir betroffene Personen gesondert über
+            wesentliche Änderungen; eine Änderung dieser Erklärung dient nicht dazu, nachträglich neue
+            Verarbeitungszwecke zu schaffen.
           </p>
-        </div>
-
-        <div>
-          <h2 class="font-display text-lg font-semibold text-navy-800">5. Ihre Rechte</h2>
-          <p class="mt-2">
-            Ihnen stehen grundsätzlich die Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung der
-            Verarbeitung, Datenübertragbarkeit sowie Widerspruch gegen die Verarbeitung Ihrer
-            personenbezogenen Daten zu. Wenden Sie sich dazu an die oben genannte Kontaktadresse.
-          </p>
-        </div>
-
-        <div>
-          <h2 class="font-display text-lg font-semibold text-navy-800">6. Beschwerderecht</h2>
-          <p class="mt-2">
-            Sie haben das Recht, sich bei einer Datenschutz-Aufsichtsbehörde über die Verarbeitung Ihrer
-            personenbezogenen Daten zu beschweren. Zuständige Aufsichtsbehörde in Österreich ist die
-            Österreichische Datenschutzbehörde, Barichgasse 40–42, 1030 Wien.
-          </p>
-        </div>
-
-        <div>
-          <h2 class="font-display text-lg font-semibold text-navy-800">7. Änderungen dieser Datenschutzerklärung</h2>
-          <p class="mt-2">
-            Wir behalten uns vor, diese Datenschutzerklärung anzupassen, damit sie stets den aktuellen
-            rechtlichen Anforderungen entspricht oder um Änderungen unserer Leistungen umzusetzen.
-          </p>
+          <p class="mt-3 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Stand: {privacy.stand}</p>
         </div>
       </div>
     </div>
