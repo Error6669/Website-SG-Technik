@@ -1,0 +1,443 @@
+---
+import { productCategories } from '../content/produkteTechnik';
+
+const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
+---
+
+<section id="produkte-technik" class="scroll-mt-24 bg-fog-50 pt-[4.75rem] lg:pt-24">
+  {/* MOBILE: horizontale Kategorie-Leiste (oben klebend) */}
+  <div class="pt-mbar lg:hidden">
+    <ol class="pt-mcarousel">
+      {
+        productCategories.map((c, i) => (
+          <li class:list={['pt-mcard', i === 0 && 'is-active']} data-mcard={c.slug}>
+            <button type="button" class="pt-mcard__btn" data-mgoto={c.slug} aria-label={`${c.name} anzeigen`}>
+              <span class="block font-mono text-xs uppercase tracking-[0.12em] text-slate-600">
+                {String(i + 1).padStart(2, '0')} · Bereich
+              </span>
+              <span class="mt-0.5 block font-display text-lg font-bold leading-tight text-copper-600">
+                {c.name}
+              </span>
+              <span class="mt-0.5 block truncate text-xs leading-snug text-slate-600">{c.tagline}</span>
+            </button>
+            {c.specs.length > 0 && (
+              <dl class="pt-mcard__specs">
+                {c.specs.map((s) => (
+                  <div class="flex flex-wrap gap-x-2">
+                    <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">{s.label}:</dt>
+                    <dd class="min-w-0 flex-1 text-xs text-navy-900">{s.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+
+  <div class="mx-auto max-w-6xl px-6">
+    <div class="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-10 xl:gap-16">
+    {/* RECHTS (order-2): nur der aktive Kategorie-Text, vertikal mittig */}
+    <div class="pt-stream lg:order-2">
+      <h1 class="sr-only">Produkte und Technik — Silo-, Sole- und Automatisierungssysteme</h1>
+      {
+        productCategories.map((c, i) => (
+          <div class:list={['pt-cat pt-2 pb-14 sm:pb-16', i === 0 && 'is-shown']} data-cat={c.slug} id={`cat-${c.slug}`}>
+            <div class="pt-inner">
+              <div class="space-y-4 text-base leading-relaxed text-slate-600 text-justify">
+                <p>{c.intro}</p>
+                {c.paragraphs.map((t) => (
+                  <p>{t}</p>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+
+    {/* LINKS (order-1): Übersicht (Kategorie-Umschalter), oben startend */}
+    <aside class="pt-panel hidden lg:order-1 lg:block">
+      <div class="sticky top-24">
+        <p class="mb-5 flex items-center gap-3 font-mono text-xs uppercase tracking-[0.14em] text-slate-600">
+          <span class="inline-block h-px w-6 bg-copper-500"></span>
+          Produkte &amp; Technik
+        </p>
+        <ol class="pt-switch border-t border-line">
+          {
+            productCategories.map((c, i) => (
+              <li class:list={['pt-switch__item border-b border-line', i === 0 && 'is-active']} data-target={c.slug}>
+                <button type="button" class="pt-switch__name" data-goto={c.slug} aria-label={`Zu ${c.name} springen`}>
+                  <span class="pt-switch__index font-mono text-xs tabular-nums">{String(i + 1).padStart(2, '0')}</span>
+                  <span class="pt-switch__label font-display text-xl font-semibold">{c.name}</span>
+                </button>
+                <div class="pt-switch__wrap">
+                  <div class="pt-switch__info">
+                    <p class="text-sm leading-relaxed text-slate-600">{c.tagline}</p>
+                    {c.specs.length > 0 && (
+                      <dl class="mt-3 divide-y divide-line border-t border-line">
+                        {c.specs.map((s) => (
+                          <div class="py-2.5">
+                            <dt class={dtClass}>{s.label}</dt>
+                            <dd class="mt-1 break-words text-sm leading-relaxed text-navy-900">{s.value}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    )}
+                  </div>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </aside>
+    </div>
+  </div>
+</section>
+
+<style>
+  :where(.pt-stream, .pt-panel, .pt-mbar) {
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  /* --- Mobile: horizontale, klebende Kategorie-Leiste --- */
+  .pt-mbar {
+    position: sticky;
+    top: 4.75rem;
+    z-index: 20;
+    background: color-mix(in srgb, var(--color-slate-500) 22%, var(--color-fog-50));
+    padding-block: 0.45rem 0.5rem;
+    border-top: 1px solid var(--color-line);
+    border-bottom: 1px solid var(--color-line);
+  }
+  .pt-mcarousel {
+    display: flex;
+    align-items: stretch;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0 11%;
+    list-style: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .pt-mcarousel::-webkit-scrollbar {
+    display: none;
+  }
+  .pt-mcard {
+    flex: 0 0 78%;
+    scroll-snap-align: center;
+    border-radius: 2px;
+    background: var(--color-paper);
+    border: 1px solid var(--color-line);
+    opacity: 0.5;
+    transform: scale(0.94);
+    transition:
+      opacity 0.25s var(--ease-out),
+      transform 0.25s var(--ease-out);
+  }
+  .pt-mcard.is-active {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .pt-mcard__btn {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.7rem 0.25rem;
+    text-align: left;
+    cursor: pointer;
+  }
+  .pt-mcard__specs {
+    padding: 0 0.7rem 0.55rem;
+    display: grid;
+    gap: 0.15rem;
+  }
+
+  /* --- Links: nur der aktive Kategorie-Text --- */
+  .pt-inner {
+    max-width: 44rem;
+    margin-inline: auto;
+  }
+  .pt-cat {
+    display: none;
+  }
+  .pt-cat.is-shown {
+    display: block;
+  }
+  /* Desktop: nur der aktive Text, vertikal mittig auf der Seite. */
+  @media (min-width: 1024px) {
+    .pt-stream {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      height: calc(100vh - 6rem);
+      overflow-y: auto;
+      /* Versatz, damit der Textanfang auf Höhe des ersten Listeneintrags „01" liegt. */
+      padding-top: 2.75rem;
+    }
+    /* Eigener Scrollbalken im Textbereich dezent halten. */
+    .pt-stream {
+      scrollbar-width: thin;
+    }
+  }
+
+  /* --- Rechtes Panel: Überschriften größer + orange --- */
+  .pt-switch__item {
+    padding-inline: 0.85rem;
+    margin-inline: -0.85rem;
+    border-radius: 2px;
+  }
+  .pt-switch__name {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.85rem 0;
+    text-align: left;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+  }
+  .pt-switch__item.is-active .pt-switch__name {
+    opacity: 1;
+  }
+  .pt-switch__index {
+    color: var(--color-copper-500);
+  }
+  .pt-switch__label {
+    line-height: 1.2;
+    color: var(--color-copper-500);
+    position: relative;
+  }
+  .pt-switch__item.is-active .pt-switch__label {
+    color: var(--color-copper-600);
+  }
+  .pt-switch__name:focus-visible {
+    outline: 2px solid var(--color-copper-500);
+    outline-offset: 2px;
+  }
+  .pt-switch__item.is-active .pt-switch__label::before {
+    content: '';
+    position: absolute;
+    left: -0.75rem;
+    top: 0.15em;
+    bottom: 0.15em;
+    width: 2px;
+    background: var(--color-copper-500);
+  }
+  .pt-switch__wrap {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition:
+      grid-template-rows 0.4s var(--ease-out),
+      opacity 0.3s ease;
+  }
+  .pt-switch__wrap > .pt-switch__info {
+    overflow: hidden;
+    min-height: 0;
+  }
+  .pt-switch__item.is-active .pt-switch__wrap {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    padding-bottom: 0.9rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pt-mcard {
+      transition: opacity 0.2s ease;
+    }
+    .pt-switch__wrap {
+      transition: opacity 0.2s ease;
+    }
+  }
+</style>
+
+<script>
+  // -------------------------------------------------------------------------
+  // Tab-Verhalten: rechts (bzw. mobil oben) eine Kategorie wählen → links wird
+  // NUR der zugehörige Text angezeigt. Kein Scroll-Durchlauf.
+  // -------------------------------------------------------------------------
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const switchItems = new Map<string, HTMLElement>();
+  document.querySelectorAll<HTMLElement>('.pt-switch__item').forEach((li) => {
+    switchItems.set(li.dataset.target!, li);
+  });
+  const catBlocks = new Map<string, HTMLElement>();
+  document.querySelectorAll<HTMLElement>('.pt-cat').forEach((b) => catBlocks.set(b.dataset.cat!, b));
+
+  // Mobile-Karten.
+  const cards = new Map<string, HTMLElement>();
+  document.querySelectorAll<HTMLElement>('.pt-mcard').forEach((c) => cards.set(c.dataset.mcard!, c));
+  const carousel = document.querySelector<HTMLElement>('.pt-mcarousel');
+  let centeringCarousel = false;
+  let centerTimer = 0;
+  const centerCard = (slug: string) => {
+    const card = cards.get(slug);
+    if (!card || !carousel || carousel.offsetParent === null) return;
+    centeringCarousel = true;
+    const left = card.offsetLeft - (carousel.clientWidth - card.clientWidth) / 2;
+    carousel.scrollTo({ left, behavior: reduceMotion ? 'auto' : 'smooth' });
+    clearTimeout(centerTimer);
+    centerTimer = window.setTimeout(() => (centeringCarousel = false), 500);
+  };
+
+  let lastActive = '';
+  const setActive = (slug: string, fromCarousel = false) => {
+    if (slug === lastActive) return;
+    lastActive = slug;
+    switchItems.forEach((li, s) => li.classList.toggle('is-active', s === slug));
+    cards.forEach((c, s) => c.classList.toggle('is-active', s === slug));
+    catBlocks.forEach((b, s) => b.classList.toggle('is-shown', s === slug));
+    if (!fromCarousel) centerCard(slug);
+  };
+
+  const firstSlug = document.querySelector<HTMLElement>('.pt-cat')?.dataset.cat;
+  if (firstSlug) {
+    setActive(firstSlug);
+
+    const stream = document.querySelector<HTMLElement>('.pt-stream');
+    const section = document.getElementById('produkte-technik');
+    const slugs = Array.from(catBlocks.keys());
+    const isDesktop = () => window.matchMedia('(min-width: 1024px)').matches;
+
+    // Desktop: gesteuertes „Stepped Scrolling". Innerhalb eines Kategorie-Texts
+    // scrollen; am oberen/unteren Ende springt es hart zur vorigen/nächsten
+    // Kategorie (kein Zwischenzustand mit beiden Texten). Die Übersicht links
+    // bleibt stehen — die Seite scrollt erst nach der letzten Kategorie weiter.
+    if (stream && section) {
+      const DUR = reduceMotion ? 0 : 280;
+      let cooling = false;
+      let coolTimer = 0;
+      // Sperre bleibt aktiv, bis das Wheel wirklich aufhört (Trackpad-Momentum
+      // abwarten) — verhindert versehentliches Überspringen mehrerer Kategorien.
+      const holdCooling = () => {
+        clearTimeout(coolTimer);
+        coolTimer = window.setTimeout(() => (cooling = false), 160);
+      };
+
+      // Wechsel: aktueller Text fährt zuerst nach oben (bzw. unten) raus,
+      // danach erscheint der neue Text — nie beide gleichzeitig.
+      const step = (dir: number) => {
+        const idx = slugs.indexOf(lastActive);
+        const ni = idx + dir;
+        if (ni < 0 || ni >= slugs.length) return;
+        cooling = true;
+        holdCooling();
+        const cur = catBlocks.get(lastActive);
+        if (cur && !reduceMotion) {
+          cur.style.transition = `transform ${DUR}ms ease, opacity ${DUR}ms ease`;
+          cur.style.transform = `translateY(${dir > 0 ? -48 : 48}px)`;
+          cur.style.opacity = '0';
+        }
+        window.setTimeout(() => {
+          if (cur) {
+            cur.style.transition = '';
+            cur.style.transform = '';
+            cur.style.opacity = '';
+          }
+          setActive(slugs[ni]);
+          stream.scrollTop = dir > 0 ? 0 : stream.scrollHeight;
+          const nxt = catBlocks.get(slugs[ni]);
+          if (nxt && !reduceMotion) {
+            nxt.style.transition = 'none';
+            nxt.style.transform = `translateY(${dir > 0 ? 24 : -24}px)`;
+            nxt.style.opacity = '0';
+            requestAnimationFrame(() => {
+              nxt.style.transition = `transform ${DUR}ms ease, opacity ${DUR}ms ease`;
+              nxt.style.transform = '';
+              nxt.style.opacity = '';
+              window.setTimeout(() => (nxt.style.transition = ''), DUR + 30);
+            });
+          }
+        }, DUR);
+      };
+
+      section.addEventListener(
+        'wheel',
+        (e) => {
+          if (!isDesktop()) return;
+          if (cooling) {
+            e.preventDefault();
+            holdCooling();
+            return;
+          }
+          // Solange die Sektion nicht voll im Bild ist (z. B. beim Hochscrollen von
+          // unten): erst normal scrollen, bis die ganze Übersicht sichtbar ist —
+          // dann erst greift das Umschalten.
+          const pinned = Math.abs(section.getBoundingClientRect().top) < 4;
+          if (!pinned) {
+            e.preventDefault();
+            window.scrollBy(0, e.deltaY);
+            return;
+          }
+          const atTop = stream.scrollTop <= 0;
+          const atBottom = stream.scrollTop + stream.clientHeight >= stream.scrollHeight - 1;
+          const idx = slugs.indexOf(lastActive);
+          // Am Textende (unten kein Text mehr) → sofort weiter; sonst normal im
+          // Text scrollen, damit sich der Text — egal wie langsam — nach oben bewegt.
+          if (e.deltaY > 0 && atBottom && idx < slugs.length - 1) {
+            e.preventDefault();
+            step(1);
+          } else if (e.deltaY < 0 && atTop && idx > 0) {
+            e.preventDefault();
+            step(-1);
+          }
+        },
+        { passive: false },
+      );
+    }
+
+    // Desktop-Umschalter (Klick in der Übersicht).
+    document.querySelectorAll<HTMLElement>('[data-goto]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        setActive(btn.dataset.goto!);
+        if (stream) stream.scrollTop = 0;
+        section?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+      });
+    });
+
+    // Mobile: Karussell ↔ Text.
+    if (carousel) {
+      let lastCarouselSlug = '';
+      const activateCentered = () => {
+        if (centeringCarousel) return;
+        const cRect = carousel.getBoundingClientRect();
+        const mid = cRect.left + cRect.width / 2;
+        let best: HTMLElement | null = null;
+        let bd = Infinity;
+        cards.forEach((card) => {
+          const r = card.getBoundingClientRect();
+          const d = Math.abs(r.left + r.width / 2 - mid);
+          if (d < bd) {
+            bd = d;
+            best = card;
+          }
+        });
+        if (!best) return;
+        const slug = (best as HTMLElement).dataset.mcard!;
+        if (slug === lastCarouselSlug) return;
+        lastCarouselSlug = slug;
+        setActive(slug, true);
+      };
+      carousel.addEventListener('scrollend', activateCentered);
+      let idle = 0;
+      carousel.addEventListener('scroll', () => {
+        clearTimeout(idle);
+        idle = window.setTimeout(activateCentered, 140);
+      });
+      cards.forEach((card, slug) => {
+        card.querySelector<HTMLElement>('[data-mgoto]')?.addEventListener('click', () => {
+          lastCarouselSlug = slug;
+          setActive(slug, true);
+          centerCard(slug);
+        });
+      });
+    }
+  }
+</script>
