@@ -44,7 +44,7 @@ const policyLink =
     /* Info-Hinweis (nicht blockierend) — Ist-Zustand ohne Tracker      */
     /* ---------------------------------------------------------------- */
     <dialog id="sg-cookie-notice" class="sg-cookie-notice" aria-label="Hinweis zur Datenspeicherung">
-      <div class="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+      <div id="sg-notice-focus" tabindex="-1" class="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-5 focus:outline-none sm:flex-row sm:items-center sm:justify-between">
         <p class="text-sm leading-relaxed text-slate-600">
           Diese Website nutzt nur technisch notwendige Speicherung, damit sie funktioniert. Es findet
           kein Tracking statt. Mehr dazu in der{' '}
@@ -369,6 +369,9 @@ const policyLink =
       const showNotice = () => {
         if (notice && !notice.open) notice.showModal();
         lockScroll();
+        // Fokus auf den neutralen Container statt auf den ersten Link — sonst
+        // bekäme die „Cookie-Richtlinie" beim Öffnen einen kupfernen Fokusrahmen.
+        document.getElementById('sg-notice-focus')?.focus();
       };
       const hideNotice = () => {
         if (notice && notice.open) notice.close();

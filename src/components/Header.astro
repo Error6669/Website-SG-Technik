@@ -83,12 +83,6 @@ const [homeItem, ...restItems] = navigation;
         </a>
       ))
     }
-    <a
-      href={primaryCta.href}
-      class="mt-2 rounded-sm bg-copper-600 px-4 py-2 text-center font-body text-sm font-semibold text-white"
-    >
-      {primaryCta.label}
-    </a>
   </nav>
 </header>
 
@@ -119,6 +113,12 @@ const [homeItem, ...restItems] = navigation;
     } else {
       openMenu();
     }
+  });
+
+  // Menü immer schließen, wenn ein Link darin angeklickt wird — auch wenn keine
+  // echte Navigation stattfindet (z. B. erneuter Klick auf denselben #kontakt-Anker).
+  menu?.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => closeMenu());
   });
 
   document.addEventListener('keydown', (event) => {
