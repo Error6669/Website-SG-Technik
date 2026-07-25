@@ -1,30 +1,905 @@
 ---
-import { references } from '../content/site';
+import { Image, getImage } from 'astro:assets';
+import { projekte } from '../content/referenzen';
+
+// Alle Referenzfotos importieren; Astro optimiert sie beim Build (WebP + responsive).
+const files = import.meta.glob('/src/assets/referenzen/*/*.jpg', { eager: true });
+
+const bySlug: Record<string, any[]> = {};
+for (const [path, mod] of Object.entries(files)) {
+  const slug = path.split('/').at(-2)!;
+  (bySlug[slug] ||= []).push((mod as any).default);
+}
+Object.values(bySlug).forEach((arr) => arr.sort((a, b) => a.src.localeCompare(b.src)));
+
+async function fullSrc(m: any): Promise<string> {
+  const opts = m.height > m.width ? { height: 1600 } : { width: 1600 };
+  const img = await getImage({ src: m, format: 'webp', ...opts });
+  return img.src;
+}
+
+const entries = await Promise.all(
+  projekte.map(async (p, i) => {
+    const imgs = bySlug[p.slug] ?? [];
+    const fulls = await Promise.all(imgs.map(fullSrc));
+    return { p, i, imgs, fulls };
+  }),
+);
+
+const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
+
+// Hintergrundtönung je Projekt — ausschließlich Abstufungen der beiden bereits
+// verwendeten Markenfarben: Blau (navy-800) und Orange (copper-500). Abwechselnd
+// und in verschiedenen Tiefen, damit die Projekte klar unterscheidbar bleiben,
+// aber alles gedämpft und stimmig wirkt. Verlauf oben kräftiger → unten heller.
+const tint = (c: 'navy-800' | 'copper-500', top: number): { a: string; b: string } => ({
+  a: `color-mix(in srgb, var(--color-${c}) ${top}%, var(--color-fog-50))`,
+  b: `color-mix(in srgb, var(--color-${c}) ${Math.round(top * 0.5)}%, var(--color-paper))`,
+});
+const tints: Record<string, { a: string; b: string }> = {
+  // Ausschließlich Blaustufen (navy-800), hell → tief.
+  mondsee: tint('navy-800', 8),
+  mitterweissenbach: tint('navy-800', 14),
+  steinerkirchen: tint('navy-800', 20),
+  gmunden: tint('navy-800', 26),
+  obernberg: tint('navy-800', 32),
+  'trieben-selzthal': tint('navy-800', 38),
+  kittsee: tint('navy-800', 44),
+};
+const tintStyle = (slug: string) => {
+  const t = tints[slug] ?? { a: 'var(--color-fog-50)', b: 'var(--color-paper)' };
+  return `--tint-a:${t.a};--tint-b:${t.b}`;
+};
+
+// Erste Fläche bekommt oben extra Platz (Farbe reicht hinter die Kopfzeile,
+// Bild bleibt darunter frei); letzte Fläche unten extra Platz bis zum
+// Sektionsende (dort beginnt das weiße CtaBand).
+const lastIndex = entries.length - 1;
+const padClass = (i: number) =>
+  [
+    i === 0 ? 'pt-6 sm:pt-8 lg:pt-32' : 'pt-6 sm:pt-8',
+    i === lastIndex ? 'pb-16 sm:pb-20 lg:pb-28' : 'pb-6 sm:pb-8',
+  ].join(' ');
 ---
 
-<section id="referenzen" class="scroll-mt-24 bg-fog-50 pt-24 pb-20 sm:pt-28 sm:pb-28">
-  <div class="mx-auto max-w-6xl px-6">
-    <p class="flex items-center gap-3 font-mono text-xs uppercase tracking-[0.14em] text-slate-600">
-      <span class="inline-block h-px w-6 bg-copper-500"></span>
-      Referenzen
-    </p>
-    <h1 class="mt-4 text-balance break-words font-display text-3xl font-bold leading-tight text-navy-800 sm:text-4xl">
-      Unsere Referenzen
-    </h1>
-
-    <div class="mt-12 divide-y divide-line border-t border-b border-line">
+<section id="referenzen" class="scroll-mt-24 bg-fog-50 pt-[4.75rem] lg:pt-0">
+  {/* MOBILE: horizontale Projekt-Leiste (oben klebend); Desktop nutzt das rechte Panel */}
+  <div class="ref-mbar lg:hidden">
+    <ol class="ref-mcarousel">
       {
-        references.map((ref) => (
-          <div class="grid gap-2 py-6 sm:grid-cols-[1fr_auto] sm:items-center sm:gap-6">
-            <div>
-              <h3 class="font-display text-lg font-semibold text-navy-800">
-                {ref.title} <span class="text-slate-600">— {ref.location}</span>
-              </h3>
-              <p class="mt-1 text-sm text-slate-600">{ref.detail}</p>
-            </div>
-          </div>
+        entries.map(({ p, i, imgs }) => (
+          <li class="ref-mcard" data-mcard={p.slug} style={tintStyle(p.slug)}>
+            <button type="button" class="ref-mcard__btn" data-mgoto={p.slug} aria-label={`${p.location} anzeigen`}>
+              <span class="block font-mono text-xs uppercase tracking-[0.12em] text-slate-600">
+                {String(i + 1).padStart(2, '0')} · Referenz
+              </span>
+              <span class="mt-0.5 block font-display text-base font-bold leading-tight text-navy-800">
+                {p.location}
+              </span>
+              <span class="mt-0.5 block truncate text-xs leading-snug text-slate-600">
+                {[p.typ, p.kapazitaet, p.jahr].filter(Boolean).join(' · ')}
+              </span>
+            </button>
+            <ul class="ref-thumbs ref-thumbs--m">
+              {imgs.map((img, j) => (
+                <li>
+                  <button
+                    type="button"
+                    class="ref-thumb"
+                    data-thumb-group={p.slug}
+                    data-thumb-index={j}
+                    aria-label={`${p.location} — zu Foto ${j + 1}`}
+                  >
+                    <Image src={img} alt="" widths={[56, 112]} sizes="40px" class="ref-thumb__img" loading="lazy" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </li>
         ))
       }
-    </div>
+    </ol>
   </div>
+
+  <div class="lg:grid lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+    {/* LINKS: full-bleed Bilderstrom (Farbe bis zum linken Bildschirmrand) */}
+    <div class="ref-stream">
+      <h1 class="sr-only">Referenzen — realisierte Silo- und Soleanlagen</h1>
+
+      <div>
+        {
+          entries.map(({ p, i, imgs, fulls }) => (
+            <div class:list={['ref-proj scroll-mt-24', padClass(i)]} id={`proj-${p.slug}`} data-proj={p.slug} style={tintStyle(p.slug)}>
+              <div class="ref-inner">
+                {/* Bilder — zentriert in der Farbfläche (Info steht mobil oben im Karussell) */}
+                <div class="space-y-4">
+                  {imgs.map((img, j) => (
+                    <button
+                      type="button"
+                      class="ref-frame"
+                      data-lb-group={p.slug}
+                      data-lb-index={j}
+                      data-lb-src={fulls[j]}
+                      data-lb-alt={`${p.typ} — ${p.location}`}
+                      aria-label={`${p.location} — Foto ${j + 1} groß anzeigen`}
+                    >
+                      <Image
+                        src={img}
+                        alt={`${p.typ} in ${p.location} — Referenz der SG Technik GmbH`}
+                        widths={[560, 840, 1120]}
+                        sizes="(min-width: 1024px) 48rem, 100vw"
+                        class="ref-img"
+                        loading="lazy"
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
+    {/* RECHTS: mitlaufendes Referenz-Panel (Sticky), erst ab lg */}
+    <aside class="ref-panel hidden lg:block">
+      <div class="sticky top-24 flex min-h-[calc(100vh-6rem)] flex-col justify-center pl-8 pr-6 xl:pl-10 xl:pr-10">
+        <p class="mb-5 flex items-center gap-3 font-mono text-xs uppercase tracking-[0.14em] text-slate-600">
+          <span class="inline-block h-px w-6 bg-copper-500"></span>
+          Referenzen
+        </p>
+        <ol class="ref-switch border-t border-line">
+          {
+            entries.map(({ p, i, imgs }) => (
+              <li class="ref-switch__item border-b border-line" data-target={p.slug} style={tintStyle(p.slug)}>
+                <button type="button" class="ref-switch__name" data-goto={p.slug} aria-label={`Zu ${p.location} springen`}>
+                  <span class="ref-switch__index font-mono text-xs tabular-nums">{String(i + 1).padStart(2, '0')}</span>
+                  <span class="ref-switch__label font-display font-semibold">{p.location}</span>
+                </button>
+                <div class="ref-switch__wrap">
+                  <div class="ref-switch__info">
+                    <dl class="divide-y divide-line border-t border-line">
+                      <div class="grid grid-cols-[6.5rem_1fr] items-center gap-3 py-2.5">
+                        <dt class={dtClass}>Anlagentyp</dt>
+                        <dd class="min-w-0 break-words text-sm text-navy-900">{p.typ}</dd>
+                      </div>
+                      {p.kapazitaet && (
+                        <div class="grid grid-cols-[6.5rem_1fr] items-center gap-3 py-2.5">
+                          <dt class={dtClass}>Kapazität</dt>
+                          <dd class="min-w-0 break-words font-mono text-sm tabular-nums text-navy-900">{p.kapazitaet}</dd>
+                        </div>
+                      )}
+                      {p.jahr && (
+                        <div class="grid grid-cols-[6.5rem_1fr] items-center gap-3 py-2.5">
+                          <dt class={dtClass}>Jahr</dt>
+                          <dd class="min-w-0 break-words font-mono text-sm tabular-nums text-navy-900">{p.jahr}</dd>
+                        </div>
+                      )}
+                    </dl>
+                    {p.detail && <p class="mt-3 text-sm leading-relaxed text-slate-600">{p.detail}</p>}
+                    <ul class="ref-thumbs">
+                      {imgs.map((img, j) => (
+                        <li>
+                          <button
+                            type="button"
+                            class="ref-thumb"
+                            data-thumb-group={p.slug}
+                            data-thumb-index={j}
+                            aria-label={`${p.location} — zu Foto ${j + 1} springen`}
+                          >
+                            <Image src={img} alt="" widths={[72, 144]} sizes="56px" class="ref-thumb__img" loading="lazy" />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </aside>
+  </div>
+
+  {/* Lightbox (einmalig, für alle Projekte wiederverwendet) */}
+  <dialog id="ref-lightbox" class="ref-lb" aria-label="Foto-Galerie">
+    <button type="button" class="ref-lb__btn ref-lb__close" data-lb-close aria-label="Schließen">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+    <button type="button" class="ref-lb__btn ref-lb__nav ref-lb__prev" data-lb-prev aria-label="Vorheriges Foto">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <figure class="ref-lb__stage" id="ref-lb-stage">
+      {/* Transparenter 1×1-Platzhalter; die echte Quelle setzt das Lightbox-Skript beim Öffnen. */}
+      <img
+        id="ref-lb-img"
+        class="ref-lb__img"
+        alt=""
+        draggable="false"
+        src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+      />
+    </figure>
+    <button type="button" class="ref-lb__btn ref-lb__nav ref-lb__next" data-lb-next aria-label="Nächstes Foto">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <p class="ref-lb__counter" id="ref-lb-counter"></p>
+  </dialog>
 </section>
+
+<style>
+  :where(.ref-stream, .ref-panel, .ref-mbar) {
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  /* --- Mobile: horizontale, klebende Projekt-Leiste (oberes Drittel) --- */
+  .ref-mbar {
+    position: sticky;
+    top: 4.75rem;
+    z-index: 20;
+    /* Klar abgesetzte Hintergrundfarbe, damit die Leiste als eigener Bereich erkennbar ist. */
+    background: color-mix(in srgb, var(--color-slate-500) 22%, var(--color-fog-50));
+    padding-block: 0.45rem 0.5rem;
+    border-top: 1px solid var(--color-line);
+    border-bottom: 1px solid var(--color-line);
+  }
+  .ref-mcarousel {
+    display: flex;
+    align-items: stretch;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0 11%;
+    list-style: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .ref-mcarousel::-webkit-scrollbar {
+    display: none;
+  }
+  .ref-mcard {
+    flex: 0 0 78%;
+    scroll-snap-align: center;
+    border-radius: 2px;
+    background: linear-gradient(180deg, var(--tint-a), var(--tint-b));
+    /* Nachbarn nur angedeutet: gedimmt + leicht verkleinert. */
+    opacity: 0.45;
+    transform: scale(0.94);
+    transition:
+      opacity 0.25s var(--ease-out),
+      transform 0.25s var(--ease-out);
+  }
+  .ref-mcard.is-active {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .ref-mcard__btn {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.7rem 0.25rem;
+    text-align: left;
+    cursor: pointer;
+  }
+  /* Kompakte Thumbnail-Leiste in den Mobile-Karten */
+  .ref-thumbs--m {
+    margin-top: 0;
+    gap: 0.35rem;
+    padding: 0.4rem 0.55rem 0.55rem;
+  }
+  .ref-thumbs--m .ref-thumb {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  /* Zentriert Inhalt (Bilder, Eyebrow) innerhalb der full-bleed Farbfläche. */
+  .ref-inner {
+    max-width: 48rem;
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+  }
+
+  /* Projekt-Farbfläche: full-bleed (bis zum linken Rand), sanfter Verlauf. */
+  .ref-proj {
+    background: linear-gradient(180deg, var(--tint-a, transparent), var(--tint-b, transparent));
+  }
+
+  /* --- Bildrahmen: flach, randlos, auf der Projekt-Farbfläche liegend --- */
+  .ref-frame {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: none;
+    border-radius: 2px;
+    overflow: hidden;
+    background: transparent;
+    cursor: zoom-in;
+  }
+  .ref-frame:focus-visible {
+    outline: 2px solid var(--color-copper-500);
+    outline-offset: 2px;
+  }
+  .ref-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    transition: transform 0.6s var(--ease-out);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .ref-frame:hover .ref-img {
+      transform: scale(1.03);
+    }
+  }
+
+  /* --- Rechtes Referenz-Panel --- */
+  /* Aktives Projekt bekommt dieselbe Tönung wie seine Bilder links. */
+  .ref-switch__item {
+    padding-inline: 0.85rem;
+    margin-inline: -0.85rem;
+    border-radius: 2px;
+    transition: background 0.3s ease;
+  }
+  .ref-switch__item.is-active {
+    background: linear-gradient(180deg, var(--tint-a), var(--tint-b));
+    border-bottom-color: transparent;
+  }
+  .ref-switch__name {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.85rem 0;
+    text-align: left;
+    color: var(--color-slate-500);
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  .ref-switch__index {
+    color: var(--color-slate-300);
+    transition: color 0.2s ease;
+  }
+  .ref-switch__label {
+    font-size: 1.125rem;
+    line-height: 1.2;
+    position: relative;
+  }
+  .ref-switch__name:hover {
+    color: var(--color-navy-800);
+  }
+  .ref-switch__name:focus-visible {
+    outline: 2px solid var(--color-copper-500);
+    outline-offset: 2px;
+  }
+  .ref-switch__item.is-active .ref-switch__name {
+    color: var(--color-navy-800);
+  }
+  .ref-switch__item.is-active .ref-switch__index {
+    color: var(--color-copper-600);
+  }
+  .ref-switch__item.is-active .ref-switch__label::before {
+    content: '';
+    position: absolute;
+    left: -0.75rem;
+    top: 0.15em;
+    bottom: 0.15em;
+    width: 2px;
+    background: var(--color-copper-500);
+  }
+  .ref-switch__wrap {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition:
+      grid-template-rows 0.4s var(--ease-out),
+      opacity 0.3s ease;
+  }
+  .ref-switch__wrap > .ref-switch__info {
+    overflow: hidden;
+    min-height: 0;
+  }
+  .ref-switch__item.is-active .ref-switch__wrap {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    padding-bottom: 0.9rem;
+  }
+
+  /* Thumbnails aller Bilder des geöffneten Projekts */
+  .ref-thumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.85rem;
+    /* Innenabstand (rundum), damit der Rahmen des vergrößerten Thumbnails an
+       allen Rändern nicht von der Überlauf-Klippkante des Panels abgeschnitten
+       wird. */
+    padding: 10px;
+  }
+  .ref-thumb {
+    display: block;
+    width: 3rem;
+    height: 3rem;
+    padding: 0;
+    border: none;
+    border-radius: 2px;
+    overflow: hidden;
+    cursor: pointer;
+    opacity: 0.5;
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s var(--ease-out),
+      outline-color 0.2s ease;
+  }
+  .ref-thumb__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .ref-thumb:hover {
+    opacity: 0.85;
+  }
+  .ref-thumb:focus-visible {
+    opacity: 1;
+    outline-color: var(--color-copper-500);
+  }
+  /* Das gerade groß angezeigte Bild: größeres Thumbnail + Kupferrahmen */
+  .ref-thumb.is-current {
+    opacity: 1;
+    transform: scale(1.1);
+    outline-color: var(--color-copper-500);
+    position: relative;
+    z-index: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ref-thumb {
+      transition: opacity 0.2s ease, outline-color 0.2s ease;
+    }
+    .ref-thumb.is-current {
+      transform: none;
+    }
+  }
+
+  /* --- Lightbox --- */
+  .ref-lb {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    overflow: hidden;
+  }
+  .ref-lb::backdrop {
+    background: rgba(13, 36, 54, 0.82);
+    backdrop-filter: blur(6px);
+  }
+  .ref-lb[open] {
+    animation: ref-lb-in 0.28s var(--ease-out, ease-out);
+  }
+  .ref-lb__stage {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3.5rem 1rem;
+    touch-action: none;
+  }
+  .ref-lb__img {
+    max-width: min(92vw, 1400px);
+    max-height: 84vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 2px;
+    user-select: none;
+    -webkit-user-drag: none;
+    transition: opacity 0.2s ease, filter 0.2s ease;
+  }
+  .ref-lb__img.is-swapping {
+    opacity: 0.3;
+    filter: blur(8px);
+  }
+  .ref-lb__btn {
+    position: absolute;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-fog-50);
+    background: rgba(13, 36, 54, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 2px;
+    cursor: pointer;
+    transition: background-color 0.15s ease, transform 0.1s ease;
+  }
+  .ref-lb__btn:hover { background: rgba(13, 36, 54, 0.6); }
+  .ref-lb__btn:active { transform: scale(0.94); }
+  .ref-lb__btn:focus-visible {
+    outline: 2px solid var(--color-copper-500);
+    outline-offset: 2px;
+  }
+  .ref-lb__close { top: 1rem; right: 1rem; width: 2.75rem; height: 2.75rem; }
+  .ref-lb__nav { top: 50%; transform: translateY(-50%); width: 3rem; height: 3rem; }
+  .ref-lb__nav:active { transform: translateY(-50%) scale(0.94); }
+  .ref-lb__prev { left: 1rem; }
+  .ref-lb__next { right: 1rem; }
+  .ref-lb__counter {
+    position: absolute;
+    bottom: 1.1rem;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: rgba(245, 247, 248, 0.75);
+  }
+  @keyframes ref-lb-in { from { opacity: 0; } to { opacity: 1; } }
+  .ref-lb__stage[data-enter] .ref-lb__img { animation: ref-lb-img-in 0.32s var(--ease-out, ease-out); }
+  @keyframes ref-lb-img-in {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @media (max-width: 480px) {
+    .ref-lb__nav { top: auto; bottom: 0.9rem; transform: none; }
+    .ref-lb__nav:active { transform: scale(0.94); }
+    .ref-lb__prev { left: 33%; }
+    .ref-lb__next { right: 33%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ref-img,
+    .ref-lb__img { transition: opacity 0.2s ease; }
+    .ref-switch__wrap { transition: opacity 0.2s ease; }
+    .ref-lb[open],
+    .ref-lb__stage[data-enter] .ref-lb__img { animation: none; }
+    @media (hover: hover) and (pointer: fine) {
+      .ref-frame:hover .ref-img { transform: none; }
+    }
+  }
+</style>
+
+<script>
+  // -------------------------------------------------------------------------
+  // Scrollspy (aktives Projekt) + Lightbox. Vanilla, keine Abhängigkeiten.
+  // -------------------------------------------------------------------------
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const switchItems = new Map<string, HTMLElement>();
+  document.querySelectorAll<HTMLElement>('.ref-switch__item').forEach((li) => {
+    switchItems.set(li.dataset.target!, li);
+  });
+
+  // Mobile: horizontale Projekt-Karten.
+  const cards = new Map<string, HTMLElement>();
+  document.querySelectorAll<HTMLElement>('.ref-mcard').forEach((c) => cards.set(c.dataset.mcard!, c));
+  const carousel = document.querySelector<HTMLElement>('.ref-mcarousel');
+  let centeringCarousel = false;
+  let centerTimer = 0;
+  const centerCard = (slug: string) => {
+    const card = cards.get(slug);
+    // Nur im Mobile-Layout aktiv (Karussell sonst display:none → offsetParent null).
+    if (!card || !carousel || carousel.offsetParent === null) return;
+    centeringCarousel = true;
+    const left = card.offsetLeft - (carousel.clientWidth - card.clientWidth) / 2;
+    carousel.scrollTo({ left, behavior: reduceMotion ? 'auto' : 'smooth' });
+    clearTimeout(centerTimer);
+    centerTimer = window.setTimeout(() => (centeringCarousel = false), 500);
+  };
+
+  let lastActive = '';
+  const setActive = (slug: string, fromCarousel = false) => {
+    if (slug !== lastActive) {
+      lastActive = slug;
+      switchItems.forEach((li, s) => li.classList.toggle('is-active', s === slug));
+      cards.forEach((c, s) => c.classList.toggle('is-active', s === slug));
+      if (!fromCarousel) centerCard(slug);
+    }
+  };
+
+  // Hebt das Thumbnail des gerade zentrierten Bildes hervor.
+  // Hebt das aktuelle Bild in allen Thumbnail-Leisten hervor (Mobile-Karte + Desktop-Panel).
+  const setCurrentThumb = (group: string, index: string) => {
+    document.querySelectorAll('.ref-thumb.is-current').forEach((t) => t.classList.remove('is-current'));
+    document
+      .querySelectorAll(`.ref-thumb[data-thumb-group="${group}"][data-thumb-index="${index}"]`)
+      .forEach((t) => t.classList.add('is-current'));
+  };
+
+  // Bild-Ebene: welches Foto liegt in der Bildschirmmitte? Bestimmt das aktive
+  // Projekt UND das hervorgehobene Thumbnail.
+  const frames = Array.from(document.querySelectorAll<HTMLElement>('.ref-frame'));
+  if (frames.length) {
+    const first = frames[0];
+    setActive(first.dataset.lbGroup!);
+    setCurrentThumb(first.dataset.lbGroup!, first.dataset.lbIndex!);
+
+    // Synchronisiert aktives Projekt + Thumbnail mit dem Foto in der Bildmitte.
+    const syncToCenter = () => {
+      const mid = window.innerHeight / 2;
+      let best: HTMLElement | null = null;
+      let bestDist = Infinity;
+      for (const f of frames) {
+        const r = f.getBoundingClientRect();
+        const d = Math.abs(r.top + r.height / 2 - mid);
+        if (d < bestDist) {
+          bestDist = d;
+          best = f;
+        }
+      }
+      if (best) {
+        setActive(best.dataset.lbGroup!);
+        setCurrentThumb(best.dataset.lbGroup!, best.dataset.lbIndex!);
+      }
+    };
+
+    // Während eines geklickten Sprungs unterdrücken wir die laufenden Updates,
+    // damit nicht jedes dazwischenliegende Projekt kurz aufklappt (das ruckelt).
+    let jumping = false;
+    let jumpTimer = 0;
+    const endJump = () => {
+      jumping = false;
+      syncToCenter();
+    };
+    const beginJump = (el: HTMLElement | null, block: ScrollLogicalPosition, instant = false) => {
+      if (!el) return;
+      const smooth = !reduceMotion && !instant;
+      jumping = smooth; // nur bei animiertem Scroll die Zwischen-Updates sperren
+      clearTimeout(jumpTimer);
+      el.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block });
+      if (!smooth) {
+        // Direktsprung: sofort mit der neuen Bildmitte synchronisieren.
+        syncToCenter();
+        return;
+      }
+      // Fallback, falls 'scrollend' nicht unterstützt wird.
+      jumpTimer = window.setTimeout(endJump, 1000);
+    };
+    window.addEventListener('scrollend', () => {
+      if (jumping) {
+        clearTimeout(jumpTimer);
+        endJump();
+      }
+    });
+
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver(
+        (obs) => {
+          if (jumping) return; // während des Sprungs keine Zwischen-Umschaltung
+          obs.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const el = entry.target as HTMLElement;
+              setActive(el.dataset.lbGroup!);
+              setCurrentThumb(el.dataset.lbGroup!, el.dataset.lbIndex!);
+            }
+          });
+        },
+        { rootMargin: '-50% 0px -50% 0px', threshold: 0 },
+      );
+      frames.forEach((f) => io.observe(f));
+    }
+
+    // Sprung über die Projektliste — Ziel sofort aktiv, dann weich scrollen.
+    document.querySelectorAll<HTMLElement>('[data-goto]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const slug = btn.dataset.goto!;
+        setActive(slug);
+        const f = document.querySelector<HTMLElement>(`.ref-frame[data-lb-group="${slug}"]`);
+        if (f) setCurrentThumb(slug, f.dataset.lbIndex!);
+        beginJump(document.getElementById(`proj-${slug}`), 'start');
+      });
+    });
+
+    // Sprung über ein Thumbnail: Bildmitte mittig am Bildschirm.
+    document.querySelectorAll<HTMLElement>('[data-thumb-index]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const g = btn.dataset.thumbGroup!;
+        const idx = btn.dataset.thumbIndex!;
+        setActive(g);
+        setCurrentThumb(g, idx);
+        beginJump(
+          document.querySelector<HTMLElement>(`.ref-frame[data-lb-group="${g}"][data-lb-index="${idx}"]`),
+          'center',
+        );
+      });
+    });
+
+    // --- Mobile: horizontale Projekt-Leiste ↔ Bilder synchronisieren ---
+    const jumpImagesTo = (slug: string) => {
+      const el = document.getElementById(`proj-${slug}`);
+      if (!el) return;
+      jumping = true;
+      clearTimeout(jumpTimer);
+      el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+      jumpTimer = window.setTimeout(endJump, reduceMotion ? 0 : 800);
+    };
+
+    if (carousel) {
+      let lastCarouselSlug = '';
+      const activateCentered = () => {
+        if (centeringCarousel) return; // programmatisches Zentrieren ignorieren
+        const cRect = carousel.getBoundingClientRect();
+        const mid = cRect.left + cRect.width / 2;
+        let best: HTMLElement | null = null;
+        let bd = Infinity;
+        cards.forEach((card) => {
+          const r = card.getBoundingClientRect();
+          const d = Math.abs(r.left + r.width / 2 - mid);
+          if (d < bd) {
+            bd = d;
+            best = card;
+          }
+        });
+        if (!best) return;
+        const slug = (best as HTMLElement).dataset.mcard!;
+        if (slug === lastCarouselSlug) return; // schon dort → nicht erneut springen
+        lastCarouselSlug = slug;
+        setActive(slug, true);
+        jumpImagesTo(slug);
+      };
+      carousel.addEventListener('scrollend', activateCentered);
+      // Fallback für Browser ohne 'scrollend': nach kurzer Scroll-Stille auswerten.
+      let idle = 0;
+      carousel.addEventListener('scroll', () => {
+        clearTimeout(idle);
+        idle = window.setTimeout(activateCentered, 140);
+      });
+      // Tap auf eine Karte → direkt zu diesem Projekt.
+      cards.forEach((card, slug) => {
+        card.querySelector<HTMLElement>('[data-mgoto]')?.addEventListener('click', () => {
+          lastCarouselSlug = slug;
+          setActive(slug, true);
+          centerCard(slug);
+          jumpImagesTo(slug);
+        });
+      });
+    }
+  }
+
+  // --- Lightbox ---
+  const dialog = document.getElementById('ref-lightbox') as HTMLDialogElement | null;
+  const stage = document.getElementById('ref-lb-stage') as HTMLElement | null;
+  const img = document.getElementById('ref-lb-img') as HTMLImageElement | null;
+  const counter = document.getElementById('ref-lb-counter');
+
+  if (dialog && stage && img) {
+    const groups: Record<string, { src: string; alt: string }[]> = {};
+    document.querySelectorAll<HTMLElement>('[data-lb-src]').forEach((el) => {
+      const g = el.dataset.lbGroup!;
+      (groups[g] ||= [])[Number(el.dataset.lbIndex)] = {
+        src: el.dataset.lbSrc!,
+        alt: el.dataset.lbAlt || '',
+      };
+    });
+
+    let current: { src: string; alt: string }[] = [];
+    let index = 0;
+
+    const render = (enter = false) => {
+      const item = current[index];
+      if (!item) return;
+      const swap = () => {
+        img.src = item.src;
+        img.alt = item.alt;
+        if (counter) counter.textContent = `${index + 1} / ${current.length}`;
+      };
+      if (enter || reduceMotion) {
+        swap();
+      } else {
+        img.classList.add('is-swapping');
+        const done = () => {
+          img.classList.remove('is-swapping');
+          img.removeEventListener('load', done);
+        };
+        img.addEventListener('load', done);
+        swap();
+      }
+    };
+
+    const preload = (i: number) => {
+      const it = current[i];
+      if (it) new Image().src = it.src;
+    };
+
+    const go = (dir: number) => {
+      index = (index + dir + current.length) % current.length;
+      render();
+      preload((index + dir + current.length) % current.length);
+    };
+
+    const open = (group: string, i: number) => {
+      current = (groups[group] || []).filter(Boolean);
+      index = i;
+      render(true);
+      dialog.showModal();
+      if (!reduceMotion) {
+        stage.setAttribute('data-enter', '');
+        setTimeout(() => stage.removeAttribute('data-enter'), 360);
+      }
+      preload(index + 1);
+      preload(index - 1 + current.length);
+    };
+
+    document.querySelectorAll<HTMLElement>('[data-lb-src]').forEach((el) => {
+      el.addEventListener('click', () => open(el.dataset.lbGroup!, Number(el.dataset.lbIndex)));
+    });
+
+    const close = () => {
+      if (!dialog.open) return;
+      if (reduceMotion) {
+        dialog.close();
+        return;
+      }
+      dialog.style.opacity = '0';
+      dialog.style.transition = 'opacity 0.18s ease';
+      setTimeout(() => {
+        dialog.close();
+        dialog.style.opacity = '';
+        dialog.style.transition = '';
+      }, 170);
+    };
+
+    dialog.querySelector('[data-lb-close]')?.addEventListener('click', close);
+    dialog.querySelector('[data-lb-prev]')?.addEventListener('click', () => go(-1));
+    dialog.querySelector('[data-lb-next]')?.addEventListener('click', () => go(1));
+    stage.addEventListener('click', (e) => {
+      if (e.target === stage) close();
+    });
+    dialog.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); go(1); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+    });
+    dialog.addEventListener('cancel', (e) => {
+      if (!reduceMotion) { e.preventDefault(); close(); }
+    });
+
+    if (!reduceMotion) {
+      let startY = 0;
+      let startTime = 0;
+      let dragging = false;
+      img.addEventListener('pointerdown', (e) => {
+        dragging = true;
+        startY = e.clientY;
+        startTime = performance.now();
+        img.setPointerCapture(e.pointerId);
+        img.style.transition = 'none';
+      });
+      img.addEventListener('pointermove', (e) => {
+        if (!dragging) return;
+        const dy = e.clientY - startY;
+        img.style.transform = `translateY(${dy}px)`;
+        dialog.style.setProperty('opacity', String(1 - Math.min(Math.abs(dy) / 400, 0.7)));
+      });
+      const endDrag = (e: PointerEvent) => {
+        if (!dragging) return;
+        dragging = false;
+        const dy = e.clientY - startY;
+        const velocity = Math.abs(dy) / (performance.now() - startTime);
+        img.style.transition = 'transform 0.3s cubic-bezier(0.23,1,0.32,1)';
+        if (Math.abs(dy) > 120 || velocity > 0.6) {
+          img.style.transform = `translateY(${dy > 0 ? 100 : -100}%)`;
+          setTimeout(() => {
+            dialog.close();
+            img.style.transform = '';
+            img.style.transition = '';
+            dialog.style.opacity = '';
+          }, 200);
+        } else {
+          img.style.transform = 'translateY(0)';
+          dialog.style.opacity = '';
+        }
+      };
+      img.addEventListener('pointerup', endDrag);
+      img.addEventListener('pointercancel', endDrag);
+    }
+  }
+</script>

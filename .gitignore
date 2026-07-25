@@ -23,3 +23,7 @@ node_modules/
 Aufbau Website 2.0.docx
 ~$fbau Website 2.0.docx
 Website-Struktur_SG_Technik_GmbH.csv
+
+# original project photos/videos (large source files, ~270 MB incl. .mov videos);
+# optimized web copies live in src/assets/referenzen/ and are committed
+Fotos/
