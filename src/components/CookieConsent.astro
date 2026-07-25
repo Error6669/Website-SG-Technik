@@ -367,11 +367,15 @@ const policyLink =
         document.documentElement.style.overflow = '';
       };
       const showNotice = () => {
-        if (notice && !notice.open) notice.showModal();
+        // Erst Scroll sperren, dann modal öffnen: sonst scrollt der Auto-Fokus
+        // von showModal() die Seite ans Ende (der Hinweis sitzt unten fix), was
+        // erst nach dem Schließen sichtbar wird.
         lockScroll();
+        if (notice && !notice.open) notice.showModal();
         // Fokus auf den neutralen Container statt auf den ersten Link — sonst
         // bekäme die „Cookie-Richtlinie" beim Öffnen einen kupfernen Fokusrahmen.
-        document.getElementById('sg-notice-focus')?.focus();
+        // preventScroll: kein Scroll-Sprung durch das Fokussieren.
+        document.getElementById('sg-notice-focus')?.focus({ preventScroll: true });
       };
       const hideNotice = () => {
         if (notice && notice.open) notice.close();
@@ -478,12 +482,14 @@ const policyLink =
       document.documentElement.style.overflow = '';
     };
     const openBanner = (): void => {
+      // Erst sperren, dann öffnen (siehe notice-Modus): verhindert einen
+      // Scroll-Sprung ans Seitenende durch den Auto-Fokus von showModal().
       // showModal(): modal → abdunkelnder Backdrop + Interaktionssperre. Die Seite
       // ist nicht bedienbar, bis eine Auswahl getroffen wurde.
-      if (banner && !banner.open) banner.showModal();
       lockScroll();
+      if (banner && !banner.open) banner.showModal();
       const title = document.getElementById('sg-consent-banner-title');
-      if (title) (title as HTMLElement).focus();
+      if (title) (title as HTMLElement).focus({ preventScroll: true });
     };
     const closeBanner = (): void => {
       if (banner && banner.open) banner.close();
