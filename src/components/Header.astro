@@ -4,6 +4,15 @@ import { hero } from '../content/site';
 
 const { primaryCta } = hero;
 const [homeItem, ...restItems] = navigation;
+
+const pathname = Astro.url.pathname.replace(/\/+$/, '') || '/';
+// Aktuelle Seite = gleicher Pfad. Anker-Links (/#…) sind keine eigene Seite und
+// werden nicht als „aktuell" markiert.
+const isCurrent = (href: string): boolean => {
+  if (href.includes('#')) return false;
+  const path = href.replace(/\/+$/, '') || '/';
+  return path === pathname;
+};
 ---
 
 <header class="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-navy-900">
@@ -44,7 +53,12 @@ const [homeItem, ...restItems] = navigation;
         restItems.map((item) => (
           <a
             href={item.href}
-            class="font-body text-base text-slate-300 transition-colors hover:text-fog-50"
+            data-nav-link
+            aria-current={isCurrent(item.href) ? 'page' : undefined}
+            class:list={[
+              'font-body text-base text-slate-300 transition-colors hover:text-fog-50',
+              isCurrent(item.href) && 'is-active',
+            ]}
           >
             {item.label}
           </a>
@@ -73,12 +87,21 @@ const [homeItem, ...restItems] = navigation;
   </div>
 
   <nav
-    class="hidden flex-col gap-1 border-t border-white/10 bg-navy-900 px-6 py-4 lg:hidden"
+    class="sg-mobile-menu hidden flex-col gap-1 border-t border-white/10 px-6 py-4 focus:outline-none lg:hidden"
+    tabindex="-1"
     data-mobile-menu
   >
     {
       restItems.map((item) => (
-        <a href={item.href} class="py-2 font-body text-base text-slate-300 hover:text-fog-50">
+        <a
+          href={item.href}
+          data-nav-link
+          aria-current={isCurrent(item.href) ? 'page' : undefined}
+          class:list={[
+            'py-2 font-body text-base text-slate-300 hover:text-fog-50',
+            isCurrent(item.href) && 'is-active',
+          ]}
+        >
           {item.label}
         </a>
       ))
@@ -103,7 +126,8 @@ const [homeItem, ...restItems] = navigation;
     menu?.classList.add('flex');
     menu?.classList.remove('hidden');
     toggle?.setAttribute('aria-expanded', 'true');
-    menu?.querySelector('a')?.focus();
+    // Container statt ersten Link fokussieren → kein Fokusrahmen auf „Über uns".
+    (menu as HTMLElement)?.focus();
   };
 
   toggle?.addEventListener('click', () => {
@@ -134,4 +158,77 @@ const [homeItem, ...restItems] = navigation;
     if (menu?.contains(target) || toggle?.contains(target)) return;
     closeMenu();
   });
+
+  // -----------------------------------------------------------------------
+  // Aktuellen Standort im Menü markieren: echte Seite über den Pfad, Anker-
+  // Abschnitte der Startseite (Über uns, Kontakt) über Hash UND Scroll-Position.
+  // -----------------------------------------------------------------------
+  const navLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-nav-link]'));
+
+  if (navLinks.length) {
+    const parse = (href: string) => {
+      const u = new URL(href, location.origin);
+      return { path: u.pathname.replace(/\/+$/, '') || '/', hash: u.hash };
+    };
+    const curPath = () => location.pathname.replace(/\/+$/, '') || '/';
+
+    const markActive = (isActive: (h: { path: string; hash: string }) => boolean) => {
+      navLinks.forEach((a) => {
+        const on = isActive(parse(a.getAttribute('href') || ''));
+        a.classList.toggle('is-active', on);
+        if (on) a.setAttribute('aria-current', 'page');
+        else a.removeAttribute('aria-current');
+      });
+    };
+
+    const updateByLocation = () => {
+      const path = curPath();
+      const hash = location.hash;
+      if (hash) markActive((h) => h.path === path && h.hash === hash);
+      else markActive((h) => h.path === path && !h.hash);
+    };
+
+    updateByLocation();
+    window.addEventListener('hashchange', updateByLocation);
+
+    // Scroll-Spy für die Anker-Abschnitte der Startseite.
+    if (curPath() === '/') {
+      const seen = new Set<string>();
+      const sections: { hash: string; el: Element }[] = [];
+      navLinks.forEach((a) => {
+        const h = parse(a.getAttribute('href') || '');
+        if (h.path !== '/' || !h.hash || seen.has(h.hash)) return;
+        seen.add(h.hash);
+        const el = document.querySelector(h.hash);
+        if (el) sections.push({ hash: h.hash, el });
+      });
+
+      if (sections.length) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (!entry.isIntersecting) return;
+              const match = sections.find((s) => s.el === entry.target);
+              if (match) markActive((h) => h.path === '/' && h.hash === match.hash);
+            });
+          },
+          { rootMargin: '-45% 0px -50% 0px', threshold: 0 },
+        );
+        sections.forEach((s) => io.observe(s.el));
+      }
+    }
+  }
 </script>
+
+<style>
+  /* Menü-Hintergrund einen Tick heller als die navy-900-Kopfzeile (tunbar: %-Wert). */
+  .sg-mobile-menu {
+    background: color-mix(in srgb, var(--color-navy-800) 30%, var(--color-navy-900));
+  }
+
+  /* Aktueller Standort (Seite oder Abschnitt): heller + fetter. */
+  [data-nav-link].is-active {
+    color: var(--color-fog-50);
+    font-weight: 600;
+  }
+</style>
