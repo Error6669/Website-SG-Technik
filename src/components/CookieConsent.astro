@@ -43,7 +43,7 @@ const policyLink =
     /* ---------------------------------------------------------------- */
     /* Info-Hinweis (nicht blockierend) — Ist-Zustand ohne Tracker      */
     /* ---------------------------------------------------------------- */
-    <div id="sg-cookie-notice" class="sg-cookie-notice" role="region" aria-label="Hinweis zur Datenspeicherung" hidden>
+    <dialog id="sg-cookie-notice" class="sg-cookie-notice" aria-label="Hinweis zur Datenspeicherung">
       <div class="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
         <p class="text-sm leading-relaxed text-slate-600">
           Diese Website nutzt nur technisch notwendige Speicherung, damit sie funktioniert. Es findet
@@ -55,7 +55,7 @@ const policyLink =
           Verstanden
         </button>
       </div>
-    </div>
+    </dialog>
   ) : (
     /* ---------------------------------------------------------------- */
     /* Vollständiges Einwilligungs-Banner + Einstellungs-Dialog         */
@@ -165,15 +165,25 @@ const policyLink =
 }
 
 <style>
-  /* --- Info-Hinweis (notice-Modus): schlanke Leiste am unteren Rand --- */
-  .sg-cookie-notice {
+  /* --- Info-Hinweis (notice-Modus): modale Leiste am unteren Rand, blockierend --- */
+  dialog.sg-cookie-notice {
     position: fixed;
     inset: auto 0 0 0;
-    z-index: 50;
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: none;
     background: var(--color-paper);
     border-top: 1px solid var(--color-line);
+    color: inherit;
   }
-  .sg-cookie-notice:not([hidden]) {
+  dialog.sg-cookie-notice::backdrop {
+    /* navy-900 mit Transparenz (No-Shadow-Regel) — dunkelt die Seite ab */
+    background: rgba(13, 36, 54, 0.55);
+  }
+  .sg-cookie-notice[open] {
     animation: sg-consent-slide-up 0.28s ease-out;
   }
 
@@ -195,7 +205,6 @@ const policyLink =
     position: fixed;
     inset: auto 0 0 0;
     width: 100%;
-    z-index: 50; /* nicht-modal: bleibt ohne Top-Layer über dem Seiteninhalt */
     background: var(--color-paper);
     border-top: 1px solid var(--color-line);
   }
@@ -348,9 +357,25 @@ const policyLink =
     // Modus A: schlanker Info-Hinweis
     // =====================================================================
     if (cfg.mode === 'notice') {
-      const notice = document.getElementById('sg-cookie-notice');
-      const showNotice = () => notice?.removeAttribute('hidden');
-      const hideNotice = () => notice?.setAttribute('hidden', '');
+      const notice = document.getElementById('sg-cookie-notice') as HTMLDialogElement | null;
+      // modal → abdunkelnder Backdrop + Seite inert (keine Klicks/Fokus); zusätzlich
+      // Scrollen sperren, bis „Verstanden" geklickt wurde.
+      const lockScroll = () => {
+        document.documentElement.style.overflow = 'hidden';
+      };
+      const unlockScroll = () => {
+        document.documentElement.style.overflow = '';
+      };
+      const showNotice = () => {
+        if (notice && !notice.open) notice.showModal();
+        lockScroll();
+      };
+      const hideNotice = () => {
+        if (notice && notice.open) notice.close();
+        unlockScroll();
+      };
+      // Esc soll den Hinweis nicht schließen — nur „Verstanden".
+      notice?.addEventListener('cancel', (e) => e.preventDefault());
 
       document.querySelectorAll<HTMLElement>('[data-consent-action="acknowledge"]').forEach((el) => {
         el.addEventListener('click', () => {
@@ -442,11 +467,20 @@ const policyLink =
       next: Record<string, boolean>,
     ): boolean => !!prev && cfg.categories.some((c) => !c.required && prev[c.id] && !next[c.id]);
 
+    // Scrollen sperren, solange das Banner die Seite blockiert.
+    const lockScroll = () => {
+      document.documentElement.style.overflow = 'hidden';
+    };
+    const unlockScroll = () => {
+      document.documentElement.style.overflow = '';
+    };
     const openBanner = (): void => {
-      // show() statt showModal(): nicht-modal → kein abdunkelnder Backdrop, kein
-      // Interaktions-/Scroll-Block. Die Seite bleibt bedienbar, während der
-      // Banner als fixierte Leiste unten sichtbar ist.
-      if (banner && !banner.open) banner.show();
+      // showModal(): modal → abdunkelnder Backdrop + Interaktionssperre. Die Seite
+      // ist nicht bedienbar, bis eine Auswahl getroffen wurde.
+      if (banner && !banner.open) banner.showModal();
+      lockScroll();
+      const title = document.getElementById('sg-consent-banner-title');
+      if (title) (title as HTMLElement).focus();
     };
     const closeBanner = (): void => {
       if (banner && banner.open) banner.close();
@@ -467,6 +501,7 @@ const policyLink =
       syncToggles(categories);
       closeSettings();
       closeBanner();
+      unlockScroll();
       activateScripts(categories);
       window.dispatchEvent(new CustomEvent('sg:consentchange', { detail: data }));
       if (wasRevoked(previous?.categories, categories) && document.querySelector('[data-sg-activated]')) {
