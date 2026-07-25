@@ -5,31 +5,22 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
 ---
 
 <section id="produkte-technik" class="scroll-mt-24 bg-fog-50 pt-[4.75rem] lg:pt-24">
-  {/* MOBILE: horizontale Kategorie-Leiste (oben klebend) */}
+  <h1 class="sr-only">Produkte und Technik — Silo-, Sole- und Automatisierungssysteme</h1>
+
+  {/* MOBILE: schlanke, klebende Produktnamen-Leiste (nur Namen, links-rechts wischbar) */}
   <div class="pt-mbar lg:hidden">
-    <ol class="pt-mcarousel">
+    <ol class="pt-mnav">
       {
         productCategories.map((c, i) => (
-          <li class:list={['pt-mcard', i === 0 && 'is-active']} data-mcard={c.slug}>
-            <button type="button" class="pt-mcard__btn" data-mgoto={c.slug} aria-label={`${c.name} anzeigen`}>
-              <span class="block font-mono text-xs uppercase tracking-[0.12em] text-slate-600">
-                {String(i + 1).padStart(2, '0')} · Bereich
-              </span>
-              <span class="mt-0.5 block font-display text-lg font-bold leading-tight text-copper-600">
-                {c.name}
-              </span>
-              <span class="mt-0.5 block truncate text-xs leading-snug text-slate-600">{c.tagline}</span>
+          <li class:list={['pt-mnav__item', i === 0 && 'is-active']} data-mnav={c.slug}>
+            <button
+              type="button"
+              class="pt-mnav__btn font-display text-sm"
+              data-mgoto={c.slug}
+              aria-label={`${c.name} anzeigen`}
+            >
+              {c.name}
             </button>
-            {c.specs.length > 0 && (
-              <dl class="pt-mcard__specs">
-                {c.specs.map((s) => (
-                  <div class="flex flex-wrap gap-x-2">
-                    <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">{s.label}:</dt>
-                    <dd class="min-w-0 flex-1 text-xs text-navy-900">{s.value}</dd>
-                  </div>
-                ))}
-              </dl>
-            )}
           </li>
         ))
       }
@@ -37,127 +28,189 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
   </div>
 
   <div class="mx-auto max-w-6xl px-6">
-    <div class="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-10 xl:gap-16">
-    {/* RECHTS (order-2): nur der aktive Kategorie-Text, vertikal mittig */}
-    <div class="pt-stream lg:order-2">
-      <h1 class="sr-only">Produkte und Technik — Silo-, Sole- und Automatisierungssysteme</h1>
+    {/* MOBILE: bildschirmhoher Bereich, nur das aktive Produkt (Specs → Text) */}
+    <div class="pt-mstage lg:hidden">
       {
         productCategories.map((c, i) => (
-          <div class:list={['pt-cat pt-2 pb-14 sm:pb-16', i === 0 && 'is-shown']} data-cat={c.slug} id={`cat-${c.slug}`}>
-            <div class="pt-inner">
-              <div class="space-y-4 text-base leading-relaxed text-slate-600 text-justify">
-                <p>{c.intro}</p>
-                {c.paragraphs.map((t) => (
-                  <p>{t}</p>
+          <div class:list={['pt-mcat', i === 0 && 'is-shown']} data-mcat={c.slug}>
+            <h2 class="sr-only">{c.name}</h2>
+            {c.specs.length > 0 && (
+              <dl class="pt-mspecs">
+                {c.specs.map((s) => (
+                  <div class="pt-mspecs__row">
+                    <dt class={dtClass}>{s.label}</dt>
+                    <dd class="mt-1 break-words text-sm leading-relaxed text-navy-900">{s.value}</dd>
+                  </div>
                 ))}
-              </div>
+              </dl>
+            )}
+            <div class="space-y-4 text-base leading-relaxed text-slate-600 text-justify">
+              <p>{c.intro}</p>
+              {c.paragraphs.map((t) => (
+                <p>{t}</p>
+              ))}
             </div>
           </div>
         ))
       }
     </div>
 
-    {/* LINKS (order-1): Übersicht (Kategorie-Umschalter), oben startend */}
-    <aside class="pt-panel hidden lg:order-1 lg:block">
-      <div class="sticky top-24">
-        <p class="mb-5 flex items-center gap-3 font-mono text-xs uppercase tracking-[0.14em] text-slate-600">
-          <span class="inline-block h-px w-6 bg-copper-500"></span>
-          Produkte &amp; Technik
-        </p>
-        <ol class="pt-switch border-t border-line">
-          {
-            productCategories.map((c, i) => (
-              <li class:list={['pt-switch__item border-b border-line', i === 0 && 'is-active']} data-target={c.slug}>
-                <button type="button" class="pt-switch__name" data-goto={c.slug} aria-label={`Zu ${c.name} springen`}>
-                  <span class="pt-switch__index font-mono text-xs tabular-nums">{String(i + 1).padStart(2, '0')}</span>
-                  <span class="pt-switch__label font-display text-xl font-semibold">{c.name}</span>
-                </button>
-                <div class="pt-switch__wrap">
-                  <div class="pt-switch__info">
-                    <p class="text-sm leading-relaxed text-slate-600">{c.tagline}</p>
-                    {c.specs.length > 0 && (
-                      <dl class="mt-3 divide-y divide-line border-t border-line">
-                        {c.specs.map((s) => (
-                          <div class="py-2.5">
-                            <dt class={dtClass}>{s.label}</dt>
-                            <dd class="mt-1 break-words text-sm leading-relaxed text-navy-900">{s.value}</dd>
-                          </div>
-                        ))}
-                      </dl>
-                    )}
-                  </div>
+    {/* DESKTOP: zweispaltig — links Umschalter, rechts der aktive Text (Stepped-Scrolling) */}
+    <div class="hidden lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-10 xl:gap-16">
+      {/* RECHTS (order-2): nur der aktive Kategorie-Text */}
+      <div class="pt-stream lg:order-2">
+        {
+          productCategories.map((c, i) => (
+            <div class:list={['pt-cat pt-2 pb-14 sm:pb-16', i === 0 && 'is-shown']} data-cat={c.slug} id={`cat-${c.slug}`}>
+              <div class="pt-inner">
+                <div class="space-y-4 text-base leading-relaxed text-slate-600 text-justify">
+                  <p>{c.intro}</p>
+                  {c.paragraphs.map((t) => (
+                    <p>{t}</p>
+                  ))}
                 </div>
-              </li>
-            ))
-          }
-        </ol>
+              </div>
+            </div>
+          ))
+        }
       </div>
-    </aside>
+
+      {/* LINKS (order-1): Übersicht (Kategorie-Umschalter), oben startend */}
+      <aside class="pt-panel lg:order-1">
+        <div class="sticky top-24">
+          <p class="mb-5 flex items-center gap-3 font-mono text-xs uppercase tracking-[0.14em] text-slate-600">
+            <span class="inline-block h-px w-6 bg-copper-500"></span>
+            Produkte &amp; Technik
+          </p>
+          <ol class="pt-switch border-t border-line">
+            {
+              productCategories.map((c, i) => (
+                <li class:list={['pt-switch__item border-b border-line', i === 0 && 'is-active']} data-target={c.slug}>
+                  <button type="button" class="pt-switch__name" data-goto={c.slug} aria-label={`Zu ${c.name} springen`}>
+                    <span class="pt-switch__index font-mono text-xs tabular-nums">{String(i + 1).padStart(2, '0')}</span>
+                    <span class="pt-switch__label font-display text-xl font-semibold">{c.name}</span>
+                  </button>
+                  <div class="pt-switch__wrap">
+                    <div class="pt-switch__info">
+                      <p class="text-sm leading-relaxed text-slate-600">{c.tagline}</p>
+                      {c.specs.length > 0 && (
+                        <dl class="mt-3 divide-y divide-line border-t border-line">
+                          {c.specs.map((s) => (
+                            <div class="py-2.5">
+                              <dt class={dtClass}>{s.label}</dt>
+                              <dd class="mt-1 break-words text-sm leading-relaxed text-navy-900">{s.value}</dd>
+                            </div>
+                          ))}
+                        </dl>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+      </aside>
     </div>
   </div>
 </section>
 
 <style>
-  :where(.pt-stream, .pt-panel, .pt-mbar) {
+  :where(.pt-stream, .pt-panel) {
     --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   }
 
-  /* --- Mobile: horizontale, klebende Kategorie-Leiste --- */
+  /* Höhe der mobilen Namensleiste — ein Ort zum Feintunen. */
+  .pt-mbar,
+  .pt-mstage {
+    --pt-bar-h: 3.25rem;
+  }
+
+  /* --- Mobile: schlanke, klebende Produktnamen-Leiste --- */
   .pt-mbar {
     position: sticky;
-    top: 4.75rem;
+    top: 4.75rem; /* direkt unter der fixierten Kopfzeile */
     z-index: 20;
-    background: color-mix(in srgb, var(--color-slate-500) 22%, var(--color-fog-50));
-    padding-block: 0.45rem 0.5rem;
+    height: var(--pt-bar-h);
+    background: color-mix(in srgb, var(--color-slate-500) 10%, var(--color-fog-50));
     border-top: 1px solid var(--color-line);
     border-bottom: 1px solid var(--color-line);
   }
-  .pt-mcarousel {
+  .pt-mnav {
     display: flex;
-    align-items: stretch;
-    gap: 0.75rem;
+    align-items: center;
+    gap: 1.75rem;
+    height: 100%;
     margin: 0;
-    padding: 0 11%;
+    padding: 0;
     list-style: none;
     overflow-x: auto;
-    scroll-snap-type: x mandatory;
+    scroll-snap-type: x proximity;
     scrollbar-width: none;
     overscroll-behavior-x: contain;
     -webkit-overflow-scrolling: touch;
   }
-  .pt-mcarousel::-webkit-scrollbar {
+  .pt-mnav::-webkit-scrollbar {
     display: none;
   }
-  .pt-mcard {
-    flex: 0 0 78%;
+  /* Spacer, damit auch das erste/letzte Element mittig zentriert werden kann. */
+  .pt-mnav::before,
+  .pt-mnav::after {
+    content: '';
+    flex: 0 0 42vw;
+  }
+  .pt-mnav__item {
+    flex: 0 0 auto;
     scroll-snap-align: center;
-    border-radius: 2px;
-    background: var(--color-paper);
-    border: 1px solid var(--color-line);
-    opacity: 0.5;
-    transform: scale(0.94);
-    transition:
-      opacity 0.25s var(--ease-out),
-      transform 0.25s var(--ease-out);
   }
-  .pt-mcard.is-active {
-    opacity: 1;
-    transform: scale(1);
-  }
-  .pt-mcard__btn {
+  .pt-mnav__btn {
     display: block;
-    width: 100%;
-    padding: 0.5rem 0.7rem 0.25rem;
-    text-align: left;
+    padding: 0.35rem 0;
+    font-weight: 500;
+    line-height: 1.2;
+    white-space: nowrap;
+    color: var(--color-slate-500);
     cursor: pointer;
+    transition: color 0.2s ease;
   }
-  .pt-mcard__specs {
-    padding: 0 0.7rem 0.55rem;
-    display: grid;
-    gap: 0.15rem;
+  .pt-mnav__item.is-active .pt-mnav__btn {
+    color: var(--color-copper-600);
+    font-weight: 600;
+  }
+  .pt-mnav__btn:focus-visible {
+    outline: 2px solid var(--color-copper-500);
+    outline-offset: 2px;
   }
 
-  /* --- Links: nur der aktive Kategorie-Text --- */
+  /* --- Mobile: bildschirmhoher Scrollbereich, nur das aktive Produkt --- */
+  .pt-mstage {
+    height: calc(100dvh - 4.75rem - var(--pt-bar-h));
+    overflow-y: auto;
+    overscroll-behavior-y: contain; /* verhindert Durchrutschen auf die Seite */
+    touch-action: pan-y;
+    scrollbar-width: none;
+  }
+  .pt-mstage::-webkit-scrollbar {
+    display: none;
+  }
+  .pt-mcat {
+    display: none;
+  }
+  .pt-mcat.is-shown {
+    display: block;
+    padding-top: 1.25rem;
+    padding-bottom: 2rem;
+  }
+  .pt-mspecs {
+    margin: 0 0 1.5rem;
+    border-top: 1px solid var(--color-line);
+  }
+  .pt-mspecs__row {
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  /* --- Desktop: nur der aktive Kategorie-Text --- */
   .pt-inner {
     max-width: 44rem;
     margin-inline: auto;
@@ -168,7 +221,7 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
   .pt-cat.is-shown {
     display: block;
   }
-  /* Desktop: nur der aktive Text, vertikal mittig auf der Seite. */
+  /* Desktop: nur der aktive Text, eigener Scrollbereich. */
   @media (min-width: 1024px) {
     .pt-stream {
       display: flex;
@@ -176,16 +229,13 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
       justify-content: flex-start;
       height: calc(100vh - 6rem);
       overflow-y: auto;
+      scrollbar-width: thin;
       /* Versatz, damit der Textanfang auf Höhe des ersten Listeneintrags „01" liegt. */
       padding-top: 2.75rem;
     }
-    /* Eigener Scrollbalken im Textbereich dezent halten. */
-    .pt-stream {
-      scrollbar-width: thin;
-    }
   }
 
-  /* --- Rechtes Panel: Überschriften größer + orange --- */
+  /* --- Desktop-Panel: Überschriften größer + orange --- */
   .pt-switch__item {
     padding-inline: 0.85rem;
     margin-inline: -0.85rem;
@@ -248,9 +298,6 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .pt-mcard {
-      transition: opacity 0.2s ease;
-    }
     .pt-switch__wrap {
       transition: opacity 0.2s ease;
     }
@@ -259,11 +306,16 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
 
 <script>
   // -------------------------------------------------------------------------
-  // Tab-Verhalten: rechts (bzw. mobil oben) eine Kategorie wählen → links wird
-  // NUR der zugehörige Text angezeigt. Kein Scroll-Durchlauf.
+  // Desktop: rechts (aktiver) Kategorie-Text, links Umschalter mit gesteuertem
+  //          „Stepped Scrolling" (wheel).
+  // Mobile:  oben schlanke Namensleiste, darunter ein bildschirmhoher Bereich,
+  //          in dem nur das aktive Produkt steht (Specs → Text). Innerhalb frei
+  //          scrollen; am Text-Ende/-Anfang springt es HART auf den Textanfang
+  //          des nächsten/vorigen Produkts — kein durchgehendes Scrollen.
   // -------------------------------------------------------------------------
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // Desktop-Umschalter + Textblöcke.
   const switchItems = new Map<string, HTMLElement>();
   document.querySelectorAll<HTMLElement>('.pt-switch__item').forEach((li) => {
     switchItems.set(li.dataset.target!, li);
@@ -271,30 +323,31 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
   const catBlocks = new Map<string, HTMLElement>();
   document.querySelectorAll<HTMLElement>('.pt-cat').forEach((b) => catBlocks.set(b.dataset.cat!, b));
 
-  // Mobile-Karten.
-  const cards = new Map<string, HTMLElement>();
-  document.querySelectorAll<HTMLElement>('.pt-mcard').forEach((c) => cards.set(c.dataset.mcard!, c));
-  const carousel = document.querySelector<HTMLElement>('.pt-mcarousel');
-  let centeringCarousel = false;
-  let centerTimer = 0;
-  const centerCard = (slug: string) => {
-    const card = cards.get(slug);
-    if (!card || !carousel || carousel.offsetParent === null) return;
-    centeringCarousel = true;
-    const left = card.offsetLeft - (carousel.clientWidth - card.clientWidth) / 2;
-    carousel.scrollTo({ left, behavior: reduceMotion ? 'auto' : 'smooth' });
-    clearTimeout(centerTimer);
-    centerTimer = window.setTimeout(() => (centeringCarousel = false), 500);
+  // Mobile-Namensleiste + Produkt-Blöcke.
+  const navItems = new Map<string, HTMLElement>();
+  document.querySelectorAll<HTMLElement>('.pt-mnav__item').forEach((li) => navItems.set(li.dataset.mnav!, li));
+  const mCats = new Map<string, HTMLElement>();
+  document.querySelectorAll<HTMLElement>('.pt-mcat').forEach((b) => mCats.set(b.dataset.mcat!, b));
+  const nav = document.querySelector<HTMLElement>('.pt-mnav');
+  const mStage = document.querySelector<HTMLElement>('.pt-mstage');
+
+  // Aktiven Namen in der mobilen Leiste mittig fahren (auf Desktop No-Op, da versteckt).
+  const centerNav = (slug: string) => {
+    const li = navItems.get(slug);
+    if (!li || !nav || nav.offsetParent === null) return;
+    const left = li.offsetLeft - (nav.clientWidth - li.clientWidth) / 2;
+    nav.scrollTo({ left, behavior: reduceMotion ? 'auto' : 'smooth' });
   };
 
   let lastActive = '';
-  const setActive = (slug: string, fromCarousel = false) => {
+  const setActive = (slug: string) => {
     if (slug === lastActive) return;
     lastActive = slug;
     switchItems.forEach((li, s) => li.classList.toggle('is-active', s === slug));
-    cards.forEach((c, s) => c.classList.toggle('is-active', s === slug));
+    navItems.forEach((li, s) => li.classList.toggle('is-active', s === slug));
     catBlocks.forEach((b, s) => b.classList.toggle('is-shown', s === slug));
-    if (!fromCarousel) centerCard(slug);
+    mCats.forEach((b, s) => b.classList.toggle('is-shown', s === slug));
+    centerNav(slug);
   };
 
   const firstSlug = document.querySelector<HTMLElement>('.pt-cat')?.dataset.cat;
@@ -306,56 +359,69 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
     const slugs = Array.from(catBlocks.keys());
     const isDesktop = () => window.matchMedia('(min-width: 1024px)').matches;
 
-    // Desktop: gesteuertes „Stepped Scrolling". Innerhalb eines Kategorie-Texts
-    // scrollen; am oberen/unteren Ende springt es hart zur vorigen/nächsten
-    // Kategorie (kein Zwischenzustand mit beiden Texten). Die Übersicht links
-    // bleibt stehen — die Seite scrollt erst nach der letzten Kategorie weiter.
+    // Gemeinsame Slide-Animation: aktueller Block fährt raus, danach neuer rein.
+    const animateSwap = (
+      blocks: Map<string, HTMLElement>,
+      fromSlug: string,
+      toSlug: string,
+      dir: number,
+      dist: number,
+      dur: number,
+      afterHide: () => void,
+    ) => {
+      const cur = blocks.get(fromSlug);
+      if (cur && !reduceMotion) {
+        cur.style.transition = `transform ${dur}ms ease, opacity ${dur}ms ease`;
+        cur.style.transform = `translateY(${dir > 0 ? -dist : dist}px)`;
+        cur.style.opacity = '0';
+      }
+      window.setTimeout(
+        () => {
+          if (cur) {
+            cur.style.transition = '';
+            cur.style.transform = '';
+            cur.style.opacity = '';
+          }
+          setActive(toSlug);
+          afterHide();
+          const nxt = blocks.get(toSlug);
+          if (nxt && !reduceMotion) {
+            nxt.style.transition = 'none';
+            nxt.style.transform = `translateY(${dir > 0 ? dist * 0.5 : -dist * 0.5}px)`;
+            nxt.style.opacity = '0';
+            requestAnimationFrame(() => {
+              nxt.style.transition = `transform ${dur}ms ease, opacity ${dur}ms ease`;
+              nxt.style.transform = '';
+              nxt.style.opacity = '';
+              window.setTimeout(() => (nxt.style.transition = ''), dur + 30);
+            });
+          }
+        },
+        reduceMotion ? 0 : dur,
+      );
+    };
+
+    // ---------------------------------------------------------------------
+    // Desktop: gesteuertes „Stepped Scrolling" (wheel).
+    // ---------------------------------------------------------------------
     if (stream && section) {
       const DUR = reduceMotion ? 0 : 280;
       let cooling = false;
       let coolTimer = 0;
-      // Sperre bleibt aktiv, bis das Wheel wirklich aufhört (Trackpad-Momentum
-      // abwarten) — verhindert versehentliches Überspringen mehrerer Kategorien.
       const holdCooling = () => {
         clearTimeout(coolTimer);
         coolTimer = window.setTimeout(() => (cooling = false), 160);
       };
 
-      // Wechsel: aktueller Text fährt zuerst nach oben (bzw. unten) raus,
-      // danach erscheint der neue Text — nie beide gleichzeitig.
       const step = (dir: number) => {
         const idx = slugs.indexOf(lastActive);
         const ni = idx + dir;
         if (ni < 0 || ni >= slugs.length) return;
         cooling = true;
         holdCooling();
-        const cur = catBlocks.get(lastActive);
-        if (cur && !reduceMotion) {
-          cur.style.transition = `transform ${DUR}ms ease, opacity ${DUR}ms ease`;
-          cur.style.transform = `translateY(${dir > 0 ? -48 : 48}px)`;
-          cur.style.opacity = '0';
-        }
-        window.setTimeout(() => {
-          if (cur) {
-            cur.style.transition = '';
-            cur.style.transform = '';
-            cur.style.opacity = '';
-          }
-          setActive(slugs[ni]);
+        animateSwap(catBlocks, lastActive, slugs[ni], dir, 48, DUR, () => {
           stream.scrollTop = dir > 0 ? 0 : stream.scrollHeight;
-          const nxt = catBlocks.get(slugs[ni]);
-          if (nxt && !reduceMotion) {
-            nxt.style.transition = 'none';
-            nxt.style.transform = `translateY(${dir > 0 ? 24 : -24}px)`;
-            nxt.style.opacity = '0';
-            requestAnimationFrame(() => {
-              nxt.style.transition = `transform ${DUR}ms ease, opacity ${DUR}ms ease`;
-              nxt.style.transform = '';
-              nxt.style.opacity = '';
-              window.setTimeout(() => (nxt.style.transition = ''), DUR + 30);
-            });
-          }
-        }, DUR);
+        });
       };
 
       section.addEventListener(
@@ -367,9 +433,6 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
             holdCooling();
             return;
           }
-          // Solange die Sektion nicht voll im Bild ist (z. B. beim Hochscrollen von
-          // unten): erst normal scrollen, bis die ganze Übersicht sichtbar ist —
-          // dann erst greift das Umschalten.
           const pinned = Math.abs(section.getBoundingClientRect().top) < 4;
           if (!pinned) {
             e.preventDefault();
@@ -379,8 +442,6 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
           const atTop = stream.scrollTop <= 0;
           const atBottom = stream.scrollTop + stream.clientHeight >= stream.scrollHeight - 1;
           const idx = slugs.indexOf(lastActive);
-          // Am Textende (unten kein Text mehr) → sofort weiter; sonst normal im
-          // Text scrollen, damit sich der Text — egal wie langsam — nach oben bewegt.
           if (e.deltaY > 0 && atBottom && idx < slugs.length - 1) {
             e.preventDefault();
             step(1);
@@ -402,40 +463,121 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
       });
     });
 
-    // Mobile: Karussell ↔ Text.
-    if (carousel) {
-      let lastCarouselSlug = '';
-      const activateCentered = () => {
-        if (centeringCarousel) return;
-        const cRect = carousel.getBoundingClientRect();
-        const mid = cRect.left + cRect.width / 2;
-        let best: HTMLElement | null = null;
-        let bd = Infinity;
-        cards.forEach((card) => {
-          const r = card.getBoundingClientRect();
-          const d = Math.abs(r.left + r.width / 2 - mid);
-          if (d < bd) {
-            bd = d;
-            best = card;
-          }
-        });
-        if (!best) return;
-        const slug = (best as HTMLElement).dataset.mcard!;
-        if (slug === lastCarouselSlug) return;
-        lastCarouselSlug = slug;
-        setActive(slug, true);
+    // ---------------------------------------------------------------------
+    // Mobile: Stepped Scrolling per Touch im bildschirmhohen Bereich.
+    // ---------------------------------------------------------------------
+    if (mStage && section && mCats.size) {
+      const MDUR = reduceMotion ? 0 : 260;
+      const mSlugs = Array.from(mCats.keys());
+      let mCooling = false;
+      let mCoolTimer = 0;
+      const holdM = () => {
+        clearTimeout(mCoolTimer);
+        mCoolTimer = window.setTimeout(() => (mCooling = false), 200);
       };
-      carousel.addEventListener('scrollend', activateCentered);
-      let idle = 0;
-      carousel.addEventListener('scroll', () => {
-        clearTimeout(idle);
-        idle = window.setTimeout(activateCentered, 140);
-      });
-      cards.forEach((card, slug) => {
-        card.querySelector<HTMLElement>('[data-mgoto]')?.addEventListener('click', () => {
-          lastCarouselSlug = slug;
-          setActive(slug, true);
-          centerCard(slug);
+
+      // Immer am Textanfang des Zielprodukts landen (kein Zwischenzustand).
+      const mStep = (dir: number) => {
+        const idx = mSlugs.indexOf(lastActive);
+        const ni = idx + dir;
+        if (ni < 0 || ni >= mSlugs.length) return;
+        mCooling = true;
+        holdM();
+        animateSwap(mCats, lastActive, mSlugs[ni], dir, 32, MDUR, () => {
+          mStage.scrollTop = 0;
+        });
+      };
+
+      // Nach dem letzten Produkt eine Wisch-Geste → ganz ans Seitenende scrollen.
+      const releaseDown = () => {
+        mCooling = true;
+        holdM();
+        const bottom = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+        window.scrollTo({ top: bottom, behavior: reduceMotion ? 'auto' : 'smooth' });
+      };
+
+      let prevY = 0;
+      mStage.addEventListener(
+        'touchstart',
+        (e) => {
+          prevY = e.touches[0].clientY;
+        },
+        { passive: true },
+      );
+      mStage.addEventListener(
+        'touchmove',
+        (e) => {
+          if (isDesktop()) return;
+          if (mCooling) {
+            e.preventDefault();
+            return;
+          }
+          const y = e.touches[0].clientY;
+          const dy = prevY - y; // > 0 = nach oben wischen (weiter/nächstes)
+          prevY = y;
+          const atTop = mStage.scrollTop <= 0;
+          const atBottom = mStage.scrollTop + mStage.clientHeight >= mStage.scrollHeight - 1;
+          const idx = mSlugs.indexOf(lastActive);
+          if (dy > 2 && atBottom) {
+            if (idx < mSlugs.length - 1) {
+              e.preventDefault();
+              mStep(1);
+            } else {
+              e.preventDefault();
+              releaseDown();
+            }
+          } else if (dy < -2 && atTop && idx > 0) {
+            e.preventDefault();
+            mStep(-1);
+          }
+          // sonst: normal im Produkt scrollen (nativ)
+        },
+        { passive: false },
+      );
+
+      // Gleiche Rand-Logik für Maus/Trackpad (z. B. DevTools-Mobilansicht),
+      // da dort wheel- statt touch-Events kommen.
+      mStage.addEventListener(
+        'wheel',
+        (e) => {
+          if (isDesktop()) return;
+          if (mCooling) {
+            e.preventDefault();
+            return;
+          }
+          const atTop = mStage.scrollTop <= 0;
+          const atBottom = mStage.scrollTop + mStage.clientHeight >= mStage.scrollHeight - 1;
+          const idx = mSlugs.indexOf(lastActive);
+          if (e.deltaY > 0 && atBottom) {
+            if (idx < mSlugs.length - 1) {
+              e.preventDefault();
+              mStep(1);
+            } else {
+              e.preventDefault();
+              releaseDown();
+            }
+          } else if (e.deltaY < 0 && atTop && idx > 0) {
+            e.preventDefault();
+            mStep(-1);
+          }
+          // sonst: normal im Produkt scrollen (nativ)
+        },
+        { passive: false },
+      );
+
+      // Namen antippen → hart auf den Textanfang dieses Produkts.
+      navItems.forEach((li, slug) => {
+        li.querySelector<HTMLElement>('[data-mgoto]')?.addEventListener('click', () => {
+          if (slug === lastActive) {
+            mStage.scrollTop = 0;
+            return;
+          }
+          const dir = mSlugs.indexOf(slug) > mSlugs.indexOf(lastActive) ? 1 : -1;
+          mCooling = true;
+          holdM();
+          animateSwap(mCats, lastActive, slug, dir, 32, MDUR, () => {
+            mStage.scrollTop = 0;
+          });
         });
       });
     }

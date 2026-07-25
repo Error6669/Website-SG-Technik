@@ -3,26 +3,26 @@ import LogoMark from './LogoMark.astro';
 import { hero, stats } from '../content/site';
 ---
 
-<section class="relative overflow-hidden bg-fog-50 pt-24 pb-16 text-navy-900 sm:pt-28">
+<section class="relative overflow-hidden bg-fog-50 pt-28 pb-16 text-navy-900 sm:pt-32">
   <div class="relative mx-auto max-w-6xl px-6">
     <div class="pointer-events-none absolute right-6 top-1/2 hidden w-[24rem] -translate-y-1/2 opacity-90 lg:block">
       <LogoMark class="h-auto w-full" />
     </div>
 
     <div class="lg:max-w-lg xl:max-w-xl">
-      <div class="flex items-start justify-between gap-4 lg:block">
-        <div>
-          <p class="relative flex items-center gap-3 font-mono text-xs uppercase tracking-[0.14em] text-slate-600">
-            <span class="inline-block h-px w-6 bg-copper-500"></span>
-            {hero.eyebrow}
-          </p>
+      {/* Eyebrow nur auf Desktop — über die volle Breite */}
+      <p class="relative hidden items-center gap-3 font-mono text-xs uppercase tracking-[0.14em] text-slate-600 lg:flex">
+        <span class="inline-block h-px w-6 flex-none bg-copper-500"></span>
+        {hero.eyebrow}
+      </p>
 
-          <h1 class="mt-4 max-w-3xl text-balance font-display text-4xl font-bold leading-[1.05] tracking-tight text-navy-800 sm:text-5xl lg:text-6xl">
-            {hero.headline}
-          </h1>
-        </div>
+      {/* Mobile: Überschrift + Logo in einer Reihe, Logo vertikal mittig zum Text */}
+      <div class="flex items-center justify-between gap-2 lg:block">
+        <h1 class="max-w-3xl text-balance font-display text-4xl font-bold leading-[1.05] tracking-tight text-navy-800 sm:text-5xl lg:mt-4 lg:text-6xl">
+          {hero.headline}
+        </h1>
 
-        <div class="mt-1 w-28 flex-none opacity-90 sm:w-32 lg:hidden">
+        <div class="w-36 flex-none opacity-90 sm:w-44 lg:hidden">
           <LogoMark class="h-auto w-full" />
         </div>
       </div>
@@ -62,7 +62,10 @@ import { hero, stats } from '../content/site';
         stats.map((stat) => (
           <div class="bg-paper px-5 py-6">
             <dt class="sr-only">{stat.label}</dt>
-            <dd class="font-mono text-2xl font-medium tabular-nums text-navy-800 sm:text-3xl">
+            <dd
+              class="stat-value font-mono text-2xl font-medium tabular-nums text-navy-800 sm:text-3xl"
+              data-final={stat.value}
+            >
               {stat.value}
             </dd>
             <p class="mt-1.5 text-xs leading-snug text-slate-600">{stat.label}</p>
@@ -72,3 +75,122 @@ import { hero, stats } from '../content/site';
     </dl>
   </div>
 </section>
+
+<script>
+  // Zahlen-Hochzählen: beim Sichtbarwerden (bzw. Laden) zählen die Statistik-
+  // Werte ~2 s lang gleichmäßig von 0 hoch bis zum echten Wert und rasten von
+  // links nach rechts ein. Jede Zahlengruppe (z. B. 100, 980, 15.000, 2, 24)
+  // zählt als GANZE Zahl und ist dabei immer kleiner als ihr Endwert. Kleine
+  // Endwerte (< 10, z. B. 2) zählen mit einer Nachkommastelle (0,4 · 1,3 …).
+  // Zeichen wie „–", „t", „%", „±" bleiben stehen. Progressive Enhancement:
+  // ohne JS steht bereits der korrekte Wert im Markup.
+  const els = document.querySelectorAll<HTMLElement>('.stat-value');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (els.length && !reduceMotion) {
+    const DURATION = 2000; // Gesamtdauer des Hochzählens
+    const START_DELAY = 200; // Mindest-Zähldauer der ersten Zahl
+    const easeOut = (t: number) => 1 - Math.pow(1 - t, 3); // sanftes Auslaufen
+
+    interface NumSeg {
+      num: true;
+      finalText: string;
+      finalNum: number;
+      digitCount: number;
+      hasThousands: boolean;
+      small: boolean;
+      lockAt: number;
+      rand: string;
+    }
+    interface TextSeg {
+      num: false;
+      text: string;
+    }
+    type Seg = NumSeg | TextSeg;
+
+    const groupThousands = (s: string) => s.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+    // Zwischenwert beim Hochzählen (progress 0..1) — immer kleiner als der Endwert.
+    const countText = (s: NumSeg, progress: number) => {
+      const eased = easeOut(progress);
+      if (s.small) {
+        // eine Nachkommastelle, mit Komma (z. B. 0,4 · 1,3)
+        const v = Math.floor(s.finalNum * eased * 10) / 10;
+        return v.toFixed(1).replace('.', ',');
+      }
+      // ganzzahlig; auf Endlänge mit führenden Nullen auffüllen (kein Breiten-Zappeln)
+      let str = String(Math.floor(s.finalNum * eased)).padStart(s.digitCount, '0');
+      if (s.hasThousands) str = groupThousands(str);
+      return str;
+    };
+
+    const roll = (el: HTMLElement) => {
+      const final = el.dataset.final ?? el.textContent ?? '';
+      const segs: Seg[] = [];
+      const nums: NumSeg[] = [];
+      const re = /\d[\d.]*\d|\d/g;
+      let last = 0;
+      let m: RegExpExecArray | null;
+      while ((m = re.exec(final)) !== null) {
+        if (m.index > last) segs.push({ num: false, text: final.slice(last, m.index) });
+        const raw = m[0];
+        const finalNum = parseInt(raw.replace(/\./g, ''), 10);
+        const seg: NumSeg = {
+          num: true,
+          finalText: raw,
+          finalNum,
+          digitCount: raw.replace(/\./g, '').length,
+          hasThousands: raw.includes('.'),
+          small: finalNum < 10,
+          lockAt: 0,
+          rand: raw,
+        };
+        segs.push(seg);
+        nums.push(seg);
+        last = m.index + raw.length;
+      }
+      if (last < final.length) segs.push({ num: false, text: final.slice(last) });
+      if (!nums.length) return;
+
+      // Einrast-Zeitpunkt je Zahl, gestaffelt von links nach rechts.
+      nums.forEach((s, k) => {
+        s.lockAt = START_DELAY + ((DURATION - START_DELAY) * (k + 1)) / nums.length;
+      });
+
+      const start = performance.now();
+
+      const frame = (now: number) => {
+        const elapsed = now - start;
+        let allLocked = true;
+        nums.forEach((s) => {
+          if (elapsed >= s.lockAt) {
+            s.rand = s.finalText;
+          } else {
+            allLocked = false;
+            s.rand = countText(s, elapsed / s.lockAt);
+          }
+        });
+        el.textContent = segs.map((sg) => (sg.num ? sg.rand : sg.text)).join('');
+        if (!allLocked) {
+          requestAnimationFrame(frame);
+        } else {
+          el.textContent = final;
+        }
+      };
+      requestAnimationFrame(frame);
+    };
+
+    const io = new IntersectionObserver(
+      (entries, obs) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            roll(entry.target as HTMLElement);
+            obs.unobserve(entry.target); // nur einmal
+          }
+        });
+      },
+      { threshold: 0.4 },
+    );
+    els.forEach((el) => io.observe(el));
+  }
+</script>
