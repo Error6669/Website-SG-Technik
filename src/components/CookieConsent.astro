@@ -195,6 +195,7 @@ const policyLink =
     position: fixed;
     inset: auto 0 0 0;
     width: 100%;
+    z-index: 50; /* nicht-modal: bleibt ohne Top-Layer über dem Seiteninhalt */
     background: var(--color-paper);
     border-top: 1px solid var(--color-line);
   }
@@ -442,9 +443,10 @@ const policyLink =
     ): boolean => !!prev && cfg.categories.some((c) => !c.required && prev[c.id] && !next[c.id]);
 
     const openBanner = (): void => {
-      if (banner && !banner.open) banner.showModal();
-      const title = document.getElementById('sg-consent-banner-title');
-      if (title) (title as HTMLElement).focus();
+      // show() statt showModal(): nicht-modal → kein abdunkelnder Backdrop, kein
+      // Interaktions-/Scroll-Block. Die Seite bleibt bedienbar, während der
+      // Banner als fixierte Leiste unten sichtbar ist.
+      if (banner && !banner.open) banner.show();
     };
     const closeBanner = (): void => {
       if (banner && banner.open) banner.close();
