@@ -35,7 +35,7 @@ const labelClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-300'
             <dd class="text-base text-fog-50">
               {
                 hasPhone ? (
-                  <a href={`tel:${contact.phone}`} class="hover:text-white">
+                  <a href={`tel:${contact.phone.replace(/\s+/g, '')}`} class="hover:text-white">
                     {contact.phone}
                   </a>
                 ) : (

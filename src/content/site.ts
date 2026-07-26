@@ -8,7 +8,7 @@ export const hero = {
   headline: 'Silo- und Soleanlagen für den Winterdienst',
   subheadline: 'Robust. Präzise. Vernetzt.',
   lead: 'Maßgeschneidert auf Ihre Anforderungen. Wir schaffen langlebige Lösungen für Ihre Winterdienstanlage – mit langjähriger Erfahrung und Handschlagqualität.',
-  primaryCta: { label: 'Kostenloses Erstgespräch vereinbaren', href: '/#kontakt' },
+  primaryCta: { label: 'Melde dich bei uns', href: '/#kontakt' },
   secondaryCtas: [
     { label: 'Leistungen', href: '/leistungen' },
     { label: 'Produkte & Technik', href: '/produkte-technik' },
@@ -21,7 +21,7 @@ export interface Stat {
 }
 
 export const stats: Stat[] = [
-  { value: '100–980 t', label: 'Silo-Kapazität, individuell geplant' },
+  { value: '100 – 980 t', label: 'Silo-Kapazität, individuell geplant' },
   { value: '15.000 l/h', label: 'Löseleistung der Soleaufbereitung' },
   { value: '± 2 %', label: 'Messgenauigkeit der Verwiegungstechnik' },
   { value: '24 h', label: 'Vor-Ort-Unterstützung im Notdienst' },
@@ -74,7 +74,7 @@ export const process: ProcessStep[] = [
 ];
 
 export const customers = {
-  headline: 'Wer sind unsere Kunden',
+  headline: 'Unsere Kunden',
   items: ['Landesregierungen', 'Magistrate', 'Gemeinden', 'Infrastrukturträger', 'Autobahnbetreiber'],
 };
 
@@ -102,7 +102,7 @@ export const references: Reference[] = [
 ];
 
 export const closingCta = {
-  headline: 'Kostenloses Erstgespräch, langlebige Lösung.',
+  headline: 'Gemeinsam loslegen, langlebige Lösung.',
   lead: 'Ob Neubau oder Umstellung Ihrer Silo- und Soleanlage — wir planen individuell, liefern termingerecht und sind im Ernstfall innerhalb von 24 Stunden vor Ort.',
 };
 
@@ -111,7 +111,6 @@ export const contact = {
   headline: 'Ihr direkter Draht zu uns',
   lead: 'Sie haben Fragen oder planen ein Projekt? Wir freuen uns, Sie kennenzulernen und stehen gerne für ein persönliches Gespräch zur Verfügung.',
   person: 'Gregor Hofer',
-  // TODO: Telefonnummer ergänzen, sobald verfügbar.
-  phone: '',
+  phone: '+43 664 5178999',
   email: 'office@sgt.co.at',
 };

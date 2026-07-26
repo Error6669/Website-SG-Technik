@@ -10,20 +10,23 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
   {/* MOBILE: schlanke, klebende Produktnamen-Leiste (nur Namen, links-rechts wischbar) */}
   <div class="pt-mbar lg:hidden">
     <ol class="pt-mnav">
+      <li class="pt-mnav__spacer" aria-hidden="true"></li>
       {
         productCategories.map((c, i) => (
           <li class:list={['pt-mnav__item', i === 0 && 'is-active']} data-mnav={c.slug}>
             <button
               type="button"
-              class="pt-mnav__btn font-display text-sm"
+              class="pt-mnav__btn font-display"
               data-mgoto={c.slug}
               aria-label={`${c.name} anzeigen`}
             >
-              {c.name}
+              <span class="pt-mnav__index font-mono tabular-nums">{String(i + 1).padStart(2, '0')}</span>
+              <span class="pt-mnav__label">{c.name}</span>
             </button>
           </li>
         ))
       }
+      <li class="pt-mnav__spacer" aria-hidden="true"></li>
     </ol>
   </div>
 
@@ -44,7 +47,7 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
                 ))}
               </dl>
             )}
-            <div class="space-y-4 text-base leading-relaxed text-slate-600 text-justify">
+            <div class="space-y-4 text-base leading-relaxed text-slate-600 text-justify hyphens-auto">
               <p>{c.intro}</p>
               {c.paragraphs.map((t) => (
                 <p>{t}</p>
@@ -63,7 +66,7 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
           productCategories.map((c, i) => (
             <div class:list={['pt-cat pt-2 pb-14 sm:pb-16', i === 0 && 'is-shown']} data-cat={c.slug} id={`cat-${c.slug}`}>
               <div class="pt-inner">
-                <div class="space-y-4 text-base leading-relaxed text-slate-600 text-justify">
+                <div class="space-y-4 text-base leading-relaxed text-slate-600 text-justify hyphens-auto">
                   <p>{c.intro}</p>
                   {c.paragraphs.map((t) => (
                     <p>{t}</p>
@@ -123,7 +126,7 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
   /* Höhe der mobilen Namensleiste — ein Ort zum Feintunen. */
   .pt-mbar,
   .pt-mstage {
-    --pt-bar-h: 3.25rem;
+    --pt-bar-h: 4.25rem;
   }
 
   /* --- Mobile: schlanke, klebende Produktnamen-Leiste --- */
@@ -145,7 +148,9 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
     padding: 0;
     list-style: none;
     overflow-x: auto;
-    scroll-snap-type: x proximity;
+    /* Kein Snapping — sonst würde der letzte Reiter beim Loslassen immer in die
+       Mitte zurückgezogen und ließe sich nicht frei nach links schieben. */
+    scroll-snap-type: none;
     scrollbar-width: none;
     overscroll-behavior-x: contain;
     -webkit-overflow-scrolling: touch;
@@ -153,29 +158,52 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
   .pt-mnav::-webkit-scrollbar {
     display: none;
   }
-  /* Spacer, damit auch das erste/letzte Element mittig zentriert werden kann. */
-  .pt-mnav::before,
-  .pt-mnav::after {
-    content: '';
-    flex: 0 0 42vw;
+  /* Echte Spacer (zuverlässiger als ::before/::after), damit auch das erste und
+     das letzte Element mittig in die Leiste gefahren werden können. */
+  .pt-mnav__spacer {
+    /* Startwert; per JS exakt auf „erster/letzter Reiter mittig" gesetzt. */
+    flex: 0 0 45vw;
+    align-self: stretch;
+    pointer-events: none;
   }
   .pt-mnav__item {
     flex: 0 0 auto;
     scroll-snap-align: center;
   }
   .pt-mnav__btn {
-    display: block;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.4rem;
     padding: 0.35rem 0;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .pt-mnav__index {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--color-copper-500);
+  }
+  .pt-mnav__label {
+    font-size: 0.9rem;
     font-weight: 500;
     line-height: 1.2;
-    white-space: nowrap;
     color: var(--color-slate-500);
-    cursor: pointer;
-    transition: color 0.2s ease;
+    /* Senkrechter Trennstrich zwischen Nummer und Text — so hoch wie die
+       Textzeile, skaliert automatisch mit (aktiv = größer). */
+    border-left: 1px solid var(--color-line);
+    padding-left: 0.4rem;
+    transition:
+      color 0.2s ease,
+      font-size 0.2s ease;
   }
-  .pt-mnav__item.is-active .pt-mnav__btn {
-    color: var(--color-copper-600);
+  /* Aktuell ausgewähltes Produkt größer + kupfern. */
+  .pt-mnav__item.is-active .pt-mnav__label {
+    font-size: 1.2rem;
     font-weight: 600;
+    color: var(--color-copper-600);
+  }
+  .pt-mnav__item.is-active .pt-mnav__index {
+    color: var(--color-copper-600);
   }
   .pt-mnav__btn:focus-visible {
     outline: 2px solid var(--color-copper-500);
@@ -331,13 +359,52 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
   const nav = document.querySelector<HTMLElement>('.pt-mnav');
   const mStage = document.querySelector<HTMLElement>('.pt-mstage');
 
-  // Aktiven Namen in der mobilen Leiste mittig fahren (auf Desktop No-Op, da versteckt).
+  // Aktiven Namen in der mobilen Leiste exakt mittig fahren (auf Desktop No-Op,
+  // da versteckt). Zweiter Lauf nach dem Größer-Werden (font-size-Übergang des
+  // aktiven Reiters), damit die Breite final gemessen und sauber zentriert wird.
   const centerNav = (slug: string) => {
     const li = navItems.get(slug);
     if (!li || !nav || nav.offsetParent === null) return;
-    const left = li.offsetLeft - (nav.clientWidth - li.clientWidth) / 2;
-    nav.scrollTo({ left, behavior: reduceMotion ? 'auto' : 'smooth' });
+    const doCenter = () => {
+      const left = li.offsetLeft - (nav.clientWidth - li.clientWidth) / 2;
+      nav.scrollTo({ left, behavior: reduceMotion ? 'auto' : 'smooth' });
+    };
+    doCenter();
+    window.setTimeout(doCenter, 240);
   };
+
+  // Aktive (vergrößerte) Breite eines Reiters messen — Transition kurz aus, damit
+  // sofort die Endbreite gemessen wird, nicht ein Zwischenwert.
+  const activeWidth = (li: HTMLElement): number => {
+    const label = li.querySelector<HTMLElement>('.pt-mnav__label');
+    const prevT = label?.style.transition ?? '';
+    if (label) label.style.transition = 'none';
+    const was = li.classList.contains('is-active');
+    if (!was) li.classList.add('is-active');
+    const w = li.getBoundingClientRect().width;
+    if (!was) li.classList.remove('is-active');
+    if (label) label.style.transition = prevT;
+    return w;
+  };
+
+  // Spacer exakt so breit, dass der erste bzw. letzte Reiter GENAU mittig steht —
+  // nicht breiter (sonst ließe es sich zu weit ins Leere schieben).
+  const sizeSpacers = () => {
+    if (!nav || nav.offsetParent === null) return;
+    const items = Array.from(navItems.values());
+    if (!items.length) return;
+    const navW = nav.clientWidth;
+    const spacers = nav.querySelectorAll<HTMLElement>('.pt-mnav__spacer');
+    if (spacers[0]) spacers[0].style.flexBasis = `${Math.max(0, (navW - activeWidth(items[0])) / 2)}px`;
+    if (spacers[1])
+      spacers[1].style.flexBasis = `${Math.max(0, (navW - activeWidth(items[items.length - 1])) / 2)}px`;
+    if (lastActive) centerNav(lastActive);
+  };
+  if (nav) {
+    requestAnimationFrame(sizeSpacers);
+    window.addEventListener('resize', sizeSpacers);
+    document.fonts?.ready.then(sizeSpacers);
+  }
 
   let lastActive = '';
   const setActive = (slug: string) => {
@@ -405,12 +472,84 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
     // Desktop: gesteuertes „Stepped Scrolling" (wheel).
     // ---------------------------------------------------------------------
     if (stream && section) {
-      const DUR = reduceMotion ? 0 : 280;
+      const DUR = reduceMotion ? 0 : 240;
+      // Umschalt-Modell (Transform statt Nativ-Scroll): Der aktive Text wird per
+      // translateY verschoben — auch wenn er kürzer als der sichtbare Bereich ist.
+      //   • RUNTER scrollen: Text schiebt sich nach OBEN, bis die erste Zeile an der
+      //     Kopfzeile ankommt (offset === maxOffset) → nächstes Produkt, das oben
+      //     (offset 0) einsteigt.
+      //   • RAUF scrollen: Text schiebt sich nach UNTEN, bis die letzte Zeile am
+      //     unteren Bildschirmrand ankommt (offset === minOffset) → voriges Produkt,
+      //     das MITTIG (offset === centerOffset, mit Mindestabstand zur Kopfzeile)
+      //     einsteigt.
+      // Eine Geste schaltet höchstens EIN Produkt weiter (Cooldown).
+      stream.style.overflow = 'hidden'; // verschobener Text wird oben/unten abgeschnitten
+
+      const MIN_HEADER_GAP = 40; // Mindestabstand der ersten Zeile zur Kopfzeile (mittig)
       let cooling = false;
       let coolTimer = 0;
+      let offset = 0; // Verschiebung des aktiven Textes (px; >0 = nach oben)
+      let maxOffset = 0; // bis erste Zeile an der Kopfzeile (Runter-Umschaltpunkt)
+      let minOffset = 0; // bis letzte Zeile am unteren Rand (Rauf-Umschaltpunkt; i. d. R. < 0)
+      let centerOffset = 0; // mittige Einstiegsposition beim Hochscrollen
       const holdCooling = () => {
         clearTimeout(coolTimer);
-        coolTimer = window.setTimeout(() => (cooling = false), 160);
+        coolTimer = window.setTimeout(() => (cooling = false), 240);
+      };
+
+      const header = document.querySelector('header');
+      // Alle Grenz-Offsets ohne aktuellen Transform messen (transform kurz auf none).
+      const measure = (el: HTMLElement) => {
+        const prev = el.style.transform;
+        el.style.transform = 'none';
+        const rect = el.getBoundingClientRect();
+        el.style.transform = prev;
+        const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
+        const streamBottom = stream.getBoundingClientRect().bottom;
+
+        // Runter: erste Zeile an die Kopfzeile (bei hohen Texten: bis Ende sichtbar).
+        const gap = rect.top - headerBottom;
+        const belowFold = rect.bottom - streamBottom;
+        maxOffset = Math.max(Math.round(Math.max(gap, belowFold)), 40);
+
+        // Rauf: letzte Zeile an den unteren Rand (nie über die Top-Position hinaus).
+        minOffset = Math.min(Math.round(rect.bottom - streamBottom), 0);
+
+        // Mittig, aber erste Zeile nie näher als MIN_HEADER_GAP an der Kopfzeile.
+        let center = (rect.top + rect.bottom) / 2 - (headerBottom + streamBottom) / 2;
+        center = Math.min(center, rect.top - headerBottom - MIN_HEADER_GAP);
+        centerOffset = Math.max(Math.min(Math.round(center), maxOffset), minOffset);
+      };
+      const applyOffset = () => {
+        const el = catBlocks.get(lastActive);
+        if (el) el.style.transform = `translateY(${-offset}px)`;
+      };
+      const recalc = () => {
+        const el = catBlocks.get(lastActive);
+        if (el) measure(el);
+      };
+
+      // Neues Produkt einblenden: runter (dir>0) am Textanfang (offset 0), rauf
+      // (dir<0) mittig (offset centerOffset), plus kleine Einblend-Bewegung.
+      const enter = (slug: string, dir: number) => {
+        setActive(slug);
+        recalc();
+        offset = dir > 0 ? 0 : centerOffset;
+        const el = catBlocks.get(slug);
+        if (!el) return;
+        if (reduceMotion) {
+          applyOffset();
+          return;
+        }
+        el.style.transition = 'none';
+        el.style.transform = `translateY(${-offset + (dir > 0 ? 26 : -26)}px)`;
+        el.style.opacity = '0';
+        requestAnimationFrame(() => {
+          el.style.transition = `transform ${DUR}ms ease, opacity ${DUR}ms ease`;
+          applyOffset();
+          el.style.opacity = '1';
+          window.setTimeout(() => (el.style.transition = ''), DUR + 30);
+        });
       };
 
       const step = (dir: number) => {
@@ -419,10 +558,17 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
         if (ni < 0 || ni >= slugs.length) return;
         cooling = true;
         holdCooling();
-        animateSwap(catBlocks, lastActive, slugs[ni], dir, 48, DUR, () => {
-          stream.scrollTop = dir > 0 ? 0 : stream.scrollHeight;
-        });
+        enter(slugs[ni], dir);
       };
+
+      // Startzustand.
+      recalc();
+      applyOffset();
+      window.addEventListener('resize', () => {
+        recalc();
+        offset = Math.max(Math.min(offset, maxOffset), minOffset);
+        applyOffset();
+      });
 
       section.addEventListener(
         'wheel',
@@ -439,29 +585,48 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
             window.scrollBy(0, e.deltaY);
             return;
           }
-          const atTop = stream.scrollTop <= 0;
-          const atBottom = stream.scrollTop + stream.clientHeight >= stream.scrollHeight - 1;
           const idx = slugs.indexOf(lastActive);
-          if (e.deltaY > 0 && atBottom && idx < slugs.length - 1) {
+
+          if (e.deltaY > 0) {
+            // Text noch nicht ganz oben → weiter nach oben schieben.
+            if (offset < maxOffset) {
+              e.preventDefault();
+              offset = Math.min(maxOffset, offset + e.deltaY);
+              applyOffset();
+              return;
+            }
+            // Erste Zeile an der Kopfzeile → nächstes Produkt (sonst Seite weiter).
+            if (idx >= slugs.length - 1) return;
             e.preventDefault();
             step(1);
-          } else if (e.deltaY < 0 && atTop && idx > 0) {
+          } else if (e.deltaY < 0) {
+            // Text noch nicht ganz unten → weiter nach unten schieben.
+            if (offset > minOffset) {
+              e.preventDefault();
+              offset = Math.max(minOffset, offset + e.deltaY); // deltaY negativ
+              applyOffset();
+              return;
+            }
+            // Letzte Zeile am unteren Rand → voriges Produkt (sonst Seite zurück).
+            if (idx <= 0) return;
             e.preventDefault();
             step(-1);
           }
         },
         { passive: false },
       );
-    }
 
-    // Desktop-Umschalter (Klick in der Übersicht).
-    document.querySelectorAll<HTMLElement>('[data-goto]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        setActive(btn.dataset.goto!);
-        if (stream) stream.scrollTop = 0;
-        section?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+      // Desktop-Umschalter (Klick in der Übersicht): direkt zum Text-Anfang.
+      document.querySelectorAll<HTMLElement>('[data-goto]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          setActive(btn.dataset.goto!);
+          recalc();
+          offset = 0;
+          applyOffset();
+          section?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+        });
       });
-    });
+    }
 
     // ---------------------------------------------------------------------
     // Mobile: Stepped Scrolling per Touch im bildschirmhohen Bereich.

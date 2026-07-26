@@ -20,7 +20,7 @@ export const technicalCategories: TechnicalCategory[] = [
   {
     name: 'Silotechnik',
     specs: [
-      { label: 'Kapazität', value: '100–980 t, individuell geplant' },
+      { label: 'Kapazität', value: '100 – 980 t, individuell geplant' },
       { label: 'Edelstahlsilos', value: 'Hohe Korrosionsbeständigkeit, langlebig, wartungsfreundlich' },
       { label: 'GFK-Silos', value: 'Robust, für kleinere bis mittlere Anwendungen' },
     ],

@@ -24,9 +24,9 @@ import { services } from '../content/services';
 
           const body = (
             <div class:list={['space-y-4', mirrored && 'lg:order-1']}>
-              <p class="text-justify text-base leading-relaxed text-navy-900">{service.intro}</p>
+              <p class="text-justify hyphens-auto text-base leading-relaxed text-navy-900">{service.intro}</p>
               {service.paragraphs.map((paragraph) => (
-                <p class="text-justify text-base leading-relaxed text-slate-600">{paragraph}</p>
+                <p class="text-justify hyphens-auto text-base leading-relaxed text-slate-600">{paragraph}</p>
               ))}
             </div>
           );
