@@ -23,14 +23,16 @@ import { consentCategories, hasOptionalServices, consentMaxAgeMonths } from '../
           <p class="mt-2">
             Als „Cookies" bezeichnet man kleine Textdateien, die auf Ihrem Endgerät gespeichert werden.
             Vergleichbar wirkt der lokale Speicher Ihres Browsers (technisch „localStorage" genannt). Diese
-            Website verwendet solche Technologien so sparsam wie möglich: Ohne Ihre Einwilligung wird
-            ausschließlich das gespeichert, was für den Betrieb technisch notwendig ist.
+            Website verwendet solche Technologien so sparsam wie möglich.
           </p>
           <p class="mt-2">
-            <strong class="font-semibold text-navy-800">Aktueller Stand:</strong> Es werden derzeit keine
-            Analyse-, Statistik- oder Marketing-Dienste eingesetzt. Es findet kein Tracking statt. Die
-            unten aufgeführten optionalen Kategorien sind vorbereitet und werden erst dann aktiv, wenn ein
-            entsprechender Dienst ergänzt wird — und auch dann ausschließlich nach Ihrer Einwilligung.
+            <strong class="font-semibold text-navy-800">Aktueller Stand:</strong> Diese Website speichert
+            nichts auf Ihrem Endgerät — weder Cookies noch Einträge im lokalen Speicher. Es werden keine
+            Analyse-, Statistik- oder Marketing-Dienste eingesetzt, es findet kein Tracking statt. Aus
+            demselben Grund sehen Sie hier auch kein Cookie-Banner: Es gibt nichts, wozu wir Ihre
+            Einwilligung einholen müssten. Die unten aufgeführten optionalen Kategorien sind vorbereitet
+            und werden erst dann aktiv, wenn ein entsprechender Dienst ergänzt wird — und auch dann
+            ausschließlich nach Ihrer ausdrücklichen Einwilligung.
           </p>
         </div>
 
@@ -115,15 +117,17 @@ import { consentCategories, hasOptionalServices, consentMaxAgeMonths } from '../
             <div>
               <h2 class="font-display text-lg font-semibold text-navy-800">Speicherung verwalten</h2>
               <p class="mt-2">
-                Derzeit wird ausschließlich technisch notwendige Speicherung verwendet; es gibt keine
-                einwilligungspflichtigen Dienste, für die eine Einwilligung erteilt oder widerrufen werden
-                müsste. Ihre Kenntnisnahme des Hinweises wird lokal in Ihrem Browser gespeichert (im lokalen
-                Speicher, Eintrag „sg-consent") und nicht an unsere Server übertragen.
+                Derzeit gibt es nichts zu verwalten: Diese Website setzt keine Cookies und legt auch keine
+                Einträge im lokalen Speicher Ihres Browsers an. Es gibt keine einwilligungspflichtigen
+                Dienste, für die eine Einwilligung erteilt oder widerrufen werden müsste — deshalb wird
+                Ihnen auch kein Cookie-Banner angezeigt.
               </p>
               <p class="mt-2">
-                Der Eintrag läuft nach {consentMaxAgeMonths} Monaten automatisch ab; danach erscheint der
-                Hinweis erneut. Sie können ihn außerdem jederzeit über die Website- bzw. Cookie-Einstellungen
-                Ihres Browsers löschen.
+                Sobald künftig ein Statistik- oder Marketing-Dienst eingesetzt wird, erscheint vor dessen
+                Aktivierung ein Einwilligungs-Banner. Ihre Auswahl wird dann lokal in Ihrem Browser
+                gespeichert (im lokalen Speicher, Eintrag „sg-consent"), nicht an unsere Server übertragen,
+                läuft nach {consentMaxAgeMonths} Monaten automatisch ab und ist jederzeit über die
+                Cookie-Einstellungen im Seitenfuß änderbar.
               </p>
             </div>
           )

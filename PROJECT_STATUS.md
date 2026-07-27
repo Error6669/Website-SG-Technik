@@ -8,6 +8,34 @@ Grundlage: `Aufbau Website 2.0.docx`, `Website-Struktur_SG_Technik_GmbH.csv`, `L
 - **Kontaktformular:** Netlify Forms ist bestätigt aktiv — "kontakt" wird nach einem "Clear cache and deploy" korrekt erkannt (vorher musste unter Site settings → Build & deploy → Post processing → **"Form detection"** aktiviert werden, war zunächst aus). E-Mail-Benachrichtigung wird im Netlify-Dashboard unter Forms → kontakt → Settings and usage → Form notifications eingerichtet (nicht im Code).
 - **Noch offen:** eigene Domain (`sg-technik.at`, bereits in `astro.config.mjs` als `site` hinterlegt) noch nicht mit Netlify verbunden (DNS-Eintrag beim Domain-Anbieter nötig, sobald gewünscht).
 
+## Letzte Änderungen (Session 2026-07-25 bis 27) — committet auf `develop`
+
+Alles in dieser Session ist committet (Working Tree sauber; Commits u. a. „Viele kleine Design Änderungen", „Cookie Banner Seiten oben und nicht unten", „Mobile version Banner oben starten"). Arbeit lief auf Branch **`develop`** (main = älterer Live-Stand).
+
+**Cookie-Hinweis — Scroll-Sprung behoben (`CookieConsent.astro`):** Beim Öffnen sprang die Seite ans Ende (der Auto-Fokus von `showModal()` scrollte, bevor die Sperre griff), sodass man nach „Verstanden" unten landete. Fix: erst sperren, dann `showModal()`, Fokus mit `preventScroll: true`. Für iOS Safari reicht `overflow:hidden` nicht → **body-fixed Scroll-Lock** (Position merken, `body { position: fixed; top: -Ypx }`, beim Schließen zurücksetzen). Gilt für notice- und consent-Modus.
+
+**Text-/Inhaltsänderungen (`site.ts`, `technicalData.ts`):**
+- Primär-CTA umbenannt: „Kostenloses Erstgespräch vereinbaren" → **„Melde dich bei uns"** (`hero.primaryCta.label`, zentral → überall). *(Ersetzt die frühere Vereinheitlichung weiter unten.)* Hinweis: bewusst geduzt, restliche Seite siezt.
+- Abschluss-CTA-Überschrift: → **„Gemeinsam loslegen, langlebige Lösung."** (`closingCta.headline`).
+- Kunden-Überschrift: „Wer sind unsere Kunden" → **„Unsere Kunden"** (`customers.headline`).
+- Tonnage: „100–980 t" → **„100 – 980 t"** (Leerzeichen um den Strich) in Hero-Stat und `technicalData.ts`.
+- **Telefonnummer eingetragen:** `contact.phone = '+43 664 5178999'` → erscheint jetzt automatisch klickbar in Kontaktsektion (`tel:`-Link ohne Leerzeichen) und im Impressum; „folgt in Kürze" verschwindet. *(Aktualisiert die früheren „Telefon noch leer"-Hinweise.)*
+
+**Typo/Layout-Feinschliff:**
+- **Blocksatz + Silbentrennung** (`text-justify hyphens-auto`, `<html lang="de">` vorhanden) auf den langen Texten in **ProductsTechSection** (Mobile + Desktop) und **ProcessSection** (`/leistungen`). *(Achtung: `ServicesSection.astro` bekam es zuerst versehentlich — die Komponente ist verwaist, s. u.)*
+- **Hero-Zahlen** eine Stufe kleiner (`text-2xl/sm:text-3xl` → `text-xl/sm:text-2xl`).
+- **Footer:** obere Menüleiste mit den Seiten-Überschriften entfernt — nur noch Copyright + Rechtstext-Links (`navigation`-Import raus).
+- **CtaBand-Button** „Melde dich bei uns" vertikal mittig (`sm:items-end` → `sm:items-center`).
+
+**Produkte & Technik — Desktop-Scrolling komplett neu (`ProductsTechSection.astro`, Transform-Modell):** Der aktive Text wird per `translateY` verschoben (statt Nativ-Scroll), damit auch kurze Texte sichtbar laufen.
+- **Runter:** Text schiebt sich hoch, bis die **erste Zeile an der Kopfzeile** ankommt → nächstes Produkt, steigt oben ein.
+- **Rauf:** Text schiebt sich runter, bis die **letzte Zeile am unteren Rand** ankommt → voriges Produkt, steigt **mittig** ein (Mindestabstand zur Kopfzeile).
+- Eine Geste schaltet max. 1 Produkt (Cooldown). Grenz-Offsets dynamisch gemessen. Vom Nutzer abgenommen.
+
+**Produkte & Technik — mobile Umschalt-Leiste (`ProductsTechSection.astro`):** höher (`--pt-bar-h: 4.25rem`), **Nummerierung** wie Desktop (01/02… kupfer/mono) + senkrechter Trennstrich, **aktives Produkt größer** (1.2rem vs. 0.9rem). Zentrier-Fix: `::before/::after`-Spacer erzeugten auf dem Nutzer-Browser keinen Scroll-Weg → durch **echte `<li class="pt-mnav__spacer">`** ersetzt, deren Breite per JS (`sizeSpacers`) exakt auf `(navW − aktive Reiterbreite)/2` gesetzt wird, damit erster/letzter Reiter genau mittig steht (kein Über-Scrollen ins Leere). `scroll-snap-type: none`. Vom Nutzer abgenommen.
+
+**Offener Aufräumpunkt:** `src/components/ProductsSection.astro` **und** `src/components/ServicesSection.astro` sind **verwaist** (nirgends importiert — `/produkte-technik` nutzt `ProductsTechSection.astro`, `/leistungen` nutzt `ProcessSection.astro`). Können gelöscht werden. *(Damit sind auch die weiter unten stehenden „Bereits gebaut"/„Kapitel-Zuordnung"-Einträge zu `ProductsSection`/`ServicesSection` überholt.)*
+
 ## Stack
 Astro + TypeScript + Tailwind v4 (CSS-first, `@theme` Tokens in `src/styles/global.css`). Selbst gehostete Fonts (IBM Plex Sans/Mono, Montserrat nur fürs Logo) unter `public/fonts/`. Kein CMS, kein Backend.
 
