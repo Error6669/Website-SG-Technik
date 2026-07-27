@@ -1,0 +1,145 @@
+---
+// Animierter Straßenstreifen hinter der Kopfzeile — ausschließlich mobil.
+// Herkunft: Animationen/flussstrasse-hochformat.html (lokaler Prototyp).
+//
+// Das Original ist Hochformat mit senkrechter Straße. Bild und Pfad sind beim
+// Bauen einmalig um 90° gedreht worden (siehe src/content/flussstrasse.ts),
+// nicht per CSS-transform im Browser: dadurch gilt hier dieselbe geprüfte
+// Cover-Rechnung wie bei der Serpentine, und die Fahrzeuge brauchen keinen
+// Sonderfall, um auf der Fahrbahn zu bleiben.
+//
+// Warum kein <Image>, sondern ein Hintergrundbild: Ein Bild-Element im Markup
+// wird auch dann geladen, wenn es per CSS ausgeblendet ist. Als background-image
+// eines Elements, das oberhalb von 1024 px auf display:none steht, entsteht
+// gar kein Kasten — und damit auf dem Desktop kein einziger Byte Übertragung.
+import { getImage } from 'astro:assets';
+import photo from '../assets/flussstrasse-quer.jpg';
+import { flussstrasse } from '../content/flussstrasse';
+
+const aspect = flussstrasse.width / flussstrasse.height;
+
+// 1400 px reicht: Die Bühne wird nur so breit wie der Viewport (max. 1023 px,
+// darüber ist der Streifen aus). Auf einem 430-px-Telefon mit dreifacher
+// Pixeldichte sind rund 1290 px nötig — das deckt es ab.
+const optimized = await getImage({ src: photo, width: 1400, format: 'webp', quality: 60 });
+---
+
+<div
+  class="sg-strip"
+  style={`--sg-strip-ar:${aspect.toFixed(5)}; --sg-strip-focus:${(flussstrasse.focusY * 100).toFixed(1)}%`}
+  aria-hidden="true"
+>
+  {/* Die Bühne behält exakt das Seitenverhältnis des Fotos und wird
+      formatfüllend zugeschnitten; nur so sitzen die prozentual platzierten
+      Fahrzeuge auf der Straße. Der Fokus-Versatz schiebt sie so weit nach oben,
+      dass nicht die Bildmitte im Streifen steht, sondern das Straßenband bei
+      73 % der Höhe. Ohne ihn zeigt die Kopfzeile ausschließlich Wald. */}
+  <div
+    class="sg-strip-stage"
+    style={`background-image:url("${optimized.src}")`}
+    data-road-strip-stage
+  >
+  </div>
+  <div class="sg-strip-veil"></div>
+</div>
+
+<style>
+  .sg-strip {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    container-type: size;
+  }
+
+  .sg-strip-stage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100cqw, calc(100cqh * var(--sg-strip-ar)));
+    height: max(100cqh, calc(100cqw / var(--sg-strip-ar)));
+    /* Die Bühne hat bereits das Seitenverhältnis des Fotos, deshalb 100% 100%
+       statt cover — cover würde ein zweites Mal zuschneiden und das Bild gegen
+       die Fahrzeugkoordinaten verschieben. */
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    /* Y-Anteil ist der Fokus, nicht 50 %: der Punkt bei 73 % der Bühnenhöhe
+       landet damit auf der Mittellinie des Streifens. */
+    transform: translate(-50%, calc(-1 * var(--sg-strip-focus)));
+  }
+
+  /* Gleicher Deckschleier wie auf der Danke-Seite: navy-900 bei 68 % hält
+     fog-50-Text und -Symbole auch über der hellsten Schneefläche auf 5,20:1. */
+  .sg-strip-veil {
+    position: absolute;
+    inset: 0;
+    background: color-mix(in srgb, var(--color-navy-900) 68%, transparent);
+  }
+
+  /* Ab 1024 px kein Kasten, kein Bildabruf. */
+  @media (min-width: 1024px) {
+    .sg-strip {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  import { mountRoadAnimation, type RoadAnimation } from '../scripts/road-animation';
+  import { flussstrasse } from '../content/flussstrasse';
+
+  const STORAGE_KEY = 'sg-header-motion';
+  const stage = document.querySelector<HTMLElement>('[data-road-strip-stage]');
+  const toggle = document.querySelector<HTMLButtonElement>('[data-road-strip-toggle]');
+  // Derselbe Grenzwert wie das lg: der Kopfzeile. Oberhalb davon ist der
+  // Streifen ausgeblendet — dann wird auch keine Animationsschleife gestartet.
+  const mobile = window.matchMedia('(max-width: 1023px)');
+
+  let anim: RoadAnimation | null = null;
+
+  const label = (running: boolean) => (running ? 'Animation pausieren' : 'Animation fortsetzen');
+
+  const syncToggle = (running: boolean): void => {
+    if (!toggle) return;
+    toggle.textContent = label(running);
+    toggle.setAttribute('aria-pressed', running ? 'false' : 'true');
+  };
+
+  const start = (): void => {
+    if (anim || !stage || !mobile.matches) return;
+    anim = mountRoadAnimation(stage, flussstrasse);
+
+    if (anim.reduced) {
+      // Ohne Bewegung gibt es nichts anzuhalten.
+      toggle?.remove();
+      return;
+    }
+
+    // Die Kopfzeile steht auf jeder Seite. Ohne gespeicherte Entscheidung liefe
+    // die Animation nach jedem Seitenwechsel wieder an, und das Anhalten wäre
+    // wirkungslos — deshalb bleibt die Wahl im localStorage.
+    let running = true;
+    try {
+      running = window.localStorage.getItem(STORAGE_KEY) !== 'paused';
+    } catch {
+      // Privater Modus o. Ä.: dann eben ohne Erinnerung.
+    }
+    anim.setRunning(running);
+    syncToggle(running);
+
+    toggle?.addEventListener('click', () => {
+      if (!anim) return;
+      const next = !anim.isRunning();
+      anim.setRunning(next);
+      syncToggle(next);
+      try {
+        window.localStorage.setItem(STORAGE_KEY, next ? 'running' : 'paused');
+      } catch {
+        // Ohne Speicher gilt die Wahl nur für diese Seite.
+      }
+    });
+  };
+
+  start();
+  // Beim Wechsel von Desktop- auf Mobilbreite (Drehen, Fenstergröße) nachziehen.
+  mobile.addEventListener('change', start);
+</script>

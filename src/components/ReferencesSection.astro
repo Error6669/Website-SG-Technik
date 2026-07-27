@@ -62,7 +62,7 @@ const padClass = (i: number) =>
   ].join(' ');
 ---
 
-<section id="referenzen" class="scroll-mt-24 bg-fog-50 pt-[4.75rem] lg:pt-0">
+<section id="referenzen" class="scroll-mt-[calc(var(--sg-header-h)+1rem)] bg-fog-50 pt-[var(--sg-header-h)] lg:pt-0">
   {/* MOBILE: horizontale Projekt-Leiste (oben klebend); Desktop nutzt das rechte Panel */}
   <div class="ref-mbar lg:hidden">
     <ol class="ref-mcarousel">
@@ -109,7 +109,7 @@ const padClass = (i: number) =>
       <div>
         {
           entries.map(({ p, i, imgs, fulls }) => (
-            <div class:list={['ref-proj scroll-mt-24', padClass(i)]} id={`proj-${p.slug}`} data-proj={p.slug} style={tintStyle(p.slug)}>
+            <div class:list={['ref-proj scroll-mt-[calc(var(--sg-header-h)+1rem)]', padClass(i)]} id={`proj-${p.slug}`} data-proj={p.slug} style={tintStyle(p.slug)}>
               <div class="ref-inner">
                 {/* Bilder — zentriert in der Farbfläche (Info steht mobil oben im Karussell) */}
                 <div class="space-y-4">

@@ -1,6 +1,7 @@
 ---
 import { navigation } from '../content/navigation';
 import { hero } from '../content/site';
+import HeaderRoadStrip from './HeaderRoadStrip.astro';
 
 const { primaryCta } = hero;
 const [homeItem, ...restItems] = navigation;
@@ -16,14 +17,28 @@ const isCurrent = (href: string): boolean => {
 ---
 
 <header class="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-navy-900">
-  <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+  {/* Eigener Rahmen für die Kopfzeilen-Zeile: Der Animationsstreifen läuft
+      randlos über die volle Breite, die Inhaltszeile bleibt auf max-w-6xl
+      begrenzt. Das Klappmenü darunter liegt bewusst außerhalb — es hat seinen
+      eigenen deckenden Hintergrund und soll den Streifen nicht fortsetzen. */}
+  <div class="relative">
+    <HeaderRoadStrip />
+
+    {/* Höhe aus dem Token statt aus py-*: siehe --sg-header-h in global.css.
+        relative, damit die Zeile über dem absolut liegenden Streifen malt. */}
+    <div
+      class="relative mx-auto flex h-[var(--sg-header-h)] max-w-6xl items-center justify-between px-6"
+    >
     {/* 44×44 Trefferfläche um das 20-px-Icon. -ml-3 zieht den Kasten nach links, damit
         die Icon-Kante optisch am Innenrand des Containers bleibt — in die 24-px-Gasse
         ragt nur die unsichtbare Fläche, nicht der Inhalt. */}
     <a
       href={homeItem.href}
       aria-label={homeItem.label}
-      class="-ml-3 inline-flex h-11 w-11 items-center justify-center text-slate-300 transition-colors hover:text-fog-50 lg:hidden"
+      {/* fog-50 statt slate-300: mobil liegt hinter dem Symbol jetzt das Foto.
+          slate-300 kommt über der hellsten Schneefläche nur auf 2,73:1 und
+          verfehlt die 3:1, die WCAG 1.4.11 für Bedienelemente verlangt. */}
+      class="-ml-3 inline-flex h-11 w-11 items-center justify-center text-fog-50 transition-colors hover:text-white lg:hidden"
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path
@@ -87,6 +102,7 @@ const isCurrent = (href: string): boolean => {
         <path d="M2 5H20M2 11H20M2 17H20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
       </svg>
     </button>
+    </div>
   </div>
 
   <nav
@@ -111,6 +127,21 @@ const isCurrent = (href: string): boolean => {
         </a>
       ))
     }
+
+    {/* Anhalten der Kopfzeilen-Animation. Der Streifen läuft auf jeder Seite in
+        Endlosschleife; WCAG 2.2.2 verlangt für Bewegung über fünf Sekunden eine
+        Möglichkeit, sie zu stoppen. In der Leiste selbst wäre dafür kein Platz
+        ohne sie zuzustellen, deshalb hier — und die Wahl wird gespeichert, sonst
+        liefe sie beim nächsten Seitenaufruf wieder an.
+        Die Komponente entfernt den Knopf, wenn prefers-reduced-motion gilt. */}
+    <button
+      type="button"
+      data-road-strip-toggle
+      aria-pressed="false"
+      class="mt-2 flex min-h-11 items-center border-t border-white/10 pt-3 text-left font-mono text-xs uppercase tracking-[0.14em] text-slate-300 hover:text-fog-50"
+    >
+      Animation pausieren
+    </button>
   </nav>
 </header>
 

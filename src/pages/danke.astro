@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import SerpentineBackdrop from '../components/SerpentineBackdrop.astro';
 ---
 
 <BaseLayout
@@ -10,22 +11,31 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       zentriert den Textblock darin vertikal. Der obere Innenabstand ist um die
       Höhe der fixierten Kopfzeile größer als der untere — sonst zentriert der
       Browser gegen die Seitenoberkante statt gegen die Unterkante des Headers
-      und der Text säße rund 39 px zu hoch. */}
-  <section class="flex flex-1 items-center bg-paper pt-40 pb-20 sm:pt-48 sm:pb-28">
-    <div class="mx-auto max-w-2xl px-6 text-center">
-      <p class="flex items-center justify-center gap-3 font-mono text-xs uppercase tracking-[0.14em] text-slate-600">
+      und der Text säße rund 39 px zu hoch.
+      relative + navy-900: Bezugsrahmen für den formatfüllenden Hintergrund.
+      Die Grundfarbe deckt die Fläche ab, bis das Foto geladen ist. */}
+  <section class="relative flex flex-1 items-center bg-navy-900 pt-40 pb-20 sm:pt-48 sm:pb-28">
+    <SerpentineBackdrop />
+
+    {/* relative ohne z-index reicht: als später im DOM stehendes positioniertes
+        Element malt der Textblock über den absolut gesetzten Hintergrund. */}
+    <div class="relative mx-auto max-w-2xl px-6 text-center">
+      <p class="flex items-center justify-center gap-3 font-mono text-xs uppercase tracking-[0.14em] text-fog-50">
         <span class="inline-block h-px w-6 bg-copper-500"></span>
         Danke
       </p>
-      <h1 class="mt-4 text-balance break-words font-display text-3xl font-bold leading-tight text-navy-800 sm:text-4xl">
+      <h1 class="mt-4 text-balance break-words font-display text-3xl font-bold leading-tight text-fog-50 sm:text-4xl">
         Ihre Nachricht ist bei uns eingegangen.
       </h1>
-      <p class="mt-5 text-base leading-relaxed text-slate-600">
+      <p class="mt-5 text-base leading-relaxed text-fog-50">
         Wir melden uns so rasch wie möglich bei Ihnen zurück.
       </p>
+      {/* border-white/60, nicht /40: Über der hellsten Stelle des Fotos kommt /40
+          nur auf 2,25:1 und verfehlt die 3:1 aus WCAG 1.4.11 für Bedienelement-
+          Umrisse. /60 erreicht dort 3,14:1. */}
       <a
         href="/"
-        class="mt-10 inline-block rounded-sm border border-slate-300 px-6 py-3.5 text-center font-body text-sm font-semibold text-navy-800 transition-colors hover:border-navy-800"
+        class="mt-10 inline-block rounded-sm border border-white/60 px-6 py-3.5 text-center font-body text-sm font-semibold text-fog-50 transition-colors hover:border-fog-50"
       >
         Zurück zur Startseite
       </a>

@@ -75,6 +75,22 @@
   --font-mono: 'Plex Mono', 'SFMono-Regular', Consolas, monospace;
 }
 
+/* Höhe der fixierten Kopfzeile. Einzige Quelle der Wahrheit: die Kopfzeile setzt
+   ihre eigene Höhe daraus, und jede Seite leitet ihren oberen Innenabstand sowie
+   den Ankerversatz (scroll-margin-top) davon ab. Vorher stand die Zahl als
+   `4.75rem` bzw. `scroll-mt-24` an sechs Stellen abgeschrieben — beim ersten
+   Ändern der Kopfzeilenhöhe rutschte prompt Inhalt darunter.
+   Mobil ist sie höher, weil dort der Animationsstreifen darin liegt. */
+:root {
+  --sg-header-h: 6.5rem; /* 104px */
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --sg-header-h: 4.75rem; /* 76px — unverändert gegenüber vorher */
+  }
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -93,6 +109,25 @@ body {
 :focus-visible {
   outline: 2px solid var(--color-copper-500);
   outline-offset: 2px;
+}
+
+/* Fahrzeuge der Straßen-Hintergründe (src/scripts/road-animation.ts). Sie
+   entstehen erst im Browser per JS und tragen deshalb kein Astro-Scoping-
+   Attribut — eine komponenteneigene, gescopte Regel würde sie nie treffen.
+   Deshalb hier global, mit engem sg-Namensraum. */
+.sg-car {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  will-change: transform;
+  pointer-events: none;
+}
+
+.sg-car svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 @media (prefers-reduced-motion: reduce) {
