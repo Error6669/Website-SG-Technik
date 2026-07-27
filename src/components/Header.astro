@@ -17,10 +17,13 @@ const isCurrent = (href: string): boolean => {
 
 <header class="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-navy-900">
   <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+    {/* 44×44 Trefferfläche um das 20-px-Icon. -ml-3 zieht den Kasten nach links, damit
+        die Icon-Kante optisch am Innenrand des Containers bleibt — in die 24-px-Gasse
+        ragt nur die unsichtbare Fläche, nicht der Inhalt. */}
     <a
       href={homeItem.href}
       aria-label={homeItem.label}
-      class="text-slate-300 transition-colors hover:text-fog-50 lg:hidden"
+      class="-ml-3 inline-flex h-11 w-11 items-center justify-center text-slate-300 transition-colors hover:text-fog-50 lg:hidden"
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path
@@ -75,7 +78,7 @@ const isCurrent = (href: string): boolean => {
 
     <button
       type="button"
-      class="inline-flex h-9 w-9 items-center justify-center text-fog-50 lg:hidden"
+      class="-mr-2.5 inline-flex h-11 w-11 items-center justify-center text-fog-50 lg:hidden"
       aria-label="Menü öffnen"
       aria-expanded="false"
       data-menu-toggle
@@ -98,7 +101,9 @@ const isCurrent = (href: string): boolean => {
           data-nav-link
           aria-current={isCurrent(item.href) ? 'page' : undefined}
           class:list={[
-            'py-2 font-body text-base text-slate-300 hover:text-fog-50',
+            // min-h-11 statt py-2: garantiert 44 px Trefferhöhe unabhängig von der
+            // Zeilenhöhe des Labels (py-2 ergab bei text-base nur 40 px).
+            'flex min-h-11 items-center font-body text-base text-slate-300 hover:text-fog-50',
             isCurrent(item.href) && 'is-active',
           ]}
         >

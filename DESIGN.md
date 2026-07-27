@@ -159,7 +159,16 @@ There are no cards in this system. Where a card might normally appear (a stat bl
 **The No-Card Rule.** Any new "collection of things" component (a new list, a new set of stats, a new set of features) should default to a hairline-divided grid or list, never a set of individually-boxed cards.
 
 ### Inputs / Fields
-No form fields exist in the shipped code yet (`contact.phone`/`contact.email` are placeholders pending real values). When added, they should follow the button vocabulary: `rounded-sm`, `1px` Cool Mist border at rest, solid navy-800 border on focus — no glow, no shadow, consistent with the No-Shadow Rule.
+One form ships: the contact form in `ContactSection.astro`, which sits on the navy-900 surface. Fields follow the button vocabulary — `rounded-sm`, a 1px border, transparent fill, no glow and no shadow — but the border is a white transparency rather than Cool Mist, because the surface is dark.
+
+- **Rest:** `border-white/20`, transparent background, `fog-50` text.
+- **Focus:** border shifts to copper-500 plus a `copper-500/60` outline at 2px offset.
+- **Validation:** native browser validation only — the fields carry `required`, and the browser's own bubble reports what's missing. There is deliberately no custom error styling and no error color in this system.
+- **Required marking:** required fields carry an `aria-hidden` asterisk plus a "* Pflichtfeld" legend. Optional fields are left unmarked — never the inverse.
+
+**Open:** the rest-state `border-white/20` measures **1.90:1** against navy-900 and does not meet the 3:1 that WCAG 1.4.11 asks of UI component boundaries. `border-white/40` measures 3.70:1 and would close it.
+
+A form on a light surface does not exist yet; it would need the Cool Mist border and a navy-800 focus border.
 
 ### Navigation
 - **Header:** fixed, full-bleed, `bg-navy-900/90` with `backdrop-blur-md`, a `1px` `border-white/10` bottom rule. Logo wordmark in Plex Sans semibold, fog-50. Desktop nav links in slate-300, hover to fog-50; the primary CTA repeats as an outlined copper-500 button in the header, filling solid copper-600 on hover.

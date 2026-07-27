@@ -416,8 +416,15 @@ const policyLink =
       const title = document.getElementById('sg-consent-banner-title');
       if (title) (title as HTMLElement).focus({ preventScroll: true });
     };
+    // Programmatisches Schließen (Auswahl gespeichert, Einstellungen geöffnet) muss
+    // vom Schließen per Esc unterscheidbar sein: das 'close'-Ereignis feuert in beiden
+    // Fällen, aufräumen muss der Handler unten aber nur im Esc-Fall.
+    let programmaticClose = false;
     const closeBanner = (): void => {
-      if (banner && banner.open) banner.close();
+      if (banner && banner.open) {
+        programmaticClose = true;
+        banner.close();
+      }
     };
     const openSettings = (): void => {
       const stored = read();
@@ -469,7 +476,20 @@ const policyLink =
       });
     });
 
+    // preventDefault auf 'cancel' ist nur ein Versuch, Esc abzufangen — aktuelle
+    // Chrome-Versionen schließen den Dialog trotzdem. Ohne den 'close'-Handler bliebe
+    // der Scroll-Lock aus lockScroll() dann dauerhaft gesetzt und die Seite wäre
+    // unbedienbar (Reload als einziger Ausweg). Der Handler hebt die Sperre in jedem
+    // Fall auf und zeigt den Hinweis erneut, solange nichts gespeichert ist — dieselbe
+    // Logik wie beim Einstellungs-Dialog darunter.
     banner?.addEventListener('cancel', (e) => e.preventDefault());
+    banner?.addEventListener('close', () => {
+      const wasProgrammatic = programmaticClose;
+      programmaticClose = false;
+      if (wasProgrammatic) return;
+      unlockScroll();
+      if (!read()) openBanner();
+    });
     settings?.addEventListener('close', () => {
       if (!read()) openBanner();
     });

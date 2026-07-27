@@ -78,23 +78,30 @@ const labelClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-300'
             </label>
           </p>
 
+          {/* Pflichtfelder werden markiert, nicht die freiwilligen — sonst liest sich
+              ein unmarkiertes Feld als optional. Das Sternchen ist aria-hidden: für
+              Screenreader trägt bereits das required-Attribut die Information. */}
+          <p class={labelClass}>
+            <span aria-hidden="true">*</span> Pflichtfeld
+          </p>
+
           <div>
-            <label for="kontakt-name" class={labelClass}>Name</label>
+            <label for="kontakt-name" class={labelClass}>Name <span aria-hidden="true">*</span></label>
             <input id="kontakt-name" name="name" type="text" autocomplete="name" required placeholder="Vor- und Nachname" class:list={['mt-2', fieldClass]} />
           </div>
 
           <div>
-            <label for="kontakt-email" class={labelClass}>E-Mail</label>
+            <label for="kontakt-email" class={labelClass}>E-Mail <span aria-hidden="true">*</span></label>
             <input id="kontakt-email" name="email" type="email" autocomplete="email" required placeholder="max@mustermann.at" class:list={['mt-2', fieldClass]} />
           </div>
 
           <div>
-            <label for="kontakt-telefon" class={labelClass}>Telefon (optional)</label>
+            <label for="kontakt-telefon" class={labelClass}>Telefon</label>
             <input id="kontakt-telefon" name="telefon" type="tel" autocomplete="tel" placeholder="+43 664 1234567" class:list={['mt-2', fieldClass]} />
           </div>
 
           <div>
-            <label for="kontakt-nachricht" class={labelClass}>Nachricht</label>
+            <label for="kontakt-nachricht" class={labelClass}>Nachricht <span aria-hidden="true">*</span></label>
             <textarea
               id="kontakt-nachricht"
               name="nachricht"
