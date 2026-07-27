@@ -61,6 +61,11 @@
   --color-mist-100: #e4e9ed;
   --color-fog-50: #f5f7f8;
   --color-paper: #fbfcfc;
+  /* Zebra-Ton für Inhaltsabschnitte, die an eine fog-50-Fläche grenzen.
+     Bewusst tiefer als paper: fog-50 ↔ paper liegt bei 1,046 und ist damit
+     nicht wahrnehmbar, fog-50 ↔ band bei 1,056. Nicht für Flächen benutzen,
+     die sich abheben sollen (Kennzahl-Zellen, Rechtsseiten) — dort paper. */
+  --color-band: #eef1f3;
   --color-copper-500: #b15a2e;
   --color-copper-600: #8f4523;
   --color-line: rgba(24, 58, 89, 0.12);
@@ -79,6 +84,15 @@ body {
   color: var(--color-navy-900);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
+}
+
+/* Tastatur-Fokus systemweit in Kupfer statt im Chrome-Blau. :focus-visible greift
+   nur bei Tastaturbedienung, nicht beim Mausklick. Komponenten, die einen eigenen
+   Fokus-Stil setzen (z. B. die Formularfelder in ContactSection), gewinnen weiterhin
+   über ihre höhere Spezifität. */
+:focus-visible {
+  outline: 2px solid var(--color-copper-500);
+  outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -14,6 +14,7 @@
       "mist-100": { "role": "neutral", "displayName": "Pale Mist", "canonical": "#e4e9ed", "tonalRamp": ["#a9b7c4", "#c7d0d8", "#dbe1e6", "#e4e9ed", "#eef1f3", "#f5f7f8", "#fbfcfc", "#ffffff"] },
       "fog-50": { "role": "neutral", "displayName": "Fog White", "canonical": "#f5f7f8", "tonalRamp": ["#a9b7c4", "#c7d0d8", "#dbe1e6", "#e4e9ed", "#eef1f3", "#f5f7f8", "#fbfcfc", "#ffffff"] },
       "paper": { "role": "neutral", "displayName": "Paper White", "canonical": "#fbfcfc", "tonalRamp": ["#c7d0d8", "#dbe1e6", "#e4e9ed", "#eef1f3", "#f5f7f8", "#f9fafb", "#fbfcfc", "#ffffff"] },
+      "band": { "role": "neutral", "displayName": "Band", "canonical": "#eef1f3", "tonalRamp": ["#a9b7c4", "#c7d0d8", "#dbe1e6", "#e4e9ed", "#eef1f3", "#f5f7f8", "#fbfcfc", "#ffffff"] },
       "line": { "role": "neutral", "displayName": "Hairline Navy", "canonical": "oklch(30% 0.04 240 / 12%)", "tonalRamp": ["rgba(24,58,89,0.06)", "rgba(24,58,89,0.09)", "rgba(24,58,89,0.12)", "rgba(24,58,89,0.18)", "rgba(24,58,89,0.24)", "rgba(24,58,89,0.32)", "rgba(24,58,89,0.45)", "rgba(24,58,89,0.6)"] }
     },
     "typographyMeta": {

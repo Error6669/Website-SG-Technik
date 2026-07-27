@@ -8,7 +8,7 @@ export const hero = {
   headline: 'Silo- und Soleanlagen für den Winterdienst',
   subheadline: 'Robust. Präzise. Vernetzt.',
   lead: 'Maßgeschneidert auf Ihre Anforderungen. Wir schaffen langlebige Lösungen für Ihre Winterdienstanlage – mit langjähriger Erfahrung und Handschlagqualität.',
-  primaryCta: { label: 'Melde dich bei uns', href: '/#kontakt' },
+  primaryCta: { label: 'Ihr Draht zu uns', href: '/#kontakt' },
   secondaryCtas: [
     { label: 'Leistungen', href: '/leistungen' },
     { label: 'Produkte & Technik', href: '/produkte-technik' },

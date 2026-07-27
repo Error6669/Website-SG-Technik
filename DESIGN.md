@@ -10,6 +10,7 @@ colors:
   mist-100: "#e4e9ed"
   fog-50: "#f5f7f8"
   paper: "#fbfcfc"
+  band: "#eef1f3"
   copper-500: "#b15a2e"
   copper-600: "#8f4523"
   line: "rgba(24, 58, 89, 0.12)"
@@ -100,7 +101,8 @@ A cool navy-to-slate neutral range anchored by one warm accent; the palette is r
 - **Cool Mist** (`#a9b7c4` / slate-300): borders on light surfaces (secondary-button outline) and nav-link text against the dark header.
 - **Pale Mist** (`#e4e9ed` / mist-100): reserved lightest neutral step; not yet in active use in shipped components, kept for future tonal needs.
 - **Fog White** (`#f5f7f8` / fog-50): the default body background and one half of the section zebra-stripe.
-- **Paper White** (`#fbfcfc` / paper): the other half of the section zebra-stripe, and the background of individual stat cells inside the hairline grid.
+- **Paper White** (`#fbfcfc` / paper): surfaces that should read as slightly *lifted* off `fog-50` — the stat cells inside the hero's hairline grid, the standalone legal/thanks pages, and the CTA band. Not a zebra tone: `fog-50` ↔ `paper` measures 1.046:1 and is not perceivable.
+- **Band** (`#eef1f3` / band): the working other half of the section zebra-stripe, used on content sections that butt directly against a `fog-50` surface (currently `AboutSection`). `fog-50` ↔ `band` measures 1.056:1, `band` ↔ `paper` 1.104:1 — both perceivable. Use `band`, not `paper`, whenever a section edge must be visible without a hairline.
 - **Hairline Navy** (`rgba(24, 58, 89, 0.12)` / line): the one border/divider color used everywhere structure is needed — never a solid neutral gray.
 
 ### Named Rules
@@ -165,7 +167,7 @@ No form fields exist in the shipped code yet (`contact.phone`/`contact.email` ar
 - **Footer:** `bg-navy-900`, `text-slate-300`, inverted logo mark, nav links repeated, legal links (Impressum/Datenschutz) in a smaller `text-xs` row separated by its own hairline.
 
 ### The Logo Mark (signature component)
-An animated SVG wordmark (`LogoMark.astro`) built from three overlapping chevrons in a navy gradient (`#183a59` → `#788c9e` → `#c7cfd6`), each swaying gently and independently (`translateY`, 4.6s ease-in-out, staggered delays) with a normalized light-pulse (`pathLength="100"`, dashed stroke animating `stroke-dashoffset`) flowing through each chevron at a different pace and tint. This is the one place the system allows continuous ambient motion, echoing the flow of material through the silos it represents. Fully respects `prefers-reduced-motion` by disabling the sway and hiding the flow strokes entirely. The same flowing-line idea reappears, simplified, as the decorative `FlowMotif.astro` used elsewhere.
+An animated SVG wordmark (`LogoMark.astro`) built from three overlapping chevrons in a navy gradient (`#183a59` → `#788c9e` → `#c7cfd6`), each swaying gently and independently (`translateY`, 4.6s ease-in-out, staggered delays) with a normalized light-pulse (`pathLength="100"`, dashed stroke animating `stroke-dashoffset`) flowing through each chevron at a different pace and tint. This is the one place the system allows continuous ambient motion, echoing the flow of material through the silos it represents. Fully respects `prefers-reduced-motion` by disabling the sway and hiding the flow strokes entirely.
 
 ## 6. Do's and Don'ts
 
@@ -174,7 +176,7 @@ An animated SVG wordmark (`LogoMark.astro`) built from three overlapping chevron
 - **Do** use hairline-divided grids/lists for any new collection of items — stats, steps, references, features.
 - **Do** reserve copper for CTAs, tags, bullets, and small marks — never a section background.
 - **Do** use Plex Mono only for numbers, tags, and uppercase labels; Plex Sans for everything else.
-- **Do** keep motion purposeful and rare: the logo sway/flow and the FlowMotif dash animation are the only continuous animations on the site, and both already respect `prefers-reduced-motion`.
+- **Do** keep motion purposeful and rare: the logo sway/flow is the only continuous animation on the site, and it already respects `prefers-reduced-motion`.
 
 ### Don't:
 - **Don't** introduce `box-shadow` anywhere — this system has none, by the Named No-Shadow Rule.
