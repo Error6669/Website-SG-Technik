@@ -2,7 +2,13 @@
 import { process } from '../content/site';
 ---
 
-<section id="prozess" class="scroll-mt-24 bg-paper pt-24 pb-20 sm:pt-28 sm:pb-28">
+{/* Kein pb: Direkt darunter folgt CtaBand, das mit py-16 sm:py-20 bereits den
+    Abstand zu seiner Haarlinie mitbringt. Beides zusammen ergab 144/192 px über
+    der Linie bei nur 48 px darunter — sichtbar kopflastig. Ohne pb entsteht
+    genau derselbe Abstand wie auf /referenzen und /produkte-technik, deren
+    Sektionen ebenfalls kein eigenes pb haben. Der Hintergrund ist auf beiden
+    Seiten der Linie paper, es entsteht also keine sichtbare Kante. */}
+<section id="prozess" class="scroll-mt-24 bg-paper pt-24 sm:pt-28">
   <div class="mx-auto max-w-6xl px-6">
     <p class="flex items-center gap-3 font-mono text-xs uppercase tracking-[0.14em] text-slate-600">
       <span class="inline-block h-px w-6 bg-copper-500"></span>
