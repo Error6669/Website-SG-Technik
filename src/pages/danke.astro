@@ -6,7 +6,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   title="Danke — SG Technik GmbH"
   description="Ihre Nachricht wurde übermittelt."
 >
-  <section class="bg-paper pt-24 pb-20 sm:pt-28 sm:pb-28">
+  {/* flex-1 + items-center: füllt den Raum zwischen Kopf- und Fußzeile und
+      zentriert den Textblock darin vertikal. Der obere Innenabstand ist um die
+      Höhe der fixierten Kopfzeile größer als der untere — sonst zentriert der
+      Browser gegen die Seitenoberkante statt gegen die Unterkante des Headers
+      und der Text säße rund 39 px zu hoch. */}
+  <section class="flex flex-1 items-center bg-paper pt-40 pb-20 sm:pt-48 sm:pb-28">
     <div class="mx-auto max-w-2xl px-6 text-center">
       <p class="flex items-center justify-center gap-3 font-mono text-xs uppercase tracking-[0.14em] text-slate-600">
         <span class="inline-block h-px w-6 bg-copper-500"></span>

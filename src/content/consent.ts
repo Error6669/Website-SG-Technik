@@ -45,8 +45,11 @@ export interface ConsentCategory {
 // Banner erscheint erneut (erneute Einwilligung nach Änderung, DSGVO-konform).
 export const consentVersion = 1;
 
-// localStorage-Schlüssel. Die Speicherung der Einwilligung selbst gilt als
-// technisch notwendig und ist daher ohne Einwilligung zulässig.
+// localStorage-Schlüssel für die gespeicherte Einwilligung. Wird erst benutzt,
+// sobald es einwilligungspflichtige Dienste gibt (siehe hasOptionalServices) —
+// solange die Liste leer ist, erscheint kein Banner und es wird nichts
+// gespeichert. Die Speicherung der Einwilligung selbst gilt dann als technisch
+// notwendig und ist ohne Einwilligung zulässig.
 export const consentStorageKey = 'sg-consent';
 
 export const consentCategories: ConsentCategory[] = [
@@ -55,17 +58,19 @@ export const consentCategories: ConsentCategory[] = [
     label: 'Notwendig',
     description:
       'Für den technischen Betrieb der Website erforderlich und daher nicht abwählbar. ' +
-      'Betrifft ausschließlich die Speicherung Ihrer hier getroffenen Cookie-Auswahl, ' +
-      'damit dieser Hinweis nicht bei jedem Seitenaufruf erneut erscheint.',
+      'Derzeit wird nichts gespeichert: Die Website setzt keine Cookies und legt keine ' +
+      'Einträge im lokalen Speicher Ihres Browsers an.',
     required: true,
-    services: [
-      {
-        name: 'Cookie-Einwilligung',
-        provider: 'SG Technik GmbH (Erstanbieter)',
-        purpose: 'Speichert Ihre Auswahl in diesem Cookie-Banner.',
-        cookies: 'sg-consent — Speicherort: localStorage, Laufzeit: bis zum Widerruf (kein Ablauf)',
-      },
-    ],
+    // Leer, solange es kein Einwilligungs-Banner gibt. Sobald unten ein optionaler
+    // Dienst eingetragen wird, erscheint das Banner und speichert die Auswahl — dann
+    // ist hier der Eintrag "Cookie-Einwilligung" zu ergänzen:
+    //   {
+    //     name: 'Cookie-Einwilligung',
+    //     provider: 'SG Technik GmbH (Erstanbieter)',
+    //     purpose: 'Speichert Ihre Auswahl in diesem Cookie-Banner.',
+    //     cookies: 'sg-consent — Speicherort: localStorage, Laufzeit: 12 Monate',
+    //   },
+    services: [],
   },
   {
     id: 'statistik',
@@ -98,9 +103,9 @@ export const consentCategories: ConsentCategory[] = [
 ];
 
 // Gibt es aktuell überhaupt einwilligungspflichtige Dienste? Solange nein, zeigt
-// die Website nur einen schlanken Info-Hinweis (kein blockierendes Banner).
-// Sobald in einer optionalen Kategorie ein Dienst eingetragen wird, schaltet die
-// UI automatisch auf das vollständige Einwilligungs-Banner um.
+// die Website GAR KEIN Banner — es gibt nichts einzuwilligen und nichts zu
+// speichern. Sobald in einer optionalen Kategorie ein Dienst eingetragen wird,
+// schaltet die UI automatisch auf das vollständige Einwilligungs-Banner um.
 export const hasOptionalServices = consentCategories.some(
   (c) => !c.required && c.services.length > 0,
 );

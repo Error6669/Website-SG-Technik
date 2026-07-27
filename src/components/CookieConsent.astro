@@ -2,24 +2,24 @@
 // ---------------------------------------------------------------------------
 // CookieConsent.astro — DSGVO-/ePrivacy-konformes Consent-Management
 //
-// Zwei Betriebsmodi, automatisch gewählt anhand der Config (consent.ts):
+// Zwei Zustände, automatisch gewählt anhand der Config (consent.ts):
 //
-//   • "notice"  (aktuell): Es gibt keine einwilligungspflichtigen Dienste.
-//     Angezeigt wird nur ein schlanker, NICHT blockierender Info-Hinweis über
-//     die technisch notwendige Speicherung. Kein Accept/Reject, da es nichts
-//     einzuwilligen gibt (empfohlen für den Ist-Zustand).
+//   • KEINE einwilligungspflichtigen Dienste (aktuell): Diese Komponente
+//     rendert NICHTS. Kein Banner, kein Hinweis, keine Config — die Seite
+//     setzt dadurch weder Cookies noch localStorage-Einträge. Technisch
+//     notwendige Speicherung wäre zwar einwilligungsfrei zulässig
+//     (§ 165 Abs. 3 TKG 2021), es gibt hier aber schlicht keine: ohne
+//     Banner gibt es auch keine Auswahl, die gespeichert werden müsste.
 //
 //   • "consent" (automatisch, sobald ein Statistik-/Marketing-Dienst in
 //     consent.ts eingetragen wird): vollständiges Einwilligungs-Banner mit
 //     gleichwertigen Buttons "Alle ablehnen"/"Alle akzeptieren", Einstellungs-
 //     Dialog und Skript-Gating. Kein Umbau nötig — nur Dienst eintragen.
-//
-// Die gespeicherte Auswahl/Kenntnisnahme läuft nach 12 Monaten ab und wird
-// erneut abgefragt (Frist aus der Config).
+//     Erst ab diesem Zustand wird die Auswahl gespeichert; sie läuft nach
+//     12 Monaten ab und wird erneut abgefragt (Frist aus der Config).
 // ---------------------------------------------------------------------------
-import { consentCategories, consentClientConfig } from '../content/consent';
+import { consentCategories, consentClientConfig, hasOptionalServices } from '../content/consent';
 
-const mode = consentClientConfig.mode;
 const optionalCategories = consentCategories.filter((c) => !c.required);
 const requiredCategories = consentCategories.filter((c) => c.required);
 
@@ -27,40 +27,30 @@ const requiredCategories = consentCategories.filter((c) => c.required);
 // "Ablehnen" sind exakt gleich prominent, kein Dark Pattern).
 const actionBtn =
   'inline-flex flex-1 items-center justify-center rounded-sm bg-navy-800 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-navy-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-copper-500';
-const noticeBtn =
-  'inline-flex shrink-0 items-center justify-center rounded-sm bg-navy-800 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-navy-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-copper-500';
 const linkBtn =
   'text-sm font-semibold text-navy-800 underline underline-offset-4 transition-colors hover:text-navy-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-copper-500';
 const policyLink =
   'text-navy-800 underline underline-offset-2 transition-colors hover:text-copper-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-copper-500';
 ---
 
-{/* Konfiguration für das clientseitige Skript (als JSON, CSP-freundlich). */}
-<script type="application/json" id="sg-consent-config" set:html={JSON.stringify(consentClientConfig)} />
-
 {
-  mode === 'notice' ? (
-    /* ---------------------------------------------------------------- */
-    /* Info-Hinweis (nicht blockierend) — Ist-Zustand ohne Tracker      */
-    /* ---------------------------------------------------------------- */
-    <dialog id="sg-cookie-notice" class="sg-cookie-notice" aria-label="Hinweis zur Datenspeicherung">
-      <div id="sg-notice-focus" tabindex="-1" class="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-5 focus:outline-none sm:flex-row sm:items-center sm:justify-between">
-        <p class="text-sm leading-relaxed text-slate-600">
-          Diese Website nutzt nur technisch notwendige Speicherung, damit sie funktioniert. Es findet
-          kein Tracking statt. Mehr dazu in der{' '}
-          <a href="/cookie-richtlinie" class={policyLink}>Cookie-Richtlinie</a> und{' '}
-          <a href="/datenschutz" class={policyLink}>Datenschutzerklärung</a>.
-        </p>
-        <button type="button" class={noticeBtn} data-consent-action="acknowledge">
-          Verstanden
-        </button>
-      </div>
-    </dialog>
-  ) : (
-    /* ---------------------------------------------------------------- */
-    /* Vollständiges Einwilligungs-Banner + Einstellungs-Dialog         */
-    /* ---------------------------------------------------------------- */
+  /* ------------------------------------------------------------------ */
+  /* Ohne einwilligungspflichtige Dienste wird NICHTS ausgeliefert: kein */
+  /* Banner, kein Hinweis, keine Config — und damit auch kein Cookie und */
+  /* kein localStorage-Eintrag. Es gibt in diesem Zustand rechtlich      */
+  /* nichts einzuwilligen (§ 165 Abs. 3 TKG 2021), also auch nichts      */
+  /* wegzuklicken.                                                       */
+  /*                                                                     */
+  /* Sobald in consent.ts ein Statistik-/Marketing-Dienst eingetragen    */
+  /* wird, schaltet consentClientConfig.mode auf 'consent' und das       */
+  /* vollständige Einwilligungs-Banner erscheint automatisch. Kein Umbau */
+  /* nötig. Das Client-Skript unten deaktiviert sich ohne Config-Element */
+  /* von selbst (früher Return).                                         */
+  /* ------------------------------------------------------------------ */
+  hasOptionalServices && (
     <>
+      {/* Konfiguration für das clientseitige Skript (als JSON, CSP-freundlich). */}
+      <script type="application/json" id="sg-consent-config" set:html={JSON.stringify(consentClientConfig)} />
       <dialog
         id="sg-consent-banner"
         class="sg-consent"
@@ -165,28 +155,6 @@ const policyLink =
 }
 
 <style>
-  /* --- Info-Hinweis (notice-Modus): modale Leiste am unteren Rand, blockierend --- */
-  dialog.sg-cookie-notice {
-    position: fixed;
-    inset: auto 0 0 0;
-    width: 100%;
-    max-width: none;
-    max-height: none;
-    margin: 0;
-    padding: 0;
-    border: none;
-    background: var(--color-paper);
-    border-top: 1px solid var(--color-line);
-    color: inherit;
-  }
-  dialog.sg-cookie-notice::backdrop {
-    /* navy-900 mit Transparenz (No-Shadow-Regel) — dunkelt die Seite ab */
-    background: rgba(13, 36, 54, 0.55);
-  }
-  .sg-cookie-notice[open] {
-    animation: sg-consent-slide-up 0.28s ease-out;
-  }
-
   /* --- Vollständiges Banner/Dialog (consent-Modus) --- */
   dialog.sg-consent {
     border: none;
@@ -298,12 +266,14 @@ const policyLink =
   // -------------------------------------------------------------------------
   // Consent-Manager (vanilla, keine externen Abhängigkeiten).
   //
+  // Läuft nur, wenn es einwilligungspflichtige Dienste gibt — sonst rendert die
+  // Komponente kein Config-Element und dieses Skript bricht sofort ab.
+  //
   // Speichermodell (localStorage-Schlüssel aus der Config):
-  //   notice-Modus:  { v, ts, acknowledged: true }
-  //   consent-Modus: { v, ts, categories: { notwendig: true, … } }
+  //   { v, ts, categories: { notwendig: true, … } }
   // Ein Eintrag gilt nach `maxAgeMonths` als abgelaufen und wird erneut abgefragt.
   //
-  // Skript-Gating (nur consent-Modus): Ein Dienst, der Einwilligung braucht, wird
+  // Skript-Gating: Ein Dienst, der Einwilligung braucht, wird
   // als deaktivierter Platzhalter eingebunden — ein script-Element mit
   // type="text/plain", das per data-consent="statistik" seiner Kategorie
   // zugeordnet ist und die URL in data-src (statt src) bzw. Inline-Code im Rumpf
@@ -312,7 +282,6 @@ const policyLink =
   interface StoredConsent {
     v: number;
     ts: string;
-    acknowledged?: boolean;
     categories?: Record<string, boolean>;
   }
 
@@ -323,7 +292,7 @@ const policyLink =
       storageKey: string;
       version: number;
       maxAgeMonths: number;
-      mode: 'notice' | 'consent';
+      mode: 'consent';
       categories: { id: string; required: boolean }[];
     };
 
@@ -354,80 +323,7 @@ const policyLink =
     };
 
     // =====================================================================
-    // Modus A: schlanker Info-Hinweis
-    // =====================================================================
-    if (cfg.mode === 'notice') {
-      const notice = document.getElementById('sg-cookie-notice') as HTMLDialogElement | null;
-      // modal → abdunkelnder Backdrop + Seite inert (keine Klicks/Fokus); zusätzlich
-      // Scrollen sperren, bis „Verstanden" geklickt wurde. Auf iOS Safari reicht
-      // overflow:hidden nicht — dort fixieren wir den <body> an der aktuellen
-      // Scroll-Position (bulletproof lock), sonst springt die Seite ans Ende.
-      let lockedScrollY = 0;
-      const lockScroll = () => {
-        lockedScrollY = window.scrollY;
-        document.body.style.position = 'fixed';
-        document.body.style.top = `-${lockedScrollY}px`;
-        document.body.style.left = '0';
-        document.body.style.right = '0';
-        document.body.style.width = '100%';
-        document.documentElement.style.overflow = 'hidden';
-      };
-      const unlockScroll = () => {
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.left = '';
-        document.body.style.right = '';
-        document.body.style.width = '';
-        document.documentElement.style.overflow = '';
-        window.scrollTo(0, lockedScrollY);
-      };
-      const showNotice = () => {
-        // Erst Scroll sperren, dann modal öffnen: sonst scrollt der Auto-Fokus
-        // von showModal() die Seite ans Ende (der Hinweis sitzt unten fix), was
-        // erst nach dem Schließen sichtbar wird.
-        lockScroll();
-        if (notice && !notice.open) notice.showModal();
-        // Fokus auf den neutralen Container statt auf den ersten Link — sonst
-        // bekäme die „Cookie-Richtlinie" beim Öffnen einen kupfernen Fokusrahmen.
-        // preventScroll: kein Scroll-Sprung durch das Fokussieren.
-        document.getElementById('sg-notice-focus')?.focus({ preventScroll: true });
-      };
-      const hideNotice = () => {
-        if (notice && notice.open) notice.close();
-        unlockScroll();
-      };
-      // Esc soll den Hinweis nicht schließen — nur „Verstanden".
-      notice?.addEventListener('cancel', (e) => e.preventDefault());
-
-      document.querySelectorAll<HTMLElement>('[data-consent-action="acknowledge"]').forEach((el) => {
-        el.addEventListener('click', () => {
-          write({ acknowledged: true });
-          hideNotice();
-        });
-      });
-
-      // Dauerhafte Einstiegspunkte (z. B. aus der Cookie-Richtlinie) zeigen den
-      // Hinweis erneut an.
-      document.querySelectorAll<HTMLElement>('[data-consent-open]').forEach((el) => {
-        el.addEventListener('click', (e) => {
-          e.preventDefault();
-          showNotice();
-        });
-      });
-
-      // Öffentliche Mini-API.
-      (window as unknown as { sgConsent: Record<string, unknown> }).sgConsent = {
-        openSettings: showNotice,
-        get: (): StoredConsent | null => read(),
-      };
-
-      // Beim ersten (oder abgelaufenen) Besuch anzeigen.
-      if (!read()) showNotice();
-      return;
-    }
-
-    // =====================================================================
-    // Modus B: vollständiges Einwilligungs-Banner
+    // Vollständiges Einwilligungs-Banner
     // =====================================================================
     const banner = document.getElementById('sg-consent-banner') as HTMLDialogElement | null;
     const settings = document.getElementById('sg-consent-settings') as HTMLDialogElement | null;
@@ -511,8 +407,8 @@ const policyLink =
       window.scrollTo(0, lockedScrollY);
     };
     const openBanner = (): void => {
-      // Erst sperren, dann öffnen (siehe notice-Modus): verhindert einen
-      // Scroll-Sprung ans Seitenende durch den Auto-Fokus von showModal().
+      // Erst sperren, dann öffnen: verhindert einen Scroll-Sprung ans
+      // Seitenende durch den Auto-Fokus von showModal().
       // showModal(): modal → abdunkelnder Backdrop + Interaktionssperre. Die Seite
       // ist nicht bedienbar, bis eine Auswahl getroffen wurde.
       lockScroll();

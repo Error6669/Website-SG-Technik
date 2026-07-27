@@ -21,9 +21,27 @@ const { title, description } = Astro.props;
     <meta name="description" content={description} />
     <title>{title}</title>
   </head>
-  <body class="font-body text-navy-900">
+  {/*
+    min-h-screen + flex-col: Der Rumpf ist mindestens bildschirmhoch, <main>
+    dehnt sich auf den freien Platz aus (flex-1). Dadurch bleibt die Fußzeile
+    auch auf kurzen Seiten unten am Bildschirmrand und rutscht nicht hoch.
+    Auf Seiten, die länger als der Bildschirm sind, ändert das nichts.
+  */}
+  <body class="flex min-h-screen flex-col font-body text-navy-900">
+    {/*
+      Sprungmarke für Tastatur- und Screenreader-Nutzung: unsichtbar, bis sie den
+      Fokus bekommt. Ohne sie muss man sich auf JEDER Seite erst durch sieben
+      Header-Ziele tabben, bevor der Inhalt beginnt. Liegt über dem Header (z-50),
+      damit sie im Fokus nicht darunter verschwindet.
+    */}
+    <a
+      href="#inhalt"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-sm focus:bg-copper-600 focus:px-4 focus:py-2.5 focus:font-body focus:text-sm focus:font-semibold focus:text-white"
+    >
+      Zum Inhalt springen
+    </a>
     <Header />
-    <main>
+    <main id="inhalt" tabindex="-1" class="flex flex-1 flex-col focus:outline-none">
       <slot />
     </main>
     <Footer />

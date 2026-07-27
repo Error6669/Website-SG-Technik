@@ -77,26 +77,34 @@ import { hero, stats } from '../content/site';
 </section>
 
 <script>
-  // Zahlen-Hochzählen: beim Sichtbarwerden (bzw. Laden) zählen die Statistik-
-  // Werte ~2 s lang gleichmäßig von 0 hoch bis zum echten Wert und rasten von
-  // links nach rechts ein. Jede Zahlengruppe (z. B. 100, 980, 15.000, 2, 24)
-  // zählt als GANZE Zahl und ist dabei immer kleiner als ihr Endwert. Kleine
-  // Endwerte (< 10, z. B. 2) zählen mit einer Nachkommastelle (0,4 · 1,3 …).
+  // Zahlen-Zählen: beim Sichtbarwerden (bzw. Laden) laufen die Statistik-Werte
+  // ~2 s lang auf ihren echten Wert zu und rasten von links nach rechts ein.
+  //
+  // Zwei Richtungen, je nach Größenordnung:
+  //   • Große Werte (100, 980, 15.000, 24) zählen ganzzahlig von 0 HOCH und
+  //     sind dabei immer kleiner als ihr Endwert. Aufgefüllt wird auf Endlänge
+  //     mit U+2007 (Ziffernbreite-Leerzeichen) — hält die Breite konstant, ohne
+  //     falsche führende Nullen anzuzeigen.
+  //   • Kleine Werte (< SMALL_START, z. B. „± 2 %") zählen mit einer Nachkomma-
+  //     stelle von SMALL_START HERUNTER. So behaupten Zwischenwerte nie eine
+  //     bessere Angabe als die tatsächliche — bei Toleranzen und Genauigkeiten
+  //     wäre genau das die gefährliche Richtung.
+  //
   // Zeichen wie „–", „t", „%", „±" bleiben stehen. Progressive Enhancement:
   // ohne JS steht bereits der korrekte Wert im Markup.
   const els = document.querySelectorAll<HTMLElement>('.stat-value');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   if (els.length && !reduceMotion) {
-    const DURATION = 2000; // Gesamtdauer des Hochzählens
+    const DURATION = 2000; // Gesamtdauer des Zählens
     const START_DELAY = 200; // Mindest-Zähldauer der ersten Zahl
+    const SMALL_START = 8; // Startwert für kleine Werte, die abwärts zählen
     const easeOut = (t: number) => 1 - Math.pow(1 - t, 3); // sanftes Auslaufen
 
     interface NumSeg {
       num: true;
       finalText: string;
       finalNum: number;
-      digitCount: number;
       hasThousands: boolean;
       small: boolean;
       lockAt: number;
@@ -110,18 +118,23 @@ import { hero, stats } from '../content/site';
 
     const groupThousands = (s: string) => s.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
-    // Zwischenwert beim Hochzählen (progress 0..1) — immer kleiner als der Endwert.
+    // Zwischenwert beim Zählen (progress 0..1).
     const countText = (s: NumSeg, progress: number) => {
       const eased = easeOut(progress);
       if (s.small) {
-        // eine Nachkommastelle, mit Komma (z. B. 0,4 · 1,3)
-        const v = Math.floor(s.finalNum * eased * 10) / 10;
+        // Abwärts von SMALL_START, eine Nachkommastelle, mit Komma
+        // (z. B. 8,0 · 6,3 · 4,1 · 2,7 → 2). Nähert sich dem Endwert von OBEN.
+        const v = SMALL_START - (SMALL_START - s.finalNum) * eased;
         return v.toFixed(1).replace('.', ',');
       }
-      // ganzzahlig; auf Endlänge mit führenden Nullen auffüllen (kein Breiten-Zappeln)
-      let str = String(Math.floor(s.finalNum * eased)).padStart(s.digitCount, '0');
+      // ganzzahlig, aufwärts. Erst Tausenderpunkte setzen, DANN auf die fertige
+      // Endlänge auffüllen — mit U+2007 (Ziffernbreite-Leerzeichen): konstante
+      // Breite, aber keine falschen führenden Nullen. Die Reihenfolge ist wichtig:
+      // U+2007 ist keine Ziffer, ein vorher eingefügtes Füllzeichen würde die
+      // Gruppierung blockieren und die Breite um ein Zeichen springen lassen.
+      let str = String(Math.floor(s.finalNum * eased));
       if (s.hasThousands) str = groupThousands(str);
-      return str;
+      return str.padStart(s.finalText.length, ' ');
     };
 
     const roll = (el: HTMLElement) => {
@@ -139,9 +152,8 @@ import { hero, stats } from '../content/site';
           num: true,
           finalText: raw,
           finalNum,
-          digitCount: raw.replace(/\./g, '').length,
           hasThousands: raw.includes('.'),
-          small: finalNum < 10,
+          small: finalNum < SMALL_START,
           lockAt: 0,
           rand: raw,
         };

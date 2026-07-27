@@ -120,12 +120,14 @@ const isCurrent = (href: string): boolean => {
     menu?.classList.remove('flex');
     menu?.classList.add('hidden');
     toggle?.setAttribute('aria-expanded', 'false');
+    toggle?.setAttribute('aria-label', 'Menü öffnen');
   };
 
   const openMenu = () => {
     menu?.classList.add('flex');
     menu?.classList.remove('hidden');
     toggle?.setAttribute('aria-expanded', 'true');
+    toggle?.setAttribute('aria-label', 'Menü schließen');
     // Container statt ersten Link fokussieren → kein Fokusrahmen auf „Über uns".
     (menu as HTMLElement)?.focus();
   };
