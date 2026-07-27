@@ -27,3 +27,7 @@ Website-Struktur_SG_Technik_GmbH.csv
 # original project photos/videos (large source files, ~270 MB incl. .mov videos);
 # optimized web copies live in src/assets/referenzen/ and are committed
 Fotos/
+
+# Animations-Prototypen (lokale Spielwiese, ~10 MB — die HTML-Dateien tragen
+# ihre Bilder als Base64 im Rumpf). Nicht versionieren.
+Animationen/
