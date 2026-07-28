@@ -8,7 +8,9 @@ export const legalEntity = {
   firmenbuchnummer: 'FN 624545 z',
   firmenbuchgericht: '',
   uid: 'ATU80561768',
-  geschaeftsfuehrer: 'Gregor Hofer',
+  // Beide handelsrechtlichen Geschäftsführer — § 5 ECG / § 14 UGB verlangen die
+  // Angabe aller vertretungsbefugten Organe.
+  geschaeftsfuehrer: 'Gregor Hofer und DI Simon Paireder, EMBA',
   kammer: 'Mitglied der Wirtschaftskammer Oberösterreich',
 };
 

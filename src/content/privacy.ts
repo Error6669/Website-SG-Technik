@@ -19,11 +19,41 @@ export const privacy = {
   hosting: {
     provider: 'Netlify, Inc.',
     providerAddress: '512 2nd Street, Suite 200, San Francisco, CA 94107, USA',
-    // Netlify Analytics ist deaktiviert → es werden keine serverseitigen
-    // Zugriffslogs für uns gespeichert; Zugriffsdaten werden nur flüchtig zur
-    // Auslieferung und Absicherung verarbeitet.
+    // Datenschutzhinweise des Hosters (in der Erklärung verlinkt).
+    providerPrivacyUrl: 'https://www.netlify.com/privacy/',
+    // Liste der Unterauftragsverarbeiter des Hosters. Netlify hat sie in sein
+    // Trust Center verlagert; die Namen sind dort öffentlich, das vollständige
+    // Dokument erfordert eine Zugriffsanfrage.
+    providerSubprocessorsUrl: 'https://trust.netlify.com/',
+
+    // Betrifft AUSSCHLIESSLICH die kostenpflichtige Auswertung "Netlify
+    // Analytics", also die Frage, ob WIR Zugriffsstatistiken erhalten.
+    // Sagt nichts darüber aus, welche Protokolle der Hoster für seinen
+    // eigenen Betrieb führt — dafür ist logRetentionDays zuständig.
     analyticsEnabled: false,
+
+    // Speicherdauer der serverseitigen Protokolldaten des Hosters, in Tagen.
+    //
+    // WICHTIG: Nur eine Zahl eintragen, wenn die Frist im Auftragsverarbeitungs-
+    // vertrag / Vertrag mit dem Hoster verbindlich bestätigt ist. Netlify nennt
+    // öffentlich keine allgemein verbindliche Frist für diesen Hostingfall; die
+    // tatsächliche Verarbeitung hängt von DPA, Tarif und Projekteinstellungen ab.
+    // Solange das nicht schriftlich vorliegt, bleibt der Wert null — die
+    // Datenschutzseite gibt dann transparente Kriterien statt einer Frist aus.
+    // Eine Behauptung "keine Logs" wäre hier nicht belegbar.
+    logRetentionDays: null as number | null,
+
     // Rechtsrahmen der Drittlandübermittlung.
+    //
+    // Belegt am 28.07.2026:
+    //  - Netlify-DPA (Fassung 09.06.2026, netlify.com/pdf/netlify-dpa.pdf) stützt
+    //    sich auf die Standardvertragsklauseln (Durchführungsbeschluss 2021/914).
+    //  - Netlify Privacy Policy (Stand 10.04.2026) erklärt zusätzlich die
+    //    Zertifizierung unter EU-U.S. DPF, UK Extension und Swiss-U.S. DPF.
+    //
+    // ERNEUT PRÜFEN: DPF-Zertifizierungen müssen jährlich erneuert werden und
+    // können erlöschen. Status auf dataprivacyframework.gov gegenprüfen; entfällt
+    // die Zertifizierung, hier nur noch die Standardvertragsklauseln nennen.
     transferSafeguards:
       'Standardvertragsklauseln der EU-Kommission (Art. 46 DSGVO) bzw. EU-U.S. Data Privacy Framework',
   },

@@ -78,6 +78,15 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
           <p class="mt-2">
             Wir hosten diese Website bei einem Auftragsverarbeiter, der die Seite in unserem Auftrag
             ausliefert. Mit dem Anbieter besteht ein Auftragsverarbeitungsvertrag gemäß Art. 28 DSGVO.
+            Beim Aufruf der Website verarbeitet der Anbieter technisch notwendige Zugriffsdaten
+            automatisch, um die Seite auszuliefern und den Dienst abzusichern. Diese Verarbeitung findet
+            auf seiner Infrastruktur statt; Einzelheiten dazu ergeben sich aus{' '}
+            <a
+              href={privacy.hosting.providerPrivacyUrl}
+              rel="noopener noreferrer"
+              target="_blank"
+              class="text-navy-800 underline underline-offset-2 hover:text-copper-600"
+            >seinen Datenschutzhinweisen</a>.
           </p>
           <dl class="mt-4 divide-y divide-line border-t border-b border-line">
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
@@ -88,7 +97,8 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
               <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Datenarten</dt>
               <dd class="min-w-0 break-words text-navy-900">
                 IP-Adresse, Datum und Uhrzeit des Zugriffs, aufgerufene URL, Referrer-URL, HTTP-Statuscode,
-                übertragene Datenmenge sowie Browser- und Betriebssysteminformationen
+                übertragene Datenmenge, Geräteart sowie Browser- und Betriebssysteminformationen; ergänzend
+                weitere technische Dienst- und Sicherheitsdaten, die beim Betrieb der Infrastruktur anfallen
               </dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
@@ -109,10 +119,35 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
               <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Speicherdauer</dt>
               <dd class="min-w-0 break-words text-navy-900">
                 {
-                  privacy.hosting.analyticsEnabled
-                    ? 'Serverseitige Zugriffsstatistiken werden für maximal 30 Tage vorgehalten.'
-                    : 'Zugriffsdaten werden zur Auslieferung und Absicherung nur flüchtig verarbeitet; darüber hinausgehende serverseitige Zugriffslogs speichern wir nicht.'
+                  privacy.hosting.logRetentionDays !== null
+                    ? `Die Protokolldaten werden nach den Vorgaben des Anbieters für maximal ${privacy.hosting.logRetentionDays} Tage gespeichert und anschließend gelöscht.`
+                    : 'Die Protokolldaten werden vom Anbieter im Rahmen seines Dienstbetriebs gespeichert; maßgeblich sind der mit ihm geschlossene Auftragsverarbeitungsvertrag und seine Datenschutzhinweise. Eine Speicherung erfolgt nur so lange, wie es für die technische Bereitstellung, die IT-Sicherheit und die Abwehr missbräuchlicher Zugriffe erforderlich ist oder gesetzliche Aufbewahrungspflichten bestehen; danach werden die Daten gelöscht. Wir selbst legen darüber hinaus keine eigenen Zugriffsprotokolle an und werten die Protokolle des Anbieters nicht aus.'
                 }
+              </dd>
+            </div>
+            <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
+              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Zugriffsstatistiken</dt>
+              <dd class="min-w-0 break-words text-navy-900">
+                {
+                  privacy.hosting.analyticsEnabled
+                    ? 'Die Zugriffsstatistik des Anbieters ist aktiviert; wir erhalten daraus aggregierte Auswertungen der Seitenaufrufe.'
+                    : 'Die kostenpflichtige Zugriffsstatistik des Anbieters ist nicht aktiviert. Wir erhalten keine Auswertung Ihrer Besuche und setzen keine eigenen Analyse- oder Tracking-Dienste ein.'
+                }
+              </dd>
+            </div>
+            <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
+              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Unterauftragsverarbeiter</dt>
+              <dd class="min-w-0 break-words text-navy-900">
+                Der Anbieter setzt zur Erbringung seiner Leistung eigene Dienstleister ein, etwa für
+                Rechenzentrumsbetrieb, Monitoring und IT-Sicherheit. Er ist vertraglich verpflichtet, diesen
+                dieselben Datenschutzpflichten aufzuerlegen, uns über Änderungen zu informieren und uns ein
+                Widerspruchsrecht einzuräumen. Die jeweils aktuelle Übersicht ist{' '}
+                <a
+                  href={privacy.hosting.providerSubprocessorsUrl}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  class="text-navy-800 underline underline-offset-2 hover:text-copper-600"
+                >beim Anbieter abrufbar</a>.
               </dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
@@ -129,14 +164,21 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
         <div>
           <h2 class="font-display text-lg font-semibold text-navy-800">4. Cookies und lokale Speicherung</h2>
           <p class="mt-2">
-            Diese Website speichert nichts auf Ihrem Endgerät: Sie setzt keine Cookies – weder eigene noch
-            solche Dritter – und legt keine Einträge im lokalen Speicher Ihres Browsers an. Es findet kein
-            Tracking statt und es werden keine Nutzungsprofile erstellt.
+            Diese Website setzt und liest keine Cookies – weder eigene noch solche Dritter – und verwendet
+            keinen localStorage, sessionStorage oder vergleichbare clientseitige Speichertechnologien. Es
+            findet kein Tracking statt und es werden keine Nutzungsprofile erstellt.
+          </p>
+          <p class="mt-2">
+            Davon zu unterscheiden ist der übliche Zwischenspeicher (Cache) Ihres Browsers: Wie bei jeder
+            Website kann Ihr Browser gewöhnliche Seitenbestandteile wie Stylesheets, Bilder oder Schriftarten
+            eigenständig zwischenspeichern. Das dient allein der Auslieferung der Seite, wird von uns nicht
+            ausgewertet und erlaubt keine Wiedererkennung.
           </p>
           <p class="mt-2">
             Aus diesem Grund wird Ihnen auch kein Cookie-Banner angezeigt: Eine Einwilligung nach § 165
-            Abs. 3 TKG 2021 ist nur für den Zugriff auf Ihr Endgerät erforderlich, und ein solcher Zugriff
-            findet hier nicht statt.
+            Abs. 3 TKG 2021 ist erforderlich, wenn Informationen in Ihrem Endgerät gespeichert oder ausgelesen
+            werden, die für die Bereitstellung der Website nicht unbedingt erforderlich sind. Eine solche
+            Speicherung oder Auslesung findet hier nicht statt.
           </p>
           <p class="mt-2">
             Sollten künftig optionale Dienste (etwa für Statistik oder Marketing) eingesetzt werden, werden

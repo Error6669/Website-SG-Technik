@@ -58,8 +58,8 @@ export const consentCategories: ConsentCategory[] = [
     label: 'Notwendig',
     description:
       'Für den technischen Betrieb der Website erforderlich und daher nicht abwählbar. ' +
-      'Derzeit wird nichts gespeichert: Die Website setzt keine Cookies und legt keine ' +
-      'Einträge im lokalen Speicher Ihres Browsers an.',
+      'Derzeit setzt und liest die Website keine Cookies und verwendet keinen localStorage, ' +
+      'sessionStorage oder vergleichbare clientseitige Speichertechnologien.',
     required: true,
     // Leer, solange es kein Einwilligungs-Banner gibt. Sobald unten ein optionaler
     // Dienst eingetragen wird, erscheint das Banner und speichert die Auswahl — dann
