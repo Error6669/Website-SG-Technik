@@ -7,6 +7,7 @@ Grundlage: `Aufbau Website 2.0.docx`, `Website-Struktur_SG_Technik_GmbH.csv`, `L
 - **Hosting:** Netlify, verbunden mit dem GitHub-Repo → **jeder Push auf `main` löst automatisch einen neuen Build + Deploy aus**, kein manueller Schritt nötig. Live-URL: **https://sg-technik.netlify.app**
 - **Kontaktformular:** Netlify Forms ist bestätigt aktiv — "kontakt" wird nach einem "Clear cache and deploy" korrekt erkannt (vorher musste unter Site settings → Build & deploy → Post processing → **"Form detection"** aktiviert werden, war zunächst aus). E-Mail-Benachrichtigung wird im Netlify-Dashboard unter Forms → kontakt → Settings and usage → Form notifications eingerichtet (nicht im Code).
 - **Noch offen:** eigene Domain (`sg-technik.at`, bereits in `astro.config.mjs` als `site` hinterlegt) noch nicht mit Netlify verbunden (DNS-Eintrag beim Domain-Anbieter nötig, sobald gewünscht).
+  **Vorher klären:** Die E-Mail der Firma läuft auf **`sgt.co.at`** (MX/SPF → Microsoft 365), die Website ist auf `sg-technik.at` vorkonfiguriert. Falls die Website ebenfalls unter `sgt.co.at` laufen soll, muss `site` in `astro.config.mjs` **vor** dem Verbinden geändert werden — sonst werden Canonical-URLs und Sitemap auf die falsche Domain festgeschrieben.
 
 ## Letzte Änderungen (Session 2026-07-25 bis 27) — committet auf `develop`
 
@@ -35,6 +36,29 @@ Alles in dieser Session ist committet (Working Tree sauber; Commits u. a. „Vie
 **Produkte & Technik — mobile Umschalt-Leiste (`ProductsTechSection.astro`):** höher (`--pt-bar-h: 4.25rem`), **Nummerierung** wie Desktop (01/02… kupfer/mono) + senkrechter Trennstrich, **aktives Produkt größer** (1.2rem vs. 0.9rem). Zentrier-Fix: `::before/::after`-Spacer erzeugten auf dem Nutzer-Browser keinen Scroll-Weg → durch **echte `<li class="pt-mnav__spacer">`** ersetzt, deren Breite per JS (`sizeSpacers`) exakt auf `(navW − aktive Reiterbreite)/2` gesetzt wird, damit erster/letzter Reiter genau mittig steht (kein Über-Scrollen ins Leere). `scroll-snap-type: none`. Vom Nutzer abgenommen.
 
 **Aufräumpunkt erledigt (28.07.2026):** Die vormals verwaisten `ProductsSection.astro` und `ServicesSection.astro` existieren nicht mehr — `/produkte-technik` nutzt `ProductsTechSection.astro`, `/leistungen` nutzt `ProcessSection.astro`. Ein Durchlauf über alle Komponenten in `src/components/` fand **keine** weiteren verwaisten Dateien. *(Die weiter unten stehenden „Bereits gebaut"/„Kapitel-Zuordnung"-Einträge zu `ProductsSection`/`ServicesSection` sind damit überholt.)*
+
+## Letzte Änderungen (Session 2026-07-28 bis 30) — **noch nicht committet** auf `develop`
+
+Schwerpunkt: Rechtstexte präzisieren und die dahinterliegenden Nachweise klären. Auslöser waren Aussagen, die als Tatsachenbehauptung formuliert waren, ohne belegbar zu sein.
+
+**Cookies/Web-Storage — Aussage war zu weit gefasst (`datenschutz.astro` Abschnitt 4, `cookie-richtlinie.astro`, `consent.ts`):** „Diese Website speichert nichts auf Ihrem Endgerät" stimmte für Cookies und Storage, war wörtlich aber widerlegbar (Browser-HTTP-Cache). Jetzt: „setzt und liest keine Cookies und verwendet keinen localStorage, sessionStorage oder vergleichbare clientseitige Speichertechnologien", plus eigener Absatz, der den Browser-Cache ausdrücklich abgrenzt. Auch die TKG-Begründung ist am Gesetzeswortlaut nachgezogen (Einwilligung nötig für Speicherung/Auslesung, die **nicht unbedingt erforderlich** ist) statt „kein Zugriff auf Ihr Endgerät".
+
+**Serverlogs — Behauptung von eigenem Flag entkoppelt (`privacy.ts`, `datenschutz.astro` Abschnitt 3):** „keine serverseitigen Zugriffslogs" wurde allein aus `analyticsEnabled: false` erzeugt — das belegt aber nur, dass *wir* keine Netlify-Statistik erhalten, nichts über Netlifys eigene Protokolle. Änderungen:
+- `analyticsEnabled` hat jetzt einen klar begrenzten Geltungsbereich (eigene **Zeile „Zugriffsstatistiken"** im Impressum-Stil-`dl`).
+- Neu `logRetentionDays: number | null` — bei `null` gibt die Seite **transparente Kriterien** statt einer Frist aus (Art. 13 Abs. 2 lit. a DSGVO). Zahl nur eintragen, wenn vertraglich bestätigt; der Text stellt sich dann automatisch um.
+- **Datenarten** um Geräteart und weitere technische Dienst-/Sicherheitsdaten ergänzt.
+- Neue Zeile **„Unterauftragsverarbeiter"** mit Link auf die Anbieterliste (`providerSubprocessorsUrl`), bewusst ohne Firmennamen — die ändern sich.
+- Einleitung verlinkt die Datenschutzhinweise des Hosters (`providerPrivacyUrl`).
+
+**Drittlandbezug geprüft — Formulierung war korrekt:** Verdacht, die DPF-Erwähnung sei unbelegt, hat sich **nicht** bestätigt. Netlify-DPA (Fassung 09.06.2026) stützt sich auf die Standardvertragsklauseln (2021/914), die Netlify Privacy Policy (Stand 10.04.2026) erklärt zusätzlich die DPF-Zertifizierung. Text unverändert, dafür Beleg-Kommentar in `privacy.ts` samt Hinweis, dass DPF-Zertifizierungen **jährlich** erneuert werden müssen.
+
+**Impressum — Pflichtangabe war unvollständig (`legal.ts`):** Die GmbH hat **zwei** handelsrechtliche Geschäftsführer, eingetragen war nur einer. § 5 ECG / § 14 UGB verlangen alle vertretungsbefugten Organe. Jetzt: `'Gregor Hofer und DI Simon Paireder, EMBA'` („und" statt Komma, sonst liest sich der Titelzusatz wie ein dritter Name).
+
+**Neu: `PRIVACY-CHECKLIST.md`** (versioniert) — organisatorische Nachweise vor dem Live-Gang. Geklärt in dieser Session: DPA gilt bei Netlify automatisch über das Self-Serve Subscription Agreement; Vertretungsbefugnis liegt vor; E-Mail läuft laut MX/SPF über **Microsoft 365**, nicht über A1 (A1 vermutlich nur Reseller — Rolle noch zu klären); Löschturnus für Formulardaten auf **halbjährlich** festgelegt.
+
+**Neu: `Verarbeitungsverzeichnis_SG_Technik_GmbH.xlsx`** (Art. 30 DSGVO, **per `.gitignore` ausgenommen** — Geschäftsdokument, gehört in die Firmenablage). Drei Blätter, fünf Verarbeitungstätigkeiten: Website-Bereitstellung, Kontaktanfragen, Geschäftspartnerverwaltung, Buchhaltung, Personalverwaltung. Offene Felder mit `[AUSFÜLLEN]` markiert; Blatt 3 führt 9 offene Punkte.
+
+**`.gitignore`:** Verarbeitungsverzeichnis plus generisches `~$*` für Office-Sperrdateien.
 
 ## Stack
 Astro + TypeScript + Tailwind v4 (CSS-first, `@theme` Tokens in `src/styles/global.css`). Selbst gehostete Fonts (IBM Plex Sans/Mono, Montserrat nur fürs Logo) unter `public/fonts/`. Kein CMS, kein Backend.
@@ -89,8 +113,12 @@ Astro + TypeScript + Tailwind v4 (CSS-first, `@theme` Tokens in `src/styles/glob
 2. ~~CTA-Beschriftung vereinheitlichen~~ — erledigt, einheitlich "Kostenloses Erstgespräch vereinbaren".
 3. ~~Produkte & Technik-Sektion bauen~~ — erledigt (`ProductsSection.astro`, Nav-Link ergänzt), bündelt bestehende technische Fakten aus den Leistungen.
 
-### Phase 2 — Rechtliches & Vertrauen (P1) — ✅ erledigt (mit Platzhaltern)
-4. ~~Impressum- und Datenschutz-Seiten.~~ Gebaut mit Platzhaltern (`src/content/legal.ts`). **Noch offen als Nachfolge-Aufgabe:** echte Firmendaten eintragen (Adresse, Firmenbuchnummer, Firmenbuchgericht, UID, Geschäftsführer, Kammer) und **von einer rechtskundigen Person prüfen lassen**, bevor die Seite live geht — das sind rechtsverbindliche Pflichtangaben.
+### Phase 2 — Rechtliches & Vertrauen (P1) — 🔶 fast fertig
+4. ~~Impressum- und Datenschutz-Seiten.~~ Gebaut; echte Firmendaten sind eingetragen (Adresse, FN, UID, Kammer, **beide Geschäftsführer**), Rechtstexte in Session 2026-07-28/30 überarbeitet (siehe oben).
+   **Noch offen:**
+   - `firmenbuchgericht: ''` in `legal.ts:9` ist **leer** — Pflichtangabe nach § 14 UGB. Laut WKO „Landesgericht Linz", bewusst offen gelassen; verbindlich aus dem Firmenbuchauszug übernehmen.
+   - **Juristische Endkontrolle** von Impressum, Datenschutzerklärung und Cookie-Richtlinie durch eine rechtskundige Person, bevor die Seite live geht (WKO-Erstberatung ist für Mitglieder kostenlos). Der Hinweis steht auch im Kopfkommentar von `legal.ts` und `privacy.ts`.
+   - Organisatorische Nachweise: siehe **`PRIVACY-CHECKLIST.md`** (nicht Code, aber Live-Gang-relevant).
 5. ~~Call-to-Action-Band vor dem Footer~~ — erledigt (`CtaBand.astro`), zwischen Referenzen und Kontakt platziert.
 
 ### Phase 3 — Responsive- & Detail-Feinschliff (P2/P3, ursprünglich Schritt 6–7) — ✅ erledigt

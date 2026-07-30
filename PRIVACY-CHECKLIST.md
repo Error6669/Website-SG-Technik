@@ -1,6 +1,6 @@
 # Datenschutz — Freigabe-Checkliste vor Live-Gang
 
-Stand dieser Liste: **28.07.2026**
+Stand dieser Liste: **30.07.2026**
 Betrifft: Website SG Technik GmbH, Hosting Netlify, Kontaktformular via Netlify Forms
 
 Diese Liste betrifft **organisatorische Nachweise**, nicht den Code. Die Texte der
@@ -126,6 +126,9 @@ Lizenzen, nicht der Betreiber.
 
 - [ ] Datenschutzerklärung, Cookie-Richtlinie und Impressum von einer rechtskundigen
       Person gegenlesen lassen (WKO bietet Mitgliedern kostenlose Erstberatung)
+- [ ] Dabei mitprüfen lassen: `firmenbuchgericht` in `src/content/legal.ts` ist noch
+      **leer** — Pflichtangabe nach § 14 UGB, verbindlich aus dem Firmenbuchauszug
+      übernehmen (laut WKO „Landesgericht Linz")
 
 ---
 
@@ -138,14 +141,19 @@ Netlify hat die Subprozessorenliste ins Trust Center verlagert (`trust.netlify.c
 Das vollständige Dokument erfordert eine Zugriffsanfrage. Das Widerspruchsrecht nach
 Art. 28 Abs. 2 läuft ins Leere, wenn Änderungsmeldungen nirgends ankommen.
 
-- [ ] Zugang über `trust.netlify.com` mit `@sgt.co.at`-Adresse anfragen
-- [ ] Für Änderungsbenachrichtigungen registrieren, ggf. per Mail an
-      `privacy@netlify.com`:
-      > We are the controller for the site hosted under our Netlify team
-      > "SG Technik GmbH". Please confirm how we receive notifications of changes
-      > to your subprocessor list under the DPA, and register [Adresse] for such
-      > notifications.
-- [ ] Aktuelle Liste als PDF mit Datum ablegen
+Eine **fertig formulierte englische Anfrage an `privacy@netlify.com`** wurde am
+30.07.2026 erstellt; sie deckt in einem Aufwasch alle drei offenen Netlify-Punkte ab:
+Bestätigung des Vertragsverhältnisses (A2), vollständige Subprozessorenliste samt
+Änderungsbenachrichtigung (B1) und die Log-Speicherdauer (A4/`logRetentionDays`).
+
+- [ ] Mail von einer `@sgt.co.at`-Adresse absenden — nicht privat, die Antwort soll
+      das Vertragsverhältnis der GmbH belegen
+- [ ] Als Empfangsadresse für Änderungsmeldungen ein dauerhaft gelesenes Postfach
+      angeben (z. B. `office@sgt.co.at`), keine persönliche Adresse
+- [ ] Parallel Zugang über `trust.netlify.com` anfragen — der „Request access"-Knopf
+      läuft erfahrungsgemäß schneller als der Mail-Weg
+- [ ] Antwort als PDF in die Nachweismappe legen; aktuelle Subprozessorenliste
+      mit Datum dazu
 
 ---
 
