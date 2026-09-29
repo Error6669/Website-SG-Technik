@@ -15,7 +15,7 @@ Was hier offen ist, kann kein Commit lösen.
 
 ## A. Vor dem Live-Gang
 
-### A1 — Vertretungsbefugnis für den Netlify-Vertrag ✅ erledigt (28.07.2026)
+### A1 — Vertretungsbefugnis für den Netlify-Vertrag ✅ erledigt (28.07.2026, Nachweis abgelegt 29.09.2026)
 
 Das Netlify-DPA gilt automatisch mit Annahme der Nutzungsbedingungen
 (Self-Serve Subscription Agreement, DPA per Verweis eingebunden). Es bindet die
@@ -23,9 +23,9 @@ GmbH, weil die annehmende Person vertretungsbefugt ist:
 
 - Netlify-Account: Team „SG Technik GmbH", Login über GitHub-Org „SG Technik GmbH",
   durchgehend `@sgt.co.at`-Adressen → tritt durchgehend als Account der GmbH auf.
-- Die GmbH hat **zwei handelsrechtliche Geschäftsführer**: Gregor Hofer und
-  DI Simon Paireder, BSc. Beide sind vertretungsbefugt; die Annahme der
-  Netlify-Bedingungen bindet die GmbH. (DI Paireder ist zusätzlich
+- Die GmbH hat **zwei handelsrechtliche Geschäftsführer**: Ing. Gregor Hofer und
+  Dipl.-Ing. Simon Paireder, EMBA. Beide sind vertretungsbefugt; die Annahme der
+  Netlify-Bedingungen bindet die GmbH. (Dipl.-Ing. Paireder ist zusätzlich
   gewerberechtlicher GF nach § 39 GewO — diese Rolle allein hätte für die
   Vertretung nicht genügt.)
 
@@ -33,16 +33,22 @@ Damit ist die Aussage in Abschnitt 3 der Datenschutzerklärung — „Mit dem An
 besteht ein Auftragsverarbeitungsvertrag gemäß Art. 28 DSGVO" — belegt.
 
 - [x] Vertretungsbefugnis geklärt (handelsrechtliche Geschäftsführung)
-- [ ] Aktuellen Firmenbuchauszug zur Nachweismappe legen
+- [x] Firmenbuchauszug in der Nachweismappe abgelegt (29.09.2026) — Auszug
+      FN 624545 z, Abruf 30.07.2026
 
-### A2 — Nachweismappe ✅ erledigt (28.07.2026)
+### A2 — Nachweismappe ✅ erledigt (28.07.2026, vollständig seit 29.09.2026)
 
 Abgelegt in der Firmenablage:
 - Netlify-DPA, Fassung 09.06.2026 (`netlify.com/pdf/netlify-dpa.pdf`)
 - Screenshots Team-Einstellungen (Teamname, Owner-Adresse)
 - Netlify Privacy Policy, Stand 10.04.2026 (DPF-Zertifizierung)
+- Firmenbuchauszug FN 624545 z, Abruf 30.07.2026 — belegt die **Vertretungsbefugnis
+  der handelsrechtlichen Geschäftsführung** (nicht Prokura, siehe A1). Abgelegt
+  am 29.09.2026.
 
-Noch zu ergänzen: Firmenbuchauszug als Nachweis der Prokura (siehe A1).
+Der Auszug liegt bewusst **nicht** im Repository: er enthält Geburtsdaten und
+Privatadressen der Geschäftsführer. `.gitignore` schließt `FB_*.pdf` aus; die
+daraus übernommenen Pflichtangaben stehen in `src/content/legal.ts`.
 
 ### A3 — Kontaktformular / Netlify Forms ⚠️ offen
 
