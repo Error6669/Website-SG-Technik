@@ -74,14 +74,18 @@ umfassen. Vollständig vermeiden ließe sich die Zweitkopie nur durch Umstellung
 auf reinen Mailversand (Netlify Function → SMTP) — nicht umgesetzt, wäre ein
 eigener Umbau inklusive Spam-Schutz.
 
-### A4 — Verarbeitungsverzeichnis nach Art. 30 DSGVO 🔶 angelegt, Restlücken
+### A4 — Verarbeitungsverzeichnis nach Art. 30 DSGVO ✅ für die Website vollständig (29.09.2026)
 
 > Datei: **`Verarbeitungsverzeichnis_SG_Technik_GmbH.xlsx`** im Projektordner
 > (per `.gitignore` von der Versionierung ausgenommen — gehört in die Firmenablage).
-> Blatt „Offene Punkte" führt die verbleibenden Lücken; offene Felder sind im
-> Dokument mit `[AUSFÜLLEN]` markiert und orange hinterlegt.
-> Die beiden Website-Verarbeitungen sind ausgefüllt, die übrigen Unternehmens-
-> bereiche (Zeilen 3–7) noch nicht.
+> Stand **29.09.2026, Version 1.1**. Blatt „Offene Punkte" führt die verbleibenden
+> Lücken; offene Felder sind im Dokument mit `[AUSFÜLLEN]` markiert.
+>
+> **Angelegt sind fünf Verarbeitungstätigkeiten**, nicht nur die beiden der Website:
+> 1 Website-Bereitstellung, 2 Kontaktanfragen, 3 Geschäftspartnerverwaltung,
+> 4 Buchhaltung, 5 Personalverwaltung/Lohnverrechnung. Zeilen 3–5 sind inhaltlich
+> befüllt und haben nur noch Einzellücken (siehe unten) — eine frühere Fassung
+> dieser Checkliste behauptete, sie seien gar nicht erfasst. Das war falsch.
 
 Die folgende Beschreibung dokumentiert Aufbau und Herkunft der Angaben.
 
@@ -111,9 +115,32 @@ Weitere Zeilen sind nötig für Verarbeitungen **außerhalb** der Website
 (Kundenverwaltung, Buchhaltung, Personal) — die gehören ins selbe Dokument, sind
 aber nicht Gegenstand dieser Website-Freigabe.
 
-- [ ] Tabelle in Excel/Word anlegen, Kopfdaten + beide Zeilen ausfüllen
-- [ ] Datum und Version eintragen, in der Firmenablage speichern
-- [ ] Bei jeder Änderung an Diensten oder Fristen nachziehen
+- [x] Tabelle angelegt, Kopfdaten und beide Website-Zeilen ausgefüllt
+- [x] Datum und Version eingetragen (29.09.2026, Version 1.1), Ersteller und
+      nächster Prüftermin (01.01.2027) vermerkt
+- [x] **Zugriffsberechtigte dokumentiert** (29.09.2026) — Netlify-Account,
+      GitHub-Organisation und Postfach `office@sgt.co.at`: Ing. Gregor Hofer und
+      Dipl.-Ing. Simon Paireder, EMBA, beide handelsrechtliche Geschäftsführer;
+      weitere Personen haben keinen Zugriff. Steht in den TOMs von Blatt 2, Nr. 1
+      und 2 — das war der letzte eigenständige A4-Punkt.
+- [x] Namensform der Geschäftsführung in den Kopfdaten an den Firmenbuchauszug
+      angeglichen (stand auf „Gregor Hofer und DI Simon Paireder, BSc")
+- [ ] Bei jeder Änderung an Diensten oder Fristen nachziehen *(Daueraufgabe)*
+
+**Verbleibende Lücken und wo sie hingehören.** Keine davon ist ein eigenständiger
+A4-Punkt — sie sind entweder anderswo in dieser Liste geführt oder betreffen
+Bereiche außerhalb der Website:
+
+| Feld im Dokument | Fehlt | Geführt unter |
+|---|---|---|
+| Nr. 1, Löschfristen | konkrete Speicherdauer der Netlify-Protokolldaten | **B1** (Anfrage an Netlify läuft) |
+| Nr. 2, Empfänger / AVV / Drittland | Fassung des Microsoft-DPA, Datenregion, Rolle von A1 Telekom | **A5** |
+| Nr. 3–5 | BMD-Betriebsmodell (lokal oder Cloud), Name der Steuerberatungskanzlei, wer die Lohnverrechnung durchführt, arbeitsrechtliche Löschfristen | Blatt „Offene Punkte" Nr. 5 — **nicht Teil der Website-Freigabe** |
+| Nr. 3–5, TOMs | **Backup- und Wiederherstellungskonzept** (Art. 32 Abs. 1 lit. c) — in allen drei Zeilen offen | ebenda; eigener Punkt, betrifft das Unternehmen, nicht die Website |
+
+Damit ist das Verzeichnis **für die Freigabe der Website vollständig**. Die
+Vollständigkeit nach Art. 30 für das gesamte Unternehmen hängt noch an den
+Zeilen 3–5; das ist ein eigenes Vorhaben.
 
 Kostenlose Vorlagen: Österreichische Datenschutzbehörde (`dsb.gv.at`), WKO.
 
