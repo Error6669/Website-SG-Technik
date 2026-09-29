@@ -5,11 +5,20 @@
 // Zwei Zustände, automatisch gewählt anhand der Config (consent.ts):
 //
 //   • KEINE einwilligungspflichtigen Dienste (aktuell): Diese Komponente
-//     rendert NICHTS. Kein Banner, kein Hinweis, keine Config — die Seite
+//     rendert kein Markup — kein Banner, kein Hinweis und vor allem kein
+//     <script type="application/json" id="sg-consent-config">. Die Seite
 //     setzt dadurch weder Cookies noch localStorage-Einträge. Technisch
 //     notwendige Speicherung wäre zwar einwilligungsfrei zulässig
 //     (§ 165 Abs. 3 TKG 2021), es gibt hier aber schlicht keine: ohne
 //     Banner gibt es auch keine Auswahl, die gespeichert werden müsste.
+//
+//     Auch kein JavaScript: Das Client-Skript liegt in der eigenen
+//     Komponente ConsentManager.astro und wird nur innerhalb des
+//     hasOptionalServices-Zweigs unten gerendert. Astro liefert Skripte
+//     aus nie gerenderten Komponenten nicht aus — im ruhenden Zustand
+//     enthält der Build also kein Byte Consent-JavaScript. Warum der
+//     Umweg über eine eigene Komponente nötig ist, steht dort im
+//     Kopfkommentar (Astro hoistet <script>-Blöcke sonst auf jede Seite).
 //
 //   • "consent" (automatisch, sobald ein Statistik-/Marketing-Dienst in
 //     consent.ts eingetragen wird): vollständiges Einwilligungs-Banner mit
@@ -19,6 +28,7 @@
 //     12 Monaten ab und wird erneut abgefragt (Frist aus der Config).
 // ---------------------------------------------------------------------------
 import { consentCategories, consentClientConfig, hasOptionalServices } from '../content/consent';
+import ConsentManager from './ConsentManager.astro';
 
 const optionalCategories = consentCategories.filter((c) => !c.required);
 const requiredCategories = consentCategories.filter((c) => c.required);
@@ -35,20 +45,21 @@ const policyLink =
 
 {
   /* ------------------------------------------------------------------ */
-  /* Ohne einwilligungspflichtige Dienste wird NICHTS ausgeliefert: kein */
-  /* Banner, kein Hinweis, keine Config — und damit auch kein Cookie und */
-  /* kein localStorage-Eintrag. Es gibt in diesem Zustand rechtlich      */
-  /* nichts einzuwilligen (§ 165 Abs. 3 TKG 2021), also auch nichts      */
-  /* wegzuklicken.                                                       */
+  /* Ohne einwilligungspflichtige Dienste wird kein Markup ausgeliefert: */
+  /* kein Banner, kein Hinweis, keine Config — und damit auch kein       */
+  /* Cookie und kein localStorage-Eintrag. Es gibt in diesem Zustand     */
+  /* rechtlich nichts einzuwilligen (§ 165 Abs. 3 TKG 2021), also auch   */
+  /* nichts wegzuklicken — und auch kein Consent-JavaScript.          */
   /*                                                                     */
   /* Sobald in consent.ts ein Statistik-/Marketing-Dienst eingetragen    */
   /* wird, schaltet consentClientConfig.mode auf 'consent' und das       */
   /* vollständige Einwilligungs-Banner erscheint automatisch. Kein Umbau */
-  /* nötig. Das Client-Skript unten deaktiviert sich ohne Config-Element */
-  /* von selbst (früher Return).                                         */
+  /* nötig — nur den Dienst in consent.ts eintragen.                     */
   /* ------------------------------------------------------------------ */
   hasOptionalServices && (
     <>
+      {/* Client-Skript — eigene Komponente, damit es nur hier drin ausgeliefert wird. */}
+      <ConsentManager />
       {/* Konfiguration für das clientseitige Skript (als JSON, CSP-freundlich). */}
       <script type="application/json" id="sg-consent-config" set:html={JSON.stringify(consentClientConfig)} />
       <dialog
@@ -261,233 +272,3 @@ const policyLink =
     }
   }
 </style>
-
-<script>
-  // -------------------------------------------------------------------------
-  // Consent-Manager (vanilla, keine externen Abhängigkeiten).
-  //
-  // Läuft nur, wenn es einwilligungspflichtige Dienste gibt — sonst rendert die
-  // Komponente kein Config-Element und dieses Skript bricht sofort ab.
-  //
-  // Speichermodell (localStorage-Schlüssel aus der Config):
-  //   { v, ts, categories: { notwendig: true, … } }
-  // Ein Eintrag gilt nach `maxAgeMonths` als abgelaufen und wird erneut abgefragt.
-  //
-  // Skript-Gating: Ein Dienst, der Einwilligung braucht, wird
-  // als deaktivierter Platzhalter eingebunden — ein script-Element mit
-  // type="text/plain", das per data-consent="statistik" seiner Kategorie
-  // zugeordnet ist und die URL in data-src (statt src) bzw. Inline-Code im Rumpf
-  // trägt. Erst nach erteilter Einwilligung wird daraus ein echtes Skript.
-  // -------------------------------------------------------------------------
-  interface StoredConsent {
-    v: number;
-    ts: string;
-    categories?: Record<string, boolean>;
-  }
-
-  (() => {
-    const cfgEl = document.getElementById('sg-consent-config');
-    if (!cfgEl || !cfgEl.textContent) return;
-    const cfg = JSON.parse(cfgEl.textContent) as {
-      storageKey: string;
-      version: number;
-      maxAgeMonths: number;
-      mode: 'consent';
-      categories: { id: string; required: boolean }[];
-    };
-
-    const MAX_AGE_MS = cfg.maxAgeMonths * 30.4 * 24 * 60 * 60 * 1000;
-
-    // --- Speicherung (mit Ablauf) -----------------------------------------
-    const read = (): StoredConsent | null => {
-      try {
-        const raw = localStorage.getItem(cfg.storageKey);
-        if (!raw) return null;
-        const data = JSON.parse(raw) as StoredConsent;
-        if (!data || data.v !== cfg.version) return null; // Version veraltet
-        if (data.ts && Date.now() - Date.parse(data.ts) > MAX_AGE_MS) return null; // abgelaufen
-        return data;
-      } catch {
-        return null;
-      }
-    };
-
-    const write = (payload: Partial<StoredConsent>): StoredConsent => {
-      const data: StoredConsent = { v: cfg.version, ts: new Date().toISOString(), ...payload };
-      try {
-        localStorage.setItem(cfg.storageKey, JSON.stringify(data));
-      } catch {
-        /* localStorage nicht verfügbar (z. B. Privatmodus) — gilt für die Sitzung. */
-      }
-      return data;
-    };
-
-    // =====================================================================
-    // Vollständiges Einwilligungs-Banner
-    // =====================================================================
-    const banner = document.getElementById('sg-consent-banner') as HTMLDialogElement | null;
-    const settings = document.getElementById('sg-consent-settings') as HTMLDialogElement | null;
-
-    const buildState = (optionalValue: boolean): Record<string, boolean> => {
-      const out: Record<string, boolean> = {};
-      cfg.categories.forEach((c) => {
-        out[c.id] = c.required ? true : optionalValue;
-      });
-      return out;
-    };
-
-    const stateFromToggles = (): Record<string, boolean> => {
-      const out: Record<string, boolean> = {};
-      cfg.categories.forEach((c) => {
-        if (c.required) {
-          out[c.id] = true;
-          return;
-        }
-        const el = document.querySelector<HTMLInputElement>(`[data-consent-category="${c.id}"]`);
-        out[c.id] = !!el && el.checked;
-      });
-      return out;
-    };
-
-    const syncToggles = (categories: Record<string, boolean>): void => {
-      cfg.categories.forEach((c) => {
-        const el = document.querySelector<HTMLInputElement>(`[data-consent-category="${c.id}"]`);
-        if (!el) return;
-        el.checked = c.required ? true : !!categories[c.id];
-        if (c.required) el.disabled = true;
-      });
-    };
-
-    // Aktiviert wartende Platzhalter-Skripte eingewilligter Kategorien.
-    const activateScripts = (categories: Record<string, boolean>): void => {
-      document
-        .querySelectorAll<HTMLScriptElement>('script[type="text/plain"][data-consent]')
-        .forEach((node) => {
-          const cat = node.getAttribute('data-consent');
-          if (!cat || !categories[cat] || node.dataset.sgActivated) return;
-
-          const activated = document.createElement('script');
-          Array.from(node.attributes).forEach(({ name, value }) => {
-            if (name === 'type' || name === 'data-consent' || name === 'data-src') return;
-            activated.setAttribute(name, value);
-          });
-          const src = node.getAttribute('data-src');
-          if (src) activated.src = src;
-          else activated.textContent = node.textContent;
-
-          node.dataset.sgActivated = 'true';
-          node.after(activated);
-        });
-    };
-
-    const wasRevoked = (
-      prev: Record<string, boolean> | undefined,
-      next: Record<string, boolean>,
-    ): boolean => !!prev && cfg.categories.some((c) => !c.required && prev[c.id] && !next[c.id]);
-
-    // Scrollen sperren, solange das Banner die Seite blockiert. Auf iOS Safari
-    // reicht overflow:hidden nicht — <body> an der aktuellen Position fixieren.
-    let lockedScrollY = 0;
-    const lockScroll = () => {
-      lockedScrollY = window.scrollY;
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${lockedScrollY}px`;
-      document.body.style.left = '0';
-      document.body.style.right = '0';
-      document.body.style.width = '100%';
-      document.documentElement.style.overflow = 'hidden';
-    };
-    const unlockScroll = () => {
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.left = '';
-      document.body.style.right = '';
-      document.body.style.width = '';
-      document.documentElement.style.overflow = '';
-      window.scrollTo(0, lockedScrollY);
-    };
-    const openBanner = (): void => {
-      // Erst sperren, dann öffnen: verhindert einen Scroll-Sprung ans
-      // Seitenende durch den Auto-Fokus von showModal().
-      // showModal(): modal → abdunkelnder Backdrop + Interaktionssperre. Die Seite
-      // ist nicht bedienbar, bis eine Auswahl getroffen wurde.
-      lockScroll();
-      if (banner && !banner.open) banner.showModal();
-      const title = document.getElementById('sg-consent-banner-title');
-      if (title) (title as HTMLElement).focus({ preventScroll: true });
-    };
-    const closeBanner = (): void => {
-      if (banner && banner.open) banner.close();
-    };
-    const openSettings = (): void => {
-      const stored = read();
-      syncToggles(stored?.categories ?? buildState(false));
-      closeBanner();
-      if (settings && !settings.open) settings.showModal();
-    };
-    const closeSettings = (): void => {
-      if (settings && settings.open) settings.close();
-    };
-
-    const apply = (categories: Record<string, boolean>): void => {
-      const previous = read();
-      const data = write({ categories });
-      syncToggles(categories);
-      closeSettings();
-      closeBanner();
-      unlockScroll();
-      activateScripts(categories);
-      window.dispatchEvent(new CustomEvent('sg:consentchange', { detail: data }));
-      if (wasRevoked(previous?.categories, categories) && document.querySelector('[data-sg-activated]')) {
-        window.location.reload();
-      }
-    };
-
-    document.querySelectorAll<HTMLElement>('[data-consent-action]').forEach((el) => {
-      el.addEventListener('click', () => {
-        switch (el.dataset.consentAction) {
-          case 'accept-all':
-            apply(buildState(true));
-            break;
-          case 'reject-all':
-            apply(buildState(false));
-            break;
-          case 'save':
-            apply(stateFromToggles());
-            break;
-          case 'open-settings':
-            openSettings();
-            break;
-        }
-      });
-    });
-
-    document.querySelectorAll<HTMLElement>('[data-consent-open]').forEach((el) => {
-      el.addEventListener('click', (e) => {
-        e.preventDefault();
-        openSettings();
-      });
-    });
-
-    banner?.addEventListener('cancel', (e) => e.preventDefault());
-    settings?.addEventListener('close', () => {
-      if (!read()) openBanner();
-    });
-
-    (window as unknown as { sgConsent: Record<string, unknown> }).sgConsent = {
-      openSettings,
-      hasConsent: (id: string): boolean => !!read()?.categories?.[id],
-      get: (): StoredConsent | null => read(),
-    };
-
-    const stored = read();
-    if (stored?.categories) {
-      syncToggles(stored.categories);
-      activateScripts(stored.categories);
-      window.dispatchEvent(new CustomEvent('sg:consentchange', { detail: stored }));
-    } else {
-      syncToggles(buildState(false));
-      openBanner();
-    }
-  })();
-</script>

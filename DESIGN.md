@@ -41,6 +41,16 @@ typography:
     fontSize: "0.75rem"
     fontWeight: 500
     letterSpacing: "0.14em"
+  switcher:
+    fontFamily: "'Plex Sans', 'Segoe UI', system-ui, sans-serif"
+    fontSize: "0.9rem"
+    fontWeight: 500
+    lineHeight: 1.2
+  switcher-active:
+    fontFamily: "'Plex Sans', 'Segoe UI', system-ui, sans-serif"
+    fontSize: "1.2rem"
+    fontWeight: 600
+    lineHeight: 1.2
 rounded:
   sm: "2px"
 spacing:
@@ -126,9 +136,12 @@ A cool navy-to-slate neutral range anchored by one warm accent; the palette is r
 - **Title** (600, 1.125rem): sub-headings inside a section (e.g. "Was wir tun", a service name at the smaller weight, `about.whatWeDo.headline`).
 - **Body** (400, 1rem, line-height 1.625): all running copy; capped implicitly by `max-w-xl`/`max-w-2xl` containers, which keep lines within the 65–75ch target.
 - **Label** (500, 0.75rem, tracking 0.14em, uppercase, mono): the hero eyebrow, service tags ("Leistung 01"), and the "Wer sind unsere Kunden" / "Wofür wir stehen" mini-headers.
+- **Switcher** (500, 0.9rem, line-height 1.2) and **Switcher-active** (600, 1.2rem): the two states of one tab in the mobile product switcher on `/produkte-technik` (`ProductsTechSection.astro`, `.pt-mnav__label`). This pair is a deliberate step off the main ramp — see the rule below.
 
 ### Named Rules
 **The Mono-Means-Measured Rule.** Plex Mono is reserved for numbers and labels that represent something counted, sequenced, or tagged (stats, process-step numerals, uppercase eyebrows/tags) — never for narrative prose.
+
+**The Switcher-Scale Exception.** The mobile product switcher animates its tabs between two sizes to show which product is selected (`transition: font-size 0.2s ease`). That needs a *pair* of sizes with a visible ratio, not two arbitrary neighbours on the ramp: 0.9rem → 1.2rem is a 1.33× step that reads clearly at arm's length, while the nearest ramp values (0.75rem → 1.125rem) would either crowd the inactive tabs or make the jump too subtle to register. The two steps are therefore declared as their own roles (`switcher`, `switcher-active`) and are scoped **exclusively** to `.pt-mnav__label` in `ProductsTechSection.astro`. Do not reuse them elsewhere, and do not add further off-ramp sizes by pointing at this exception — a new size needs its own justification and its own role here. The adjacent `.pt-mnav__index` (0.72rem) is *not* a new step; it sits within tolerance of Label (0.75rem).
 
 ### Logo Mark Exception
 `LogoMark.astro`'s ring-text (`SILO- UND SOLEANLAGENBAU`) and the header/footer wordmark styling use `Logo Montserrat` (weights 500/600), not Plex Sans. This font is scoped exclusively to the logo mark component — it is the mark's own typographic signature, inherited from the original animated logo file, and must never be used for body copy, headings, or any other system typography.

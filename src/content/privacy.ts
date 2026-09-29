@@ -7,12 +7,13 @@
 //
 // Rechtlicher Hinweis: fachlich fundierte Standardformulierungen, aber keine
 // Rechtsberatung. Vor dem Live-Gang von einer rechtskundigen Person prüfen und
-// die konkreten Fristen/Verträge (AVV mit dem Hoster) verbindlich bestätigen.
+// die konkreten Fristen/Verträge (AVV mit Hoster UND E-Mail-Provider) verbindlich
+// bestätigen.
 // ---------------------------------------------------------------------------
 
 export const privacy = {
   // Stand der Erklärung (wird am Seitenende ausgegeben).
-  stand: 'Juli 2026',
+  stand: 'September 2026',
 
   // Hosting-Anbieter (Auftragsverarbeiter). Netlify ist ein US-Unternehmen →
   // Übermittlung in ein Drittland (USA).
@@ -54,6 +55,39 @@ export const privacy = {
     // ERNEUT PRÜFEN: DPF-Zertifizierungen müssen jährlich erneuert werden und
     // können erlöschen. Status auf dataprivacyframework.gov gegenprüfen; entfällt
     // die Zertifizierung, hier nur noch die Standardvertragsklauseln nennen.
+    transferSafeguards:
+      'Standardvertragsklauseln der EU-Kommission (Art. 46 DSGVO) bzw. EU-U.S. Data Privacy Framework',
+  },
+
+  // E-Mail-Postfach, in dem Formulareinsendungen und Anfragen eingehen. Dessen
+  // Betreiber ist ein WEITERER Auftragsverarbeiter (Art. 28 DSGVO) und ein
+  // zweiter Drittland-Pfad — beides muss in der Datenschutzerklärung stehen
+  // (Art. 13 Abs. 1 lit. e und f DSGVO), nicht nur der Hoster.
+  //
+  // Technisch belegt am 28.07.2026 über die DNS-Eintraege von sgt.co.at:
+  //   MX  sgt-co-at.mail.protection.outlook.com
+  //   SPF include:spf.protection.outlook.com
+  // -> Microsoft 365 / Exchange Online. Vertragspartner für EU-Kunden ist
+  //    Microsoft Ireland Operations Limited.
+  //
+  // NOCH ZU ERLEDIGEN (PRIVACY-CHECKLIST.md, A5):
+  //  - Microsoft Products and Services Data Protection Addendum in aktueller
+  //    Fassung abrufen und mit Datum in die Nachweismappe legen.
+  //  - Datenregion des Tenants prüfen (EU Data Boundary). Solange das nicht
+  //    bestätigt ist, behauptet die Seite BEWUSST keine reine EU-Speicherung.
+  //  - Rolle von A1 klären: bei delegierten Administratorrechten (GDAP) ist A1
+  //    selbst Auftragsverarbeiter und hier zusätzlich zu nennen.
+  mail: {
+    provider: 'Microsoft Ireland Operations Limited',
+    providerAddress:
+      'One Microsoft Place, South County Business Park, Leopardstown, Dublin 18, Irland',
+    providerPrivacyUrl: 'https://privacy.microsoft.com/de-de/privacystatement',
+
+    // Rechtsrahmen der Drittlandübermittlung. Microsoft bindet die
+    // Standardvertragsklauseln in sein Data Protection Addendum ein; die
+    // Microsoft Corporation ist zusätzlich unter dem EU-U.S. DPF zertifiziert.
+    // ERNEUT PRÜFEN: DPF-Zertifizierungen laufen jährlich ab — Status auf
+    // dataprivacyframework.gov gegenprüfen (siehe PRIVACY-CHECKLIST Abschnitt C).
     transferSafeguards:
       'Standardvertragsklauseln der EU-Kommission (Art. 46 DSGVO) bzw. EU-U.S. Data Privacy Framework',
   },

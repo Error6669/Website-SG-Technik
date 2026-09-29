@@ -1,6 +1,6 @@
 # Datenschutz — Freigabe-Checkliste vor Live-Gang
 
-Stand dieser Liste: **30.07.2026**
+Stand dieser Liste: **29.09.2026**
 Betrifft: Website SG Technik GmbH, Hosting Netlify, Kontaktformular via Netlify Forms
 
 Diese Liste betrifft **organisatorische Nachweise**, nicht den Code. Die Texte der
@@ -75,7 +75,7 @@ Behörde auf Verlangen vorzulegen. Eine Tabelle genügt — es wird nicht veröf
 
 Kopfdaten (einmal, gelten für alle Zeilen):
 Verantwortlicher SG Technik GmbH, Kroisbach 5, 4622 Eggendorf im Traunkreis,
-FN 624545 z, vertreten durch Gregor Hofer und DI Simon Paireder, BSc,
+FN 624545 z, vertreten durch Ing. Gregor Hofer und Dipl.-Ing. Simon Paireder, EMBA,
 office@sgt.co.at. Kein Datenschutzbeauftragter bestellt.
 
 Für die Website sind zwei Zeilen nötig:
@@ -113,6 +113,14 @@ Auftragsverarbeiter ist damit Microsoft (für EU-Kunden: Microsoft Ireland Opera
 Limited). A1 Telekom Austria ist mutmaßlich Vertrags- und Rechnungspartner für die
 Lizenzen, nicht der Betreiber.
 
+**Seit 29.09.2026 benennt die Datenschutzerklärung ihn auch:** Abschnitt 5
+(„Empfänger" + neue Zeile „Drittlandbezug") nennt Microsoft Ireland Operations
+Limited als weiteren Auftragsverarbeiter — vorher stand dort nur Netlify, obwohl
+der Postfachbetreiber ein zweiter Auftragsverarbeiter und ein zweiter
+Drittland-Pfad ist (Art. 13 Abs. 1 lit. e und f DSGVO). Werte stehen in
+`src/content/privacy.ts` → `mail`. Eine reine EU-Speicherung behauptet der Text
+bewusst **nicht**, solange die Datenregion nicht geprüft ist.
+
 - [ ] Microsoft Products and Services **Data Protection Addendum** in aktueller
       Fassung abrufen, mit Datum in die Nachweismappe legen
 - [ ] Datenregion des Tenants prüfen (Microsoft 365 Admin Center → Einstellungen →
@@ -126,9 +134,13 @@ Lizenzen, nicht der Betreiber.
 
 - [ ] Datenschutzerklärung, Cookie-Richtlinie und Impressum von einer rechtskundigen
       Person gegenlesen lassen (WKO bietet Mitgliedern kostenlose Erstberatung)
-- [ ] Dabei mitprüfen lassen: `firmenbuchgericht` in `src/content/legal.ts` ist noch
-      **leer** — Pflichtangabe nach § 14 UGB, verbindlich aus dem Firmenbuchauszug
-      übernehmen (laut WKO „Landesgericht Linz")
+- [x] `firmenbuchgericht` in `src/content/legal.ts` — Pflichtangabe nach § 14 UGB,
+      am 30.07.2026 aus dem Firmenbuchauszug FN 624545 z übernommen:
+      **Landesgericht Linz**. Aus derselben Quelle die Geschäftsführer-Titel
+      (Ing. / Dipl.-Ing.) angeglichen.
+- [ ] Dabei mitprüfen lassen: `behoerdeEcg` in `src/content/legal.ts` steht auf
+      **Bezirkshauptmannschaft Linz-Land** — gegen den GISA-Auszug abgleichen
+      lassen, dort ist die Behörde je Gewerbestandort ausgewiesen.
 
 ---
 
@@ -168,6 +180,9 @@ Kalendereintrag anlegen, jeweils zu prüfen:
 - [ ] Netlify-DPA noch Fassung 09.06.2026 oder neuere Version?
 - [ ] Subprozessorenliste unverändert?
 - [ ] Verarbeitungsverzeichnis noch aktuell?
+- [ ] Netlify-Dashboard: ist **Netlify Analytics** weiterhin deaktiviert?
+      (`hosting.analyticsEnabled: false` erzeugt auf der Seite eine harte
+      Tatsachenbehauptung — wird die Statistik einmal zugebucht, muss der Wert mit.)
 - [ ] `stand` in `src/content/privacy.ts` aktualisieren
 
 ---
@@ -177,6 +192,7 @@ Kalendereintrag anlegen, jeweils zu prüfen:
 | Aussage auf der Website | Quelle im Code |
 |---|---|
 | Hoster, Adresse, Links | `src/content/privacy.ts` → `hosting` |
+| E-Mail-Provider als weiterer Auftragsverarbeiter + dessen Drittlandbezug | `src/content/privacy.ts` → `mail` (Abschnitt 5 der Erklärung) |
 | Speicherdauer der Serverlogs | `hosting.logRetentionDays` — `null` = Kriterien statt Frist. Zahl **nur** eintragen, wenn im AVV verbindlich bestätigt |
 | Zugriffsstatistiken | `hosting.analyticsEnabled` — betrifft ausschließlich Netlify Analytics |
 | Drittlandbezug | `hosting.transferSafeguards` (+ Beleg-Kommentar) |

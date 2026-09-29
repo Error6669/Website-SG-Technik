@@ -1,16 +1,17 @@
 // Rechtlich verbindliche Angaben. Quelle der Gewerbe-/Kammerdaten: WKO Firmen A–Z
-// bzw. Gewerbedatenbank (GISA). Vor Launch von einer rechtskundigen Person prüfen
-// lassen. Offen: Firmenbuchgericht (laut WKO „Landesgericht Linz" — bewusst noch
-// leer gelassen) sowie die endgültige Klärung der Sitz-/Standortadresse.
+// bzw. Gewerbedatenbank (GISA). Firma, Firmenbuchnummer, Firmenbuchgericht und die
+// Geschäftsführer stammen aus dem Firmenbuchauszug FN 624545 z (Stichtag
+// 30.07.2026). Vor Launch von einer rechtskundigen Person prüfen lassen.
 export const legalEntity = {
   name: 'SG Technik GmbH',
   address: 'Kroisbach 5, 4622 Eggendorf im Traunkreis, Österreich',
   firmenbuchnummer: 'FN 624545 z',
-  firmenbuchgericht: '',
+  firmenbuchgericht: 'Landesgericht Linz',
   uid: 'ATU80561768',
   // Beide handelsrechtlichen Geschäftsführer — § 5 ECG / § 14 UGB verlangen die
-  // Angabe aller vertretungsbefugten Organe.
-  geschaeftsfuehrer: 'Gregor Hofer und DI Simon Paireder, EMBA',
+  // Angabe aller vertretungsbefugten Organe. Laut Firmenbuch vertritt jeder von
+  // beiden selbständig; Titel wie im Firmenbuch eingetragen.
+  geschaeftsfuehrer: 'Ing. Gregor Hofer und Dipl.-Ing. Simon Paireder, EMBA',
   kammer: 'Mitglied der Wirtschaftskammer Oberösterreich',
 };
 
@@ -41,6 +42,6 @@ export const gewerbe = {
   ],
   // Anwendbare gewerberechtliche Vorschrift inkl. Zugang (§ 5 Abs. 1 Z 5 ECG).
   rechtsvorschrift: 'Gewerbeordnung 1994 (GewO), abrufbar unter www.ris.bka.gv.at',
-  // Behörde gemäß ECG / Gewerbebehörde.
-  behoerdeEcg: 'Magistrat der Stadt Linz',
+  // Behörde gemäß ECG / Gewerbebehörde (zuständige Bezirksverwaltungsbehörde).
+  behoerdeEcg: 'Bezirkshauptmannschaft Linz-Land',
 };

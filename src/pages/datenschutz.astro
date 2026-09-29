@@ -226,7 +226,26 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
               <dd class="min-w-0 break-words text-navy-900">
                 Formulareinsendungen werden über den Formulardienst unseres Hosting-Anbieters
                 ({privacy.hosting.provider}, USA) verarbeitet und an unser E-Mail-Postfach weitergeleitet.
-                Ein Auftragsverarbeitungsvertrag besteht; zur Drittlandübermittlung siehe Punkt 3.
+                Das Postfach wird von {privacy.mail.provider}, {privacy.mail.providerAddress}, betrieben;
+                dieser Anbieter verarbeitet Ihre Nachricht als weiterer Auftragsverarbeiter, damit wir sie
+                empfangen, lesen und beantworten können. Mit beiden Anbietern bestehen
+                Auftragsverarbeitungsverträge gemäß Art. 28 DSGVO. Einzelheiten zur Verarbeitung durch den
+                Betreiber des Postfachs ergeben sich aus{' '}
+                <a
+                  href={privacy.mail.providerPrivacyUrl}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  class="text-navy-800 underline underline-offset-2 hover:text-copper-600"
+                >seinen Datenschutzhinweisen</a>. Eine Weitergabe an sonstige Dritte findet nicht statt.
+              </dd>
+            </div>
+            <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
+              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Drittlandbezug</dt>
+              <dd class="min-w-0 break-words text-navy-900">
+                Zur Übermittlung an den Hosting-Anbieter siehe Punkt 3. Der Betreiber des E-Mail-Postfachs
+                ist ein Unternehmen mit Sitz in der Europäischen Union, gehört jedoch zu einem US-Konzern;
+                ein Zugriff aus einem Drittland im Rahmen von Betrieb, Wartung und Support ist daher nicht
+                auszuschließen. Die Übermittlung wird durch {privacy.mail.transferSafeguards} abgesichert.
               </dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">

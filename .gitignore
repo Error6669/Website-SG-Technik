@@ -40,4 +40,16 @@ Fotos/
 # ihre Bilder als Base64 im Rumpf). Nicht versionieren.
 Animationen/
 
-FB_624545z_2026-07-30.pdf
+# Firmenbuchauszüge (FN 624545 z). Enthalten Geburtsdaten und Privatadressen
+# der Geschäftsführer sowie Gesellschafteranteile — personenbezogene Daten, die
+# nicht ins Repository gehören. Die daraus übernommenen Pflichtangaben stehen in
+# src/content/legal.ts. Auszüge in der Firmenablage aufbewahren.
+FB_*.pdf
+
+# Heruntergeladene Gesetzestexte (RIS/EUR-Lex) als Beleg zu den Rechtsseiten,
+# ~16 MB Fremddokumente — nicht versionieren, bei Bedarf neu laden.
+# Die README ist davon ausgenommen: sie ordnet jeden Gesetzesverweis im Code
+# seiner Fundstelle zu und enthält die Anleitung zum Neuladen. Sie muss im Repo
+# bleiben, sonst ist die Zuordnung nur lokal vorhanden.
+Rechtstexte/*
+!Rechtstexte/README.md

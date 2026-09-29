@@ -37,7 +37,7 @@ Alles in dieser Session ist committet (Working Tree sauber; Commits u. a. „Vie
 
 **Aufräumpunkt erledigt (28.07.2026):** Die vormals verwaisten `ProductsSection.astro` und `ServicesSection.astro` existieren nicht mehr — `/produkte-technik` nutzt `ProductsTechSection.astro`, `/leistungen` nutzt `ProcessSection.astro`. Ein Durchlauf über alle Komponenten in `src/components/` fand **keine** weiteren verwaisten Dateien. *(Die weiter unten stehenden „Bereits gebaut"/„Kapitel-Zuordnung"-Einträge zu `ProductsSection`/`ServicesSection` sind damit überholt.)*
 
-## Letzte Änderungen (Session 2026-07-28 bis 30) — **noch nicht committet** auf `develop`
+## Letzte Änderungen (Session 2026-07-28 bis 30) — committet auf `cookies` (4f74a09, 9dd4603)
 
 Schwerpunkt: Rechtstexte präzisieren und die dahinterliegenden Nachweise klären. Auslöser waren Aussagen, die als Tatsachenbehauptung formuliert waren, ohne belegbar zu sein.
 
@@ -60,6 +60,30 @@ Schwerpunkt: Rechtstexte präzisieren und die dahinterliegenden Nachweise kläre
 
 **`.gitignore`:** Verarbeitungsverzeichnis plus generisches `~$*` für Office-Sperrdateien.
 
+## Letzte Änderungen (Session 2026-09-29) — Branch `cookies`
+
+Ausgangspunkt war eine Durchsicht aller Datenschutz-/Cookie-Dateien. Vier Funde, alle behoben.
+
+**1. E-Mail-Provider fehlte als Empfänger (`privacy.ts`, `datenschutz.astro` Abschnitt 5) — der inhaltlich wichtigste Fund.** Abschnitt 5 nannte als Empfänger nur Netlify und „an unser E-Mail-Postfach weitergeleitet". Das Postfach `office@sgt.co.at` läuft laut MX/SPF über Microsoft 365 — der Betreiber ist damit ein **zweiter Auftragsverarbeiter und ein zweiter Drittland-Pfad** (Art. 13 Abs. 1 lit. e und f DSGVO), und beides stand nicht in der Erklärung. Das Verarbeitungsverzeichnis führte ihn, die Website nicht. Neu: `privacy.mail` (Aufbau 1:1 wie `hosting`) mit Microsoft Ireland Operations Limited, Adresse, Datenschutzlink und `transferSafeguards`; Abschnitt 5 nennt ihn im Empfänger-Absatz und hat eine **neue Zeile „Drittlandbezug"**. `privacy.stand` → „September 2026".
+  - Bewusst **nicht** behauptet: keine reine EU-Speicherung (Datenregion ungeprüft, PRIVACY-CHECKLIST A5) und A1 ist nicht genannt (erst wenn geklärt ist, ob sie GDAP-Adminrechte haben). Beides steht als Kommentar an der Codestelle.
+  - **Noch zu prüfen:** der Satz „Mit beiden Anbietern bestehen Auftragsverarbeitungsverträge gemäß Art. 28 DSGVO" — gilt für Microsoft, weil das Data Protection Addendum über die Lizenzbedingungen eingebunden ist (dieselbe Konstruktion wie bei Netlify, A1). Offen ist die *Dokumentation*, nicht die Existenz. Gehört in die juristische Endkontrolle (A6).
+
+**2. Toter Consent-Code auf allen 8 Seiten — behoben (neu: `src/components/ConsentManager.astro`).** Astro hoistet `<script>`-Blöcke und bündelt sie pro Seite, **unabhängig von bedingtem Rendern im Template**. Solange der Consent-Manager direkt in `CookieConsent.astro` lag, wurde er deshalb auf allen 8 Seiten inline ausgeliefert (3,1 kB minifiziert), obwohl die Komponente im ruhenden Zustand gar kein Markup rendert. Am Build getestet: Skripte aus Komponenten, die **nie gerendert** werden, liefert Astro nicht aus. Der Manager liegt jetzt in einer eigenen Komponente und wird nur innerhalb des `hasOptionalServices && (…)`-Zweigs gerendert.
+  - Verifiziert in **beiden** Zuständen: ruhend 0 von 8 Seiten mit Consent-JS, `sg-consent-config` 0×, kein Banner, kein Footer-Button. Mit einem testweise eingetragenen Dienst: 8 von 8 Seiten, Config 1×, Banner + Footer-Button + Dienst in der Cookie-Richtlinie vorhanden. Testdienst wieder entfernt, `consent.ts` unverändert.
+  - Weg über eine eigene Komponente statt `is:inline` bewusst gewählt: `is:inline` würde den Block **unkompiliert** ausliefern, er ist TypeScript. So bleiben Typprüfung und Minifizierung erhalten. Steht als Kopfkommentar in `ConsentManager.astro`, damit die Datei niemand „aufräumt".
+  - Rest, bewusst nicht optimiert: ~1,95 kB CSS der Dialog-Regeln bleiben im gemeinsamen Stylesheet (1.954 von 47.555 Bytes), weil der `<style>`-Block bei seinem Markup bleiben muss — sonst passen Astros Scope-Hashes nicht mehr.
+
+**3. `COOKIE_CONSENT.md` widersprach dem Code an sechs Stellen — neu geschrieben.** Die Datei ist versioniert und das erste, was ein Jurist aufschlägt; sie sagte teils das Gegenteil der Website. Korrigiert: `sg-consent` war als **aktiv gesetzter** localStorage-Eintrag geführt (die Datenschutzerklärung sagt ausdrücklich, dass kein localStorage verwendet wird); Kategorie „Notwendig" listete den Dienst „Cookie-Einwilligung", in `consent.ts` ist `services: []`; der entfernte `notice`-Modus („Verstanden"-Hinweis, Commit 80dd0d9) war noch als aktueller Zustand beschrieben; „✅ dauerhafter Link Cookie-Einstellungen im Footer" — der Button ist hinter `hasOptionalServices` gegated und existiert derzeit nicht; Verweis auf Datenschutz-Abschnitt „3" statt 4; Annahme „Impressum/Datenschutz enthalten weiterhin Platzhalter" war überholt.
+  - Neu darin: Zwei-Zustände-Tabelle mit den Build-Messwerten, Abschnitt zum `ConsentManager`-Umbau, und eine ergänzte Kurzanleitung „Neuen Dienst hinzufügen", die **explizit benennt, welche Prosa sich nicht automatisch nachzieht** (Datenschutz Abschnitt 4, Cookie-Richtlinie „Aktueller Stand") — dort entstehen dieselben Widersprüche sonst wieder.
+
+**4. `.gitignore` verwies auf eine ignorierte Datei.** Der Kommentar nannte `Rechtstexte/README.md` als Zuordnung Code → Gesetzesfundstelle, `Rechtstexte/` war aber komplett ignoriert. Jetzt `Rechtstexte/*` + `!Rechtstexte/README.md`. Verifiziert: README sichtbar, `AT/`, `EU/`, `Einzelnormen/`, `.DS_Store` bleiben ignoriert.
+
+**5. Detector jetzt bei 0 Funden (`DESIGN.md`).** Die beiden gemeldeten `font-size`-Literale in `ProductsTechSection.astro` (`0.9rem` / `1.2rem`, die zwei Zustände eines Reiters in der mobilen Produktleiste) sind als eigene Typo-Rollen `switcher` / `switcher-active` in die DESIGN.md-Frontmatter aufgenommen, plus Hierarchie-Eintrag und benannte Regel **„The Switcher-Scale Exception"**: die Leiste animiert `font-size`, braucht also ein Paar mit sichtbarem Verhältnis (0.9 → 1.2rem = 1,33×); die nächstgelegenen Ramp-Werte (0.75 → 1.125rem) würden entweder die inaktiven Reiter zudrängen oder den Sprung unmerklich machen. Die Regel schreibt ausdrücklich fest, dass die Stufen **nur** für `.pt-mnav__label` gelten und die Ausnahme nicht als Begründung für weitere Off-Ramp-Größen dient. (`.pt-mnav__index` mit 0.72rem ist keine neue Stufe — liegt in der Toleranz von Label/0.75rem.)
+
+**Verifiziert nach allen Änderungen:** `npx astro build` sauber (8 Seiten), Detector 0 Funde, im Build genau 3 externe URLs (alle reine Textlinks in den Rechtsseiten: netlify.com/privacy, trust.netlify.com, privacy.microsoft.com), kein `<iframe>`, kein externes Skript, keine externe Schriftart. Verbleibende Inline-Skripte: nur Mobile-Menü und Hero-Zähler.
+
+**Nicht getestet:** kein Browser-Test der Rechtsseiten — die Claude-Chrome-Extension ist in dieser Session nicht verbunden. Geprüft wurde über das gebaute HTML und den Dev-Server per `curl`, nicht visuell.
+
 ## Stack
 Astro + TypeScript + Tailwind v4 (CSS-first, `@theme` Tokens in `src/styles/global.css`). Selbst gehostete Fonts (IBM Plex Sans/Mono, Montserrat nur fürs Logo) unter `public/fonts/`. Kein CMS, kein Backend.
 
@@ -78,6 +102,7 @@ Astro + TypeScript + Tailwind v4 (CSS-first, `@theme` Tokens in `src/styles/glob
 
 ## Bereits gebaut
 - `src/layouts/BaseLayout.astro`, `Header.astro`, `Footer.astro`
+- `src/components/CookieConsent.astro` (Banner + Einstellungs-Dialog + Styles, Einstiegspunkt) und `src/components/ConsentManager.astro` (nur das Client-Skript, bewusst ausgelagert — siehe Session 2026-09-29). Beide rendern im Ist-Zustand nichts, weil `consent.ts` keine einwilligungspflichtigen Dienste führt. Dokumentation: `COOKIE_CONSENT.md`.
 - `src/components/Hero.astro`, `LogoMark.astro`
 - `src/components/AboutSection.astro` (Wer wir sind / Was wir tun / Kunden / Werte) — **neu gestaltet:** "Unser Leistungsspektrum umfasst" (redundant zu den Leistungen auf `/produkte-technik`) entfernt, `scope`-Feld auch aus `about` in `site.ts` gelöscht. **Update (Nutzerwunsch):** alle vier Kapitel jetzt einheitlich im Stil von "Wer sind unsere Kunden" — kleines Mono-Uppercase-Label (`font-mono text-xs uppercase tracking-[0.14em] text-slate-600`) als Überschrift, als 2×2-Raster (`sm:grid-cols-2`, kein `lg:grid-cols-4` mehr — bleibt bei 2 Spalten/2 Zeilen für mehr Breite pro Kapitel), das auf Mobile sauber untereinander stapelt. Fließtext (Wer wir sind/Was wir tun) auf Blocksatz (`text-justify`) umgestellt. Kunden-/Werte-Listen: "locker verstreuter" Versuch (`flex flex-wrap` mit zyklischen Versätzen) wieder verworfen — Nutzerentscheidung, zurück auf normale gestapelte Aufzählung (`space-y-3`). `about.headline`/`about.whatWeDo.headline` bleiben semantisch `h2`/`h3` (Heading-Hierarchie erhalten), nur die CSS-Klassen wurden an den Kunden/Werte-Stil angeglichen.
 - `src/components/ServicesSection.astro` (5 Leistungen aus `src/content/services.ts`)
@@ -115,10 +140,11 @@ Astro + TypeScript + Tailwind v4 (CSS-first, `@theme` Tokens in `src/styles/glob
 
 ### Phase 2 — Rechtliches & Vertrauen (P1) — 🔶 fast fertig
 4. ~~Impressum- und Datenschutz-Seiten.~~ Gebaut; echte Firmendaten sind eingetragen (Adresse, FN, UID, Kammer, **beide Geschäftsführer**), Rechtstexte in Session 2026-07-28/30 überarbeitet (siehe oben).
+   **Update 2026-07-30 (Firmenbuchauszug FN 624545 z):** `firmenbuchgericht` ist jetzt mit **„Landesgericht Linz"** befüllt (Pflichtangabe § 14 UGB, war leer), die Geschäftsführer stehen mit den eingetragenen Titeln als „Ing. Gregor Hofer und Dipl.-Ing. Simon Paireder, EMBA", und `behoerdeEcg` wurde auf **Bezirkshauptmannschaft Linz-Land** korrigiert (vorher „Magistrat der Stadt Linz"). Die Adresse bleibt bewusst „Kroisbach 5" — der Auszug schreibt „Koisbach", die Website-Schreibweise ist die richtige. Der Auszug selbst gehört nicht ins Repo (Geburtsdaten/Privatadressen), `.gitignore` ignoriert `FB_*.pdf`.
+   **Update 2026-09-29:** Abschnitt 5 nennt jetzt auch den **E-Mail-Provider** (Microsoft Ireland Operations Limited) als weiteren Auftragsverarbeiter samt eigener Zeile „Drittlandbezug" — vorher fehlte er ganz, obwohl er ein zweiter Auftragsverarbeiter und ein zweiter Drittland-Pfad ist. Werte in `privacy.ts` → `mail`. Details siehe Session 2026-09-29 oben.
    **Noch offen:**
-   - `firmenbuchgericht: ''` in `legal.ts:9` ist **leer** — Pflichtangabe nach § 14 UGB. Laut WKO „Landesgericht Linz", bewusst offen gelassen; verbindlich aus dem Firmenbuchauszug übernehmen.
-   - **Juristische Endkontrolle** von Impressum, Datenschutzerklärung und Cookie-Richtlinie durch eine rechtskundige Person, bevor die Seite live geht (WKO-Erstberatung ist für Mitglieder kostenlos). Der Hinweis steht auch im Kopfkommentar von `legal.ts` und `privacy.ts`.
-   - Organisatorische Nachweise: siehe **`PRIVACY-CHECKLIST.md`** (nicht Code, aber Live-Gang-relevant).
+   - **Juristische Endkontrolle** von Impressum, Datenschutzerklärung und Cookie-Richtlinie durch eine rechtskundige Person, bevor die Seite live geht (WKO-Erstberatung ist für Mitglieder kostenlos). Der Hinweis steht auch im Kopfkommentar von `legal.ts` und `privacy.ts`. **Dabei mitprüfen:** der Satz „Mit beiden Anbietern bestehen Auftragsverarbeitungsverträge gemäß Art. 28 DSGVO" in Abschnitt 5.
+   - Organisatorische Nachweise: siehe **`PRIVACY-CHECKLIST.md`** (nicht Code, aber Live-Gang-relevant). Direkt an der neuen Textstelle hängt **A5** (Microsoft-DPA in die Nachweismappe, Datenregion prüfen, Rolle von A1 klären).
 5. ~~Call-to-Action-Band vor dem Footer~~ — erledigt (`CtaBand.astro`), zwischen Referenzen und Kontakt platziert.
 
 ### Phase 3 — Responsive- & Detail-Feinschliff (P2/P3, ursprünglich Schritt 6–7) — ✅ erledigt
