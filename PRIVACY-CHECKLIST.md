@@ -50,19 +50,29 @@ Der Auszug liegt bewusst **nicht** im Repository: er enthält Geburtsdaten und
 Privatadressen der Geschäftsführer. `.gitignore` schließt `FB_*.pdf` aus; die
 daraus übernommenen Pflichtangaben stehen in `src/content/legal.ts`.
 
-### A3 — Kontaktformular / Netlify Forms ⚠️ offen
+### A3 — Kontaktformular / Netlify Forms ✅ erledigt (29.09.2026)
 
 Betrifft Klardaten (Name, E-Mail, Telefon, Freitext) — sensibler als Zugriffsdaten.
 Netlify löscht Formulareinsendungen **nicht** automatisch.
 
-- [ ] Netlify → Site → **Forms**: vorhandene Einsendungen sichten, erledigte löschen
-- [ ] Site settings → Forms → **Form notifications**: Weiterleitung geht an ein
-      Firmenpostfach, nicht an eine private Adresse
+- [x] Netlify → Site → **Forms**: vorhandene Einsendungen gesichtet, erledigte
+      gelöscht (29.09.2026)
+- [x] Site settings → Forms → **Form notifications**: Weiterleitung geht an ein
+      Firmenpostfach, nicht an eine private Adresse (geprüft 29.09.2026)
 - [x] Löschturnus festgelegt: **halbjährlich, jeweils 30.06. und 31.12.**
-- [ ] Turnus als wiederkehrenden Kalendereintrag anlegen
+- [x] Turnus als wiederkehrender Kalendereintrag angelegt (29.09.2026)
 
-Ohne Turnus stimmt der Satz in Abschnitt 5 der Datenschutzerklärung nicht
-(„Wir speichern Ihre Anfrage, bis diese abschließend bearbeitet ist").
+Damit ist der Satz in Abschnitt 5 der Datenschutzerklärung gedeckt
+(„Wir speichern Ihre Anfrage, bis diese abschließend bearbeitet ist") — ohne
+laufenden Turnus wäre er eine unzutreffende Tatsachenbehauptung.
+
+**Systembedingter Rest:** Jede Einsendung existiert zweimal — als
+Benachrichtigungsmail im Postfach *und* dauerhaft im Netlify-Dashboard. Netlify
+löscht dort nichts automatisch und bietet keine einstellbare Frist; der
+halbjährliche Turnus ist deshalb die tragende Maßnahme und muss **beide** Orte
+umfassen. Vollständig vermeiden ließe sich die Zweitkopie nur durch Umstellung
+auf reinen Mailversand (Netlify Function → SMTP) — nicht umgesetzt, wäre ein
+eigener Umbau inklusive Spam-Schutz.
 
 ### A4 — Verarbeitungsverzeichnis nach Art. 30 DSGVO 🔶 angelegt, Restlücken
 
