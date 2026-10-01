@@ -144,7 +144,7 @@ Zeilen 3–5; das ist ein eigenes Vorhaben.
 
 Kostenlose Vorlagen: Österreichische Datenschutzbehörde (`dsb.gv.at`), WKO.
 
-### A5 — AVV für den E-Mail-Provider 🔶 DPA abgerufen, zwei Prüfungen offen
+### A5 — AVV für den E-Mail-Provider 🔶 Prüfungen erledigt, A1-Antwort offen
 
 Formulareinsendungen landen im Postfach `office@sgt.co.at`. Dessen Betreiber ist
 **ebenfalls Auftragsverarbeiter** und braucht einen AVV.
@@ -172,12 +172,15 @@ bewusst **nicht**, solange die Datenregion nicht geprüft ist.
       ausdrücklich fest, dass nur sie Microsoft bindet und Übersetzungen
       nachgereicht werden.
 - [x] Beide Dateien in die Nachweismappe der Firmenablage kopiert (01.10.2026)
-- [ ] Datenregion des Tenants prüfen (Microsoft 365 Admin Center → Einstellungen →
-      Organisationsprofil bzw. EU Data Boundary). **Kein Blocker:** die Erklärung
-      behauptet bewusst keine reine EU-Speicherung. Ergibt die Prüfung „Europa",
-      ließe sich die Aussage zugunsten der Besucher präzisieren.
-      *Nicht über den Microsoft-Connector prüfbar — dessen Berechtigungen reichen
-      nur für Postfach und Kalender, nicht für Tenant- oder Verzeichnisdaten.*
+- [x] **Datenregion geprüft** (01.10.2026, Admin Center → Einstellungen →
+      Einstellungen der Organisation → Organisationsprofil → **Datenspeicherort**).
+      Exchange Online: aktuelle und zugesicherte Geografie je „European Union\EFTA",
+      Produktbestimmungen nennen als Committed Geography **Austria**; der Dienst ist
+      als EU-Datengrenzendienst gelistet. Werte in `privacy.ts` → `mail.dataResidency`
+      und `mail.euDataBoundary`; Abschnitt 5 der Erklärung nennt den Speicherort jetzt.
+      **Bewusst nicht behauptet:** dass gar keine Drittlandübermittlung stattfindet —
+      die EU-Datengrenze betrifft ruhende Daten und schließt Support- und
+      Sicherheitszugriffe nicht restlos aus; der CLOUD Act bleibt unberührt.
 - [x] **Rolle von A1 geklärt** (01.10.2026, Admin Center → Partnerbeziehungen).
       Ergebnis: **zwei verschiedene Gesellschaften**, nur eine davon kritisch.
 
@@ -222,10 +225,12 @@ fehlenden Auftragsverarbeitungsvertrag nicht.
       von `a1.digital/de/agb/`, liegt in `Nachweise/`. Nach Punkt 1 Abs. 1 gilt
       er **automatisch** für bestehende Vertragsbeziehungen — kein gesonderter
       Vertragsschluss nötig, wie bei Netlify und Microsoft auch.
-- [ ] **In den A1-Vertragsunterlagen nach dem „Anhang zum Datenschutz" suchen.**
-      Punkt 2 Abs. 1 der AGB AVV verweist für Art, Zweck, Datenkategorien und
-      Betroffenenkreise dorthin — genau das, was Art. 28 Abs. 3 lit. a DSGVO
-      zwingend verlangt. Ohne diesen Anhang ist der Vertrag unvollständig.
+- [x] In den A1-Vertragsunterlagen nach dem „Anhang zum Datenschutz" gesucht
+      (01.10.2026) — **nicht vorhanden**. Punkt 2 Abs. 1 der AGB AVV verweist für
+      Art, Zweck, Datenkategorien und Betroffenenkreise dorthin; genau das verlangt
+      Art. 28 Abs. 3 lit. a DSGVO. Der AVV ist damit **unvollständig**: der Rahmen
+      steht, die Konkretisierung fehlt. Punkt 2 der Anfrage an A1 fragt danach;
+      Antwort abwarten.
 - [x] **Mail an A1 abgesendet** (01.10.2026 an `datenschutz@a1.at`). Fragt die
       vier verbliebenen Lücken ab: Wird der Zugriff gebraucht, Anhang zum
       Datenschutz, Unterauftragsverarbeiter, Drittlandbezug.
@@ -325,19 +330,117 @@ auf den Tisch, blockiert aber nichts.
 
 ## C. Jährliche Wiedervorlage
 
-Kalendereintrag anlegen, jeweils zu prüfen:
+**Termin:** jeweils **Anfang Januar**, zusammen mit dem Prüftermin im
+Verarbeitungsverzeichnis (Blatt 1, „Nächste Überprüfung"). Ein Termin statt zwei.
+Aufwand erfahrungsgemäß 30–45 Minuten.
 
-- [ ] DPF-Zertifizierung von Netlify auf `dataprivacyframework.gov` noch aktiv?
-      (Muss jährlich erneuert werden. Erlischt sie, in `src/content/privacy.ts`
-      bei `transferSafeguards` nur noch die Standardvertragsklauseln nennen —
-      der Hinweis steht dort als Kommentar.)
-- [ ] Netlify-DPA noch Fassung 09.06.2026 oder neuere Version?
-- [ ] Subprozessorenliste unverändert?
-- [ ] Verarbeitungsverzeichnis noch aktuell?
-- [ ] Netlify-Dashboard: ist **Netlify Analytics** weiterhin deaktiviert?
-      (`hosting.analyticsEnabled: false` erzeugt auf der Seite eine harte
-      Tatsachenbehauptung — wird die Statistik einmal zugebucht, muss der Wert mit.)
-- [ ] `stand` in `src/content/privacy.ts` aktualisieren
+Jeder Punkt nennt **wo nachsehen**, den **Soll-Stand** zum Vergleich und
+**was zu tun ist, wenn es abweicht**. Wer das in einem Jahr abarbeitet, soll
+nichts rekonstruieren müssen.
+
+---
+
+### C1 — DPF-Zertifizierung von Netlify
+
+Data Privacy Framework-Zertifizierungen müssen **jährlich** erneuert werden.
+Erlischt sie, trägt die Datenschutzseite eine Garantie vor, die es nicht gibt.
+
+| | |
+|---|---|
+| **Wo** | `dataprivacyframework.gov` → *Participant Search* → „Netlify" |
+| **Soll** | Status **Active** für Netlify, Inc. |
+| **Abweichung** | In `src/content/privacy.ts` bei `hosting.transferSafeguards` den Zusatz „bzw. EU-U.S. Data Privacy Framework" **streichen** — es bleiben die Standardvertragsklauseln. Der Hinweis steht dort als Kommentar. |
+
+Dasselbe gilt für `mail.transferSafeguards` (Microsoft Corporation).
+
+### C2 — Netlify-DPA
+
+| | |
+|---|---|
+| **Wo** | `netlify.com/pdf/netlify-dpa.pdf` — Datum steht auf Seite 1 |
+| **Soll** | Fassung **09.06.2026** (Kopie in der Nachweismappe) |
+| **Abweichung** | Neue Fassung herunterladen, mit Datum in die Nachweismappe. Prüfen, ob sich Subprozessoren-, Lösch- oder Drittlandklauseln geändert haben; dann `privacy.ts` und Verarbeitungsverzeichnis nachziehen. |
+
+### C3 — Microsoft-DPA
+
+| | |
+|---|---|
+| **Wo** | `aka.ms/dpa` — im Browser öffnen, nicht die Direkt-URL kopieren (runde Klammern, und `curl` wird mit HTTP 403 geblockt; siehe `Nachweise/README.md`) |
+| **Soll** | Fassung **22.05.2026**, englische Ausgabe maßgeblich |
+| **Abweichung** | Neue Fassung in beiden Sprachen laden, Nachweismappe und `Nachweise/README.md` aktualisieren. |
+
+### C4 — A1 Digital: AGB AVV und GDAP-Rechte
+
+**Zwei Dinge, der zweite ist terminkritisch.**
+
+| | |
+|---|---|
+| **Wo (a)** | `a1.digital/de/agb/` → *A1 Digital International GmbH CO KG AGB Auftragsverarbeitung DE* |
+| **Soll (a)** | **V2.1, gültig ab Juni 2025** |
+| **Wo (b)** | Microsoft 365 Admin Center → Einstellungen → **Partnerbeziehungen** |
+| **Soll (b)** | Rollen und Ablaufdatum unverändert gegenüber `privacy.ts` → `mailAdmin.roles` und `mailAdmin.rolesExpire` (**09.03.2027**) |
+| **Abweichung** | Rollen geändert → `mailAdmin.roles` anpassen. Beziehung beendet oder abgelaufen → `mailAdmin` auf **`null`**, der Absatz in Abschnitt 6 verschwindet dann von selbst. AVV inzwischen konkretisiert → `avvConfirmed` auf `true`. |
+
+> ⚠️ **Die GDAP-Beziehung läuft am 09.03.2027 ab.** Wird sie verlängert, ist das
+> eine neue Genehmigung — dann erneut prüfen, welche Rollen sie umfasst. Wird sie
+> nicht verlängert, endet die Auftragsverarbeitung und `mailAdmin` gehört auf `null`.
+> Der Januartermin liegt davor, das passt.
+
+### C5 — Subprozessoren von Netlify
+
+| | |
+|---|---|
+| **Wo** | `trust.netlify.com` bzw. `netlify.com/legal/subprocessors/` |
+| **Soll** | Stand wie in der Nachweismappe hinterlegt |
+| **Abweichung** | Neue Liste mit Datum ablegen. Kam ein Subprozessor in einem Drittland hinzu, Zeile 1 des Verarbeitungsverzeichnisses prüfen. |
+
+Zugleich prüfen, ob die **Änderungsbenachrichtigungen** tatsächlich ankommen
+(Anfrage dazu läuft seit 01.10.2026, siehe B1). Kam im Jahr keine einzige
+Meldung, ist das kein Beleg für Stillstand, sondern ein Hinweis, dass die
+Registrierung nicht funktioniert hat.
+
+### C6 — Datenregion Microsoft 365
+
+| | |
+|---|---|
+| **Wo** | Admin Center → Einstellungen → Einstellungen der Organisation → Organisationsprofil → **Datenspeicherort** |
+| **Soll** | Exchange Online: zugesicherte Geografie **European Union\EFTA**, Committed Geography **Austria** |
+| **Abweichung** | `mail.dataResidency` in `privacy.ts` anpassen oder auf `null` setzen; die Seite fällt dann auf die Formulierung ohne Ortsangabe zurück. |
+
+### C7 — Netlify Analytics
+
+| | |
+|---|---|
+| **Wo** | Netlify-Dashboard → Site → Analytics |
+| **Soll** | **deaktiviert** |
+| **Abweichung** | `hosting.analyticsEnabled` auf `true`. **Wichtig:** Der Wert `false` erzeugt auf der Seite eine harte Tatsachenbehauptung — wird die Statistik zugebucht und der Wert bleibt stehen, ist die Erklärung falsch. |
+
+### C8 — Verarbeitungsverzeichnis
+
+| | |
+|---|---|
+| **Wo** | `Verarbeitungsverzeichnis_SG_Technik_GmbH.xlsx` in der Firmenablage |
+| **Soll** | Stand und Version auf Blatt 1 aktuell; Blatt „Offene Punkte" durchgesehen |
+| **Abweichung** | Neue Dienste, geänderte Fristen oder neue Zugriffsberechtigte eintragen, Version hochzählen, Prüfdatum neu setzen. |
+
+> **Beim Bearbeiten:** Datei vorher in Excel **schließen**. Eine geöffnete Datei
+> überschreibt beim nächsten Speichern alle extern vorgenommenen Änderungen.
+
+### C9 — Kontaktanfragen: hat der Löschturnus stattgefunden?
+
+Der halbjährliche Turnus (30.06. und 31.12.) ist die tragende Maßnahme für
+die Aussage in Abschnitt 5 der Erklärung. Einmal jährlich gegenprüfen, ob er
+auch wirklich gelaufen ist — **in beiden Ablagen**: Netlify-Dashboard *und*
+Postfach `office@sgt.co.at`.
+
+### C10 — Stand der Erklärung
+
+**Nur anfassen, wenn sich inhaltlich etwas geändert hat.** `stand` in
+`src/content/privacy.ts` auf den Monat der letzten inhaltlichen Änderung setzen —
+nicht routinemäßig hochzählen. Ein Stand, der neuer ist als der Inhalt, ist
+genauso irreführend wie einer, der älter ist.
+
+Danach `npm run build` und die Seite `/datenschutz` kurz ansehen.
 
 ---
 

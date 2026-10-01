@@ -244,9 +244,16 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
               <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Drittlandbezug</dt>
               <dd class="min-w-0 break-words text-navy-900">
                 Zur Übermittlung an den Hosting-Anbieter siehe Punkt 3. Der Betreiber des E-Mail-Postfachs
-                ist ein Unternehmen mit Sitz in der Europäischen Union, gehört jedoch zu einem US-Konzern;
-                ein Zugriff aus einem Drittland im Rahmen von Betrieb, Wartung und Support ist daher nicht
-                auszuschließen. Die Übermittlung wird durch {privacy.mail.transferSafeguards} abgesichert.
+                ist ein Unternehmen mit Sitz in der Europäischen Union, gehört jedoch zu einem US-Konzern.
+                {privacy.mail.dataResidency && (
+                  <>
+                    {' '}Nach Auskunft des Anbieters werden die Daten des Postfachs im Ruhezustand in{' '}
+                    {privacy.mail.dataResidency} gespeichert
+                    {privacy.mail.euDataBoundary && '; der Dienst unterliegt der EU-Datengrenze'}.
+                  </>
+                )} Ein Zugriff aus einem Drittland im Rahmen von Betrieb, Wartung und Support ist
+                gleichwohl nicht vollständig auszuschließen. Die Übermittlung wird durch{' '}
+                {privacy.mail.transferSafeguards} abgesichert.
               </dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">

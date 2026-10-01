@@ -91,14 +91,32 @@ export const privacy = {
   // ERLEDIGT am 01.10.2026: Microsoft Products and Services Data Protection
   // Addendum, Fassung 22.05.2026, liegt in der Nachweismappe.
   //
-  // NOCH ZU ERLEDIGEN (PRIVACY-CHECKLIST.md, A5):
-  //  - Datenregion des Tenants prüfen (EU Data Boundary). Solange das nicht
-  //    bestätigt ist, behauptet die Seite BEWUSST keine reine EU-Speicherung.
+  // ERLEDIGT am 01.10.2026: Datenregion im Microsoft-365-Admin-Center geprüft
+  // (Einstellungen → Einstellungen der Organisation → Organisationsprofil →
+  // Datenspeicherort). Für Exchange Online weisen aktuelle UND zugesicherte
+  // Geografie „European Union\EFTA" aus; die Produktbestimmungen nennen als
+  // Committed Geography ausdrücklich **Austria**. Exchange Online ist dort
+  // zudem als EU-Datengrenzendienst gelistet.
+  //
+  // ACHTUNG BEI DER FORMULIERUNG: Das betrifft ruhende Daten (data at rest).
+  // Die EU-Datengrenze schränkt Zugriffe aus Drittländern stark ein, schließt
+  // sie aber nicht restlos aus — Support- und Sicherheitsfälle bleiben möglich,
+  // und die US-Konzernmutter unterliegt unverändert dem CLOUD Act. Die Seite
+  // darf daher „Speicherung in Österreich" sagen, aber NICHT „keine
+  // Drittlandübermittlung".
   mail: {
     provider: 'Microsoft Ireland Operations Limited',
     providerAddress:
       'One Microsoft Place, South County Business Park, Leopardstown, Dublin 18, Irland',
     providerPrivacyUrl: 'https://privacy.microsoft.com/de-de/privacystatement',
+
+    // Speicherort der ruhenden Daten laut Admin Center, geprüft am 01.10.2026.
+    // Auf `null` setzen, wenn der Nachweis nicht (mehr) geführt werden kann —
+    // die Seite fällt dann auf die vorsichtige Formulierung ohne Ortsangabe
+    // zurück. Jährlich gegenprüfen (PRIVACY-CHECKLIST.md, Abschnitt C).
+    dataResidency: 'Österreich' as string | null,
+    // Exchange Online ist im Admin Center als EU-Datengrenzendienst gelistet.
+    euDataBoundary: true,
 
     // Rechtsrahmen der Drittlandübermittlung. Microsoft bindet die
     // Standardvertragsklauseln in sein Data Protection Addendum ein; die
