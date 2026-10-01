@@ -226,9 +226,7 @@ fehlenden Auftragsverarbeitungsvertrag nicht.
       Punkt 2 Abs. 1 der AGB AVV verweist für Art, Zweck, Datenkategorien und
       Betroffenenkreise dorthin — genau das, was Art. 28 Abs. 3 lit. a DSGVO
       zwingend verlangt. Ohne diesen Anhang ist der Vertrag unvollständig.
-- [ ] **Mail an A1 absenden** (Entwurf liegt in Outlook, an `datenschutz@a1.at`
-      aus deren Datenschutzerklärung). Von einer `@sgt.co.at`-Adresse senden,
-      damit die Antwort das Vertragsverhältnis der GmbH belegt. Sie fragt die
+- [x] **Mail an A1 abgesendet** (01.10.2026 an `datenschutz@a1.at`). Fragt die
       vier verbliebenen Lücken ab: Wird der Zugriff gebraucht, Anhang zum
       Datenschutz, Unterauftragsverarbeiter, Drittlandbezug.
 - [ ] Antwort auswerten und in die Nachweismappe legen. Danach eine von drei
@@ -280,8 +278,9 @@ Bestätigung des Vertragsverhältnisses (A2), vollständige Subprozessorenliste 
       erklärt, DPA-Fassungen, Subprozessoren-Dokumentation und Log-Fristen seien
       „generally tied to our paid plans", und bietet MNDA plus Enterprise-Gespräch
       an. **Dieser Darstellung wird nicht gefolgt** — Begründung siehe unten.
-- [ ] **Nachfassen an `privacy@netlify.com`** (Entwurf liegt in Outlook, Marina
-      Shynkarenka in CC). Kein Enterprise-Interesse, keine Vertragsverhandlung.
+- [x] **Nachgefasst an `privacy@netlify.com`** (01.10.2026, Marina Shynkarenka
+      in CC). Stellt klar: kein Enterprise-Interesse, keine Sicherheitsdokumente
+      verlangt; zitiert die einschlägigen DPA-Stellen.
 
 #### Warum die Tarif-Begründung nicht trägt
 
