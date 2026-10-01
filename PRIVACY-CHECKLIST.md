@@ -171,9 +171,7 @@ bewusst **nicht**, solange die Datenregion nicht geprüft ist.
       EU-Datengrenze. **Maßgeblich ist die englische Fassung** — sie stellt
       ausdrücklich fest, dass nur sie Microsoft bindet und Übersetzungen
       nachgereicht werden.
-- [ ] Beide Dateien aus `Nachweise/` in die Nachweismappe der Firmenablage
-      kopieren *(wie beim Firmenbuchauszug — der Projektordner ist nur
-      Durchgangsstation)*
+- [x] Beide Dateien in die Nachweismappe der Firmenablage kopiert (01.10.2026)
 - [ ] Datenregion des Tenants prüfen (Microsoft 365 Admin Center → Einstellungen →
       Organisationsprofil bzw. EU Data Boundary). **Kein Blocker:** die Erklärung
       behauptet bewusst keine reine EU-Speicherung. Ergibt die Prüfung „Europa",
