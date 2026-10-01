@@ -31,7 +31,7 @@ type MailAdmin = {
 
 export const privacy = {
   // Stand der Erklärung (wird am Seitenende ausgegeben).
-  stand: 'September 2026',
+  stand: 'Oktober 2026',
 
   // Hosting-Anbieter (Auftragsverarbeiter). Netlify ist ein US-Unternehmen →
   // Übermittlung in ein Drittland (USA).
