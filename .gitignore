@@ -27,7 +27,7 @@ Website-Struktur_SG_Technik_GmbH.csv
 # Verarbeitungsverzeichnis nach Art. 30 DSGVO — internes Geschäftsdokument mit
 # Angaben zu eingesetzten Systemen und Zugriffsberechtigten. Gehört in die
 # Firmenablage, nicht ins Repository. (PRIVACY-CHECKLIST.md bleibt versioniert.)
-Verarbeitungsverzeichnis_SG_Technik_GmbH.xlsx
+Verarbeitungsverzeichnis_SG_Technik_GmbH*.xlsx
 
 # temporäre Sperrdateien von Excel/Word
 ~$*
@@ -53,3 +53,10 @@ FB_*.pdf
 # bleiben, sonst ist die Zuordnung nur lokal vorhanden.
 Rechtstexte/*
 !Rechtstexte/README.md
+
+# Heruntergeladene Nachweisdokumente zur Datenschutz-Freigabe (Microsoft-DPA
+# u. a., je ~6 MB). Durchgangsstation auf dem Weg in die Nachweismappe der
+# Firmenablage, nicht ins Repository. Die README bleibt versioniert: sie haelt
+# Quelle, Fassung und Abrufdatum jedes Dokuments fest.
+Nachweise/*
+!Nachweise/README.md

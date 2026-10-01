@@ -228,24 +228,32 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
                 ({privacy.hosting.provider}, USA) verarbeitet und an unser E-Mail-Postfach weitergeleitet.
                 Das Postfach wird von {privacy.mail.provider}, {privacy.mail.providerAddress}, betrieben;
                 dieser Anbieter verarbeitet Ihre Nachricht als weiterer Auftragsverarbeiter, damit wir sie
-                empfangen, lesen und beantworten können. Mit beiden Anbietern bestehen
-                Auftragsverarbeitungsverträge gemäß Art. 28 DSGVO. Einzelheiten zur Verarbeitung durch den
-                Betreiber des Postfachs ergeben sich aus{' '}
+                empfangen, lesen und beantworten können. Mit dem Hosting-Anbieter und dem Betreiber des
+                Postfachs bestehen Auftragsverarbeitungsverträge gemäß Art. 28 DSGVO. Einzelheiten zur
+                Verarbeitung durch den Betreiber des Postfachs ergeben sich aus{' '}
                 <a
                   href={privacy.mail.providerPrivacyUrl}
                   rel="noopener noreferrer"
                   target="_blank"
                   class="text-navy-800 underline underline-offset-2 hover:text-copper-600"
-                >seinen Datenschutzhinweisen</a>. Eine Weitergabe an sonstige Dritte findet nicht statt.
+                >seinen Datenschutzhinweisen</a>. Zur Administration unserer E-Mail-Umgebung siehe Punkt 6.
+                Eine Weitergabe an sonstige Dritte findet nicht statt.
               </dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
               <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Drittlandbezug</dt>
               <dd class="min-w-0 break-words text-navy-900">
                 Zur Übermittlung an den Hosting-Anbieter siehe Punkt 3. Der Betreiber des E-Mail-Postfachs
-                ist ein Unternehmen mit Sitz in der Europäischen Union, gehört jedoch zu einem US-Konzern;
-                ein Zugriff aus einem Drittland im Rahmen von Betrieb, Wartung und Support ist daher nicht
-                auszuschließen. Die Übermittlung wird durch {privacy.mail.transferSafeguards} abgesichert.
+                ist ein Unternehmen mit Sitz in der Europäischen Union, gehört jedoch zu einem US-Konzern.
+                {privacy.mail.dataResidency && (
+                  <>
+                    {' '}Nach Auskunft des Anbieters werden die Daten des Postfachs im Ruhezustand in{' '}
+                    {privacy.mail.dataResidency} gespeichert
+                    {privacy.mail.euDataBoundary && '; der Dienst unterliegt der EU-Datengrenze'}.
+                  </>
+                )} Ein Zugriff aus einem Drittland im Rahmen von Betrieb, Wartung und Support ist
+                gleichwohl nicht vollständig auszuschließen. Die Übermittlung wird durch{' '}
+                {privacy.mail.transferSafeguards} abgesichert.
               </dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
@@ -263,9 +271,41 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
           </dl>
         </div>
 
-        {/* --- 6. Betroffenenrechte --- */}
+        {/* --- 6. E-Mail-Kommunikation und Microsoft 365 --- */}
         <div>
-          <h2 class="font-display text-lg font-semibold text-navy-800">6. Ihre Rechte</h2>
+          <h2 class="font-display text-lg font-semibold text-navy-800">6. E-Mail-Kommunikation und Microsoft 365</h2>
+          <p class="mt-2">
+            Für die Bereitstellung unserer E-Mail-Dienste nutzen wir Microsoft 365 der{' '}
+            {privacy.mail.provider}, {privacy.mail.providerAddress}. Im Rahmen der Nutzung können
+            personenbezogene Daten – insbesondere Kontaktdaten, Kommunikationsinhalte und technische
+            Daten – durch Microsoft verarbeitet werden. Das betrifft Nachrichten, die Sie uns über das
+            Kontaktformular senden, ebenso wie E-Mails, die Sie direkt an uns richten.
+          </p>
+          <p class="mt-2">
+            Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, sofern Ihre Nachricht der Anbahnung oder
+            Durchführung eines Vertrags dient, andernfalls Art. 6 Abs. 1 lit. f DSGVO (berechtigtes
+            Interesse an einer funktionsfähigen E-Mail-Kommunikation). Mit dem Betreiber besteht ein
+            Auftragsverarbeitungsvertrag gemäß Art. 28 DSGVO; zum Drittlandbezug siehe Punkt 5.
+          </p>
+          {privacy.mailAdmin && (
+            <p class="mt-2">
+              Die Administration und Lizenzbereitstellung unserer Microsoft-365-Umgebung erfolgt
+              teilweise über die {privacy.mailAdmin.provider}, {privacy.mailAdmin.providerAddress}.
+              Dieses Unternehmen verfügt hierfür über delegierte Administratorrechte in unserer
+              Microsoft-365-Umgebung und kann im Rahmen der Administration und Supportleistung
+              personenbezogene Benutzer- und Administrationsdaten verarbeiten. Über administrative
+              Funktionen – etwa das Zurücksetzen von Kennwörtern – kann darüber hinaus ein Zugriff auf
+              die Inhalte unserer Postfächer erfolgen. Davon können auch Nachrichten betroffen sein,
+              die Sie uns über das Kontaktformular oder unmittelbar per E-Mail übermitteln.
+              {privacy.mailAdmin.avvConfirmed &&
+                ' Mit diesem Dienstleister besteht ein Auftragsverarbeitungsvertrag gemäß Art. 28 DSGVO.'}
+            </p>
+          )}
+        </div>
+
+        {/* --- 7. Betroffenenrechte --- */}
+        <div>
+          <h2 class="font-display text-lg font-semibold text-navy-800">7. Ihre Rechte</h2>
           <p class="mt-2">
             Ihnen stehen nach Maßgabe der gesetzlichen Voraussetzungen die Rechte auf Auskunft (Art. 15),
             Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18) sowie
@@ -285,9 +325,9 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
           <p class="mt-2">Zur Ausübung Ihrer Rechte genügt eine formlose Mitteilung an die unter Punkt 1 genannte Adresse.</p>
         </div>
 
-        {/* --- 7. Beschwerderecht --- */}
+        {/* --- 8. Beschwerderecht --- */}
         <div>
-          <h2 class="font-display text-lg font-semibold text-navy-800">7. Beschwerderecht</h2>
+          <h2 class="font-display text-lg font-semibold text-navy-800">8. Beschwerderecht</h2>
           <p class="mt-2">
             Sie haben gemäß Art. 77 DSGVO das Recht, sich bei einer Datenschutz-Aufsichtsbehörde zu
             beschweren – insbesondere in dem Mitgliedstaat Ihres Aufenthaltsorts, Ihres Arbeitsplatzes oder
@@ -298,9 +338,9 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
           </p>
         </div>
 
-        {/* --- 8. Änderungen --- */}
+        {/* --- 9. Änderungen --- */}
         <div>
-          <h2 class="font-display text-lg font-semibold text-navy-800">8. Änderungen dieser Datenschutzerklärung</h2>
+          <h2 class="font-display text-lg font-semibold text-navy-800">9. Änderungen dieser Datenschutzerklärung</h2>
           <p class="mt-2">
             Wir aktualisieren diese Datenschutzerklärung, wenn sich unsere Datenverarbeitungen oder die
             rechtlichen Rahmenbedingungen ändern. Die jeweils aktuelle Fassung ist auf dieser Website

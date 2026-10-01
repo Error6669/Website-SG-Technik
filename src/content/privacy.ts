@@ -11,9 +11,27 @@
 // bestätigen.
 // ---------------------------------------------------------------------------
 
+// Dienstleister mit administrativem Zugriff auf den E-Mail-Mandanten.
+// Wird auf `null` gesetzt, sobald der Zugriff endet — dann entfaellt der
+// entsprechende Absatz auf der Datenschutzseite automatisch.
+type MailAdmin = {
+  provider: string;
+  providerAddress: string;
+  /** Genehmigte Rollen, wie im Microsoft-365-Admin-Center ausgewiesen. */
+  roles: string[];
+  /** Ablaufdatum der GDAP-Beziehung (ISO), rein zur Dokumentation. */
+  rolesExpire: string;
+  /**
+   * Nur auf `true` setzen, wenn ein Auftragsverarbeitungsvertrag mit diesem
+   * Dienstleister tatsaechlich vorliegt. Steuert, ob die Seite den AVV als
+   * Tatsache behauptet.
+   */
+  avvConfirmed: boolean;
+};
+
 export const privacy = {
   // Stand der Erklärung (wird am Seitenende ausgegeben).
-  stand: 'September 2026',
+  stand: 'Oktober 2026',
 
   // Hosting-Anbieter (Auftragsverarbeiter). Netlify ist ein US-Unternehmen →
   // Übermittlung in ein Drittland (USA).
@@ -70,18 +88,35 @@ export const privacy = {
   // -> Microsoft 365 / Exchange Online. Vertragspartner für EU-Kunden ist
   //    Microsoft Ireland Operations Limited.
   //
-  // NOCH ZU ERLEDIGEN (PRIVACY-CHECKLIST.md, A5):
-  //  - Microsoft Products and Services Data Protection Addendum in aktueller
-  //    Fassung abrufen und mit Datum in die Nachweismappe legen.
-  //  - Datenregion des Tenants prüfen (EU Data Boundary). Solange das nicht
-  //    bestätigt ist, behauptet die Seite BEWUSST keine reine EU-Speicherung.
-  //  - Rolle von A1 klären: bei delegierten Administratorrechten (GDAP) ist A1
-  //    selbst Auftragsverarbeiter und hier zusätzlich zu nennen.
+  // ERLEDIGT am 01.10.2026: Microsoft Products and Services Data Protection
+  // Addendum, Fassung 22.05.2026, liegt in der Nachweismappe.
+  //
+  // ERLEDIGT am 01.10.2026: Datenregion im Microsoft-365-Admin-Center geprüft
+  // (Einstellungen → Einstellungen der Organisation → Organisationsprofil →
+  // Datenspeicherort). Für Exchange Online weisen aktuelle UND zugesicherte
+  // Geografie „European Union\EFTA" aus; die Produktbestimmungen nennen als
+  // Committed Geography ausdrücklich **Austria**. Exchange Online ist dort
+  // zudem als EU-Datengrenzendienst gelistet.
+  //
+  // ACHTUNG BEI DER FORMULIERUNG: Das betrifft ruhende Daten (data at rest).
+  // Die EU-Datengrenze schränkt Zugriffe aus Drittländern stark ein, schließt
+  // sie aber nicht restlos aus — Support- und Sicherheitsfälle bleiben möglich,
+  // und die US-Konzernmutter unterliegt unverändert dem CLOUD Act. Die Seite
+  // darf daher „Speicherung in Österreich" sagen, aber NICHT „keine
+  // Drittlandübermittlung".
   mail: {
     provider: 'Microsoft Ireland Operations Limited',
     providerAddress:
       'One Microsoft Place, South County Business Park, Leopardstown, Dublin 18, Irland',
     providerPrivacyUrl: 'https://privacy.microsoft.com/de-de/privacystatement',
+
+    // Speicherort der ruhenden Daten laut Admin Center, geprüft am 01.10.2026.
+    // Auf `null` setzen, wenn der Nachweis nicht (mehr) geführt werden kann —
+    // die Seite fällt dann auf die vorsichtige Formulierung ohne Ortsangabe
+    // zurück. Jährlich gegenprüfen (PRIVACY-CHECKLIST.md, Abschnitt C).
+    dataResidency: 'Österreich' as string | null,
+    // Exchange Online ist im Admin Center als EU-Datengrenzendienst gelistet.
+    euDataBoundary: true,
 
     // Rechtsrahmen der Drittlandübermittlung. Microsoft bindet die
     // Standardvertragsklauseln in sein Data Protection Addendum ein; die
@@ -91,6 +126,53 @@ export const privacy = {
     transferSafeguards:
       'Standardvertragsklauseln der EU-Kommission (Art. 46 DSGVO) bzw. EU-U.S. Data Privacy Framework',
   },
+
+  // Dienstleister mit delegierten Administratorrechten (GDAP) auf den
+  // Microsoft-365-Mandanten. Am 01.10.2026 im Admin Center festgestellt
+  // (Einstellungen → Partnerbeziehungen).
+  //
+  // WARUM DAS HIER STEHT: Weder Exchange- noch globale Administratorrolle ist
+  // vergeben, Postfachinhalte sind also nicht direkt zugänglich. Helpdesk- und
+  // Benutzeradministrator dürfen aber Passwörter zurücksetzen — darüber ist ein
+  // Zugang zum Postfach erreichbar. Für Art. 28 DSGVO genügt die Möglichkeit
+  // des Zugriffs; der Dienstleister ist damit Auftragsverarbeiter und nach
+  // Art. 13 Abs. 1 lit. e als Empfänger zu nennen.
+  //
+  // Zu unterscheiden von der „A1 Digital International GmbH" (ohne & Co KG):
+  // die ist im Mandanten nur als Handelspartner ohne jede Rolle eingetragen,
+  // also reiner Vertrags- und Rechnungspartner und hier NICHT zu nennen.
+  //
+  // AUF `null` SETZEN, sobald die Rollen entzogen sind (Admin Center →
+  // Partnerbeziehungen → Rollen entfernen). Der Absatz auf der
+  // Datenschutzseite verschwindet dann von selbst.
+  mailAdmin: {
+    provider: 'A1 Digital International GmbH & Co KG',
+    providerAddress: 'Lassallestraße 9, 1020 Wien, Österreich',
+    roles: [
+      'Helpdesk-Administrator',
+      'Lizenzadministrator',
+      'Benutzeradministrator',
+      'Dienst-Supportadministrator',
+      'Verzeichnisleseberechtigte',
+      'Globaler Leser',
+    ],
+    rolesExpire: '2027-03-09',
+    //
+    // ENTSCHEIDUNG vom 01.10.2026: Es wird KEIN AVV bei A1 angefordert.
+    // Stattdessen beschreibt die Datenschutzerklärung den ungünstigsten Fall —
+    // dass über administrative Funktionen auch auf Postfachinhalte zugegriffen
+    // werden kann. Der Text bleibt damit richtig, ohne dass eine Rückmeldung
+    // des Dienstleisters abgewartet werden muss.
+    //
+    // ACHTUNG, das ersetzt den Vertrag NICHT: Art. 28 Abs. 3 DSGVO verlangt
+    // den AVV unabhängig davon, was auf der Website steht. Der Punkt steht in
+    // PRIVACY-CHECKLIST.md unter A5 und ist bei der juristischen Endkontrolle
+    // (A6) vorzulegen.
+    //
+    // Erst auf `true` setzen, wenn ein Vertrag tatsächlich vorliegt und in der
+    // Nachweismappe abgelegt ist.
+    avvConfirmed: false,
+  } as MailAdmin | null,
 
   // Speicherfristen (Prosa, damit die Nuancen erhalten bleiben).
   retention: {
