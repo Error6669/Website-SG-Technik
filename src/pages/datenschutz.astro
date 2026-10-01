@@ -29,17 +29,17 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
           </p>
           <dl class="mt-4 divide-y divide-line border-t border-b border-line">
             <div class="grid gap-1 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4">
-              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Firma</dt>
+              <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Firma</dt>
               <dd class="min-w-0 break-words text-navy-900">{legalEntity.name}</dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4">
-              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Anschrift</dt>
+              <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Anschrift</dt>
               <dd class:list={['min-w-0 break-words', isPlaceholder(legalEntity.address) ? 'italic text-slate-600' : 'text-navy-900']}>
                 {val(legalEntity.address)}
               </dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4">
-              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">E-Mail</dt>
+              <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">E-Mail</dt>
               <dd class:list={['min-w-0 break-words', isPlaceholder(contact.email) ? 'italic text-slate-600' : 'text-navy-900']}>
                 {
                   isPlaceholder(contact.email) ? (
@@ -90,11 +90,11 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
           </p>
           <dl class="mt-4 divide-y divide-line border-t border-b border-line">
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
-              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Anbieter</dt>
+              <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Anbieter</dt>
               <dd class="min-w-0 break-words text-navy-900">{privacy.hosting.provider}, {privacy.hosting.providerAddress}</dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
-              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Datenarten</dt>
+              <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Datenarten</dt>
               <dd class="min-w-0 break-words text-navy-900">
                 IP-Adresse, Datum und Uhrzeit des Zugriffs, aufgerufene URL, Referrer-URL, HTTP-Statuscode,
                 übertragene Datenmenge, Geräteart sowie Browser- und Betriebssysteminformationen; ergänzend
@@ -102,21 +102,21 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
               </dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
-              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Zweck</dt>
+              <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Zweck</dt>
               <dd class="min-w-0 break-words text-navy-900">
                 technische Auslieferung der Website, Gewährleistung der IT-Sicherheit sowie Erkennung und
                 Abwehr missbräuchlicher Zugriffe
               </dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
-              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Rechtsgrundlage</dt>
+              <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Rechtsgrundlage</dt>
               <dd class="min-w-0 break-words text-navy-900">
                 Art. 6 Abs. 1 lit. f DSGVO. Unser berechtigtes Interesse liegt im sicheren, stabilen und
                 störungsfreien Betrieb der Website.
               </dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
-              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Speicherdauer</dt>
+              <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Speicherdauer</dt>
               <dd class="min-w-0 break-words text-navy-900">
                 {
                   privacy.hosting.logRetentionDays !== null
@@ -126,7 +126,7 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
               </dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
-              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Zugriffsstatistiken</dt>
+              <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Zugriffsstatistiken</dt>
               <dd class="min-w-0 break-words text-navy-900">
                 {
                   privacy.hosting.analyticsEnabled
@@ -136,7 +136,7 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
               </dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
-              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Unterauftragsverarbeiter</dt>
+              <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">{'Unter\u00ADauftrags\u00ADverarbeiter'}</dt>
               <dd class="min-w-0 break-words text-navy-900">
                 Der Anbieter setzt zur Erbringung seiner Leistung eigene Dienstleister ein, etwa für
                 Rechenzentrumsbetrieb, Monitoring und IT-Sicherheit. Er ist vertraglich verpflichtet, diesen
@@ -151,7 +151,7 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
               </dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
-              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Drittlandbezug</dt>
+              <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Drittlandbezug</dt>
               <dd class="min-w-0 break-words text-navy-900">
                 Der Anbieter ist ein US-Unternehmen; eine Verarbeitung in den USA ist nicht auszuschließen.
                 Die Übermittlung wird durch {privacy.hosting.transferSafeguards} abgesichert.
@@ -204,17 +204,17 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
           </p>
           <dl class="mt-4 divide-y divide-line border-t border-b border-line">
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
-              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Datenarten</dt>
+              <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Datenarten</dt>
               <dd class="min-w-0 break-words text-navy-900">
                 Name (Pflicht), E-Mail-Adresse (Pflicht), Nachricht (Pflicht), Telefonnummer (freiwillig)
               </dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
-              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Zweck</dt>
+              <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Zweck</dt>
               <dd class="min-w-0 break-words text-navy-900">Bearbeitung und Beantwortung Ihrer Anfrage</dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
-              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Rechtsgrundlage</dt>
+              <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Rechtsgrundlage</dt>
               <dd class="min-w-0 break-words text-navy-900">
                 Art. 6 Abs. 1 lit. b DSGVO, sofern Ihre Anfrage der Anbahnung oder Durchführung eines
                 Vertrags dient; andernfalls Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der
@@ -222,7 +222,7 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
               </dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
-              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Empfänger</dt>
+              <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Empfänger</dt>
               <dd class="min-w-0 break-words text-navy-900">
                 Formulareinsendungen werden über den Formulardienst unseres Hosting-Anbieters
                 ({privacy.hosting.provider}, USA) verarbeitet und an unser E-Mail-Postfach weitergeleitet.
@@ -241,7 +241,7 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
               </dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
-              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Drittlandbezug</dt>
+              <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Drittlandbezug</dt>
               <dd class="min-w-0 break-words text-navy-900">
                 Zur Übermittlung an den Hosting-Anbieter siehe Punkt 3. Der Betreiber des E-Mail-Postfachs
                 ist ein Unternehmen mit Sitz in der Europäischen Union, gehört jedoch zu einem US-Konzern.
@@ -257,11 +257,11 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
               </dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
-              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Speicherdauer</dt>
+              <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Speicherdauer</dt>
               <dd class="min-w-0 break-words text-navy-900">{privacy.retention.contact}</dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
-              <dt class="font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Bereitstellung</dt>
+              <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Bereitstellung</dt>
               <dd class="min-w-0 break-words text-navy-900">
                 Die als Pflicht gekennzeichneten Angaben sind für die Bearbeitung erforderlich; ohne sie
                 können wir Ihre Anfrage nicht beantworten. Zum Spam-Schutz nutzt das Formular ein für Sie
