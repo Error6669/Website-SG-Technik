@@ -334,6 +334,10 @@ auf den Tisch, blockiert aber nichts.
 Verarbeitungsverzeichnis (Blatt 1, „Nächste Überprüfung"). Ein Termin statt zwei.
 Aufwand erfahrungsgemäß 30–45 Minuten.
 
+- [x] Kalendereintrag angelegt (01.10.2026) — **07.01.2027, 09:00**, jährlich.
+      Er verweist auf diesen Abschnitt und enthält den Hinweis auf den
+      GDAP-Ablauf am 09.03.2027.
+
 Jeder Punkt nennt **wo nachsehen**, den **Soll-Stand** zum Vergleich und
 **was zu tun ist, wenn es abweicht**. Wer das in einem Jahr abarbeitet, soll
 nichts rekonstruieren müssen.
