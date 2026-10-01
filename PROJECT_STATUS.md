@@ -114,7 +114,7 @@ Aussagen hängen an Werten statt im Fließtext zu stehen — ändert sich die La
 | `mailAdmin` → `null` | A1 hat die Rechte verloren; Absatz in Abschnitt 6 verschwindet von selbst |
 | `mailAdmin.avvConfirmed` → `true` | konkretisierter AVV liegt vor; Seite nennt ihn dann als Tatsache |
 | `mail.dataResidency` → `null` | Nachweis des Speicherorts weggefallen; Seite fällt auf Formulierung ohne Ortsangabe zurück |
-| `hosting.logRetentionDays` bleibt `null` | Seite gibt Kriterien statt einer unbelegten Frist aus |
+| `hosting.logRetention` (seit 02.10.2026, ersetzt `logRetentionDays`) | 90 Tage online + 1 Jahr offline, zugesichert im Netlify-DPA S. 15 Nr. 5 lit. A; bei `null` fällt die Seite auf Kriterien zurück |
 | `hosting.analyticsEnabled: false` | **harte Tatsachenbehauptung** — wird Netlify Analytics zugebucht, muss der Wert mit |
 
 ### Organisatorisch (nicht im Code)
@@ -206,7 +206,7 @@ Astro + TypeScript + Tailwind v4 (CSS-first, `@theme` Tokens in `src/styles/glob
      1. Der **unvollständige AVV mit A1 Digital** — Rahmen (AGB AVV V2.1) gilt, die nach Art. 28 Abs. 3 lit. a verlangte Konkretisierung fehlt, während A1 aktive Administratorrechte auf den Mandanten hält.
      2. Netlifys **Weigerung**, Art.-28-Auskünfte ohne bezahlten Tarif zu erteilen.
      3. `behoerdeEcg` in `legal.ts` steht auf **Bezirkshauptmannschaft Linz-Land** — gegen den GISA-Auszug abgleichen lassen.
-   - **Antworten abwarten:** Anfragen an A1 (`datenschutz@a1.at`) und Netlify (`privacy@netlify.com`) sind am 01.10.2026 raus. Gegenüber der Aufsichtsbehörde zählt der dokumentierte Versuch, nicht nur das Ergebnis.
+   - **Antworten abwarten:** Anfragen an A1 (`datenschutz@a1.at`) und Netlify (`privacy@netlify.com`) sind am 01.10.2026 raus. Der dokumentierte Versuch hilft bei der Bewertung eines Verstoßes (Art. 83 Abs. 2 DSGVO), **ersetzt aber keine erfüllte Pflicht**: Der AVV nach Art. 28 Abs. 3 DSGVO bleibt geschuldet, auch wenn A1 nicht antwortet. Bleibt die Antwort aus, ist entweder der Vertrag auf anderem Weg zu beschaffen oder sind die Administratorrechte zu entziehen.
    - **Kalendereintrag 07.01.2027 in Outlook auf „jährlich" stellen** — das Outlook-Tool konnte keine Serie anlegen, er erinnert sonst genau einmal.
    - Organisatorische Nachweise insgesamt: siehe **`PRIVACY-CHECKLIST.md`**. A1–A5, B1 und C sind abgearbeitet.
 5. ~~Call-to-Action-Band vor dem Footer~~ — erledigt (`CtaBand.astro`), zwischen Referenzen und Kontakt platziert.

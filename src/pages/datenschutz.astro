@@ -6,6 +6,7 @@ import { contact } from '../content/site';
 
 const val = (v: string, fallback = 'wird ergänzt') => (v.trim().length > 0 ? v : fallback);
 const isPlaceholder = (v: string) => v.trim().length === 0;
+const linkClass = 'text-navy-800 underline underline-offset-2 hover:text-copper-600';
 ---
 
 <BaseLayout title="Datenschutz — SG Technik GmbH" description="Datenschutzerklärung gemäß DSGVO.">
@@ -65,10 +66,10 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
           <p class="mt-2">
             Wir verarbeiten personenbezogene Daten nur, soweit dies zur Bereitstellung einer
             funktionsfähigen Website sowie zur Beantwortung Ihrer Anfragen erforderlich ist. Diese Website
-            verwendet derzeit keine Analyse-, Statistik- oder Marketing-Dienste; es findet kein Tracking und
+            verwendet derzeit keine Analyse-, Statistik- oder Marketing-Dienste. Es findet kein Tracking und
             kein Profiling statt, und es werden keine automatisierten Entscheidungen im Sinne des Art. 22
             DSGVO getroffen. Es sind keine Karten, Videos, Captcha-Dienste oder externen Schriftarten
-            eingebunden; die verwendeten Schriften werden von unserem Server ausgeliefert.
+            eingebunden. Die verwendeten Schriften werden von unserem Server ausgeliefert.
           </p>
         </div>
 
@@ -80,7 +81,7 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
             ausliefert. Mit dem Anbieter besteht ein Auftragsverarbeitungsvertrag gemäß Art. 28 DSGVO.
             Beim Aufruf der Website verarbeitet der Anbieter technisch notwendige Zugriffsdaten
             automatisch, um die Seite auszuliefern und den Dienst abzusichern. Diese Verarbeitung findet
-            auf seiner Infrastruktur statt; Einzelheiten dazu ergeben sich aus{' '}
+            auf seiner Infrastruktur statt. Einzelheiten dazu ergeben sich aus{' '}
             <a
               href={privacy.hosting.providerPrivacyUrl}
               rel="noopener noreferrer"
@@ -97,8 +98,7 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
               <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Datenarten</dt>
               <dd class="min-w-0 break-words text-navy-900">
                 IP-Adresse, Datum und Uhrzeit des Zugriffs, aufgerufene URL, Referrer-URL, HTTP-Statuscode,
-                übertragene Datenmenge, Geräteart sowie Browser- und Betriebssysteminformationen; ergänzend
-                weitere technische Dienst- und Sicherheitsdaten, die beim Betrieb der Infrastruktur anfallen
+                übertragene Datenmenge, Geräteart sowie Browser- und Betriebssysteminformationen. Hinzu kommen weitere technische Dienst- und Sicherheitsdaten, die beim Betrieb der Infrastruktur anfallen
               </dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
@@ -119,9 +119,9 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
               <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Speicherdauer</dt>
               <dd class="min-w-0 break-words text-navy-900">
                 {
-                  privacy.hosting.logRetentionDays !== null
-                    ? `Die Protokolldaten werden nach den Vorgaben des Anbieters für maximal ${privacy.hosting.logRetentionDays} Tage gespeichert und anschließend gelöscht.`
-                    : 'Die Protokolldaten werden vom Anbieter im Rahmen seines Dienstbetriebs gespeichert; maßgeblich sind der mit ihm geschlossene Auftragsverarbeitungsvertrag und seine Datenschutzhinweise. Eine Speicherung erfolgt nur so lange, wie es für die technische Bereitstellung, die IT-Sicherheit und die Abwehr missbräuchlicher Zugriffe erforderlich ist oder gesetzliche Aufbewahrungspflichten bestehen; danach werden die Daten gelöscht. Wir selbst legen darüber hinaus keine eigenen Zugriffsprotokolle an und werten die Protokolle des Anbieters nicht aus.'
+                  privacy.hosting.logRetention !== null
+                    ? `Der Anbieter sichert in seinem Auftragsverarbeitungsvertrag zu, die Protokolle der Systeme, die den Dienst erbringen, ${privacy.hosting.logRetention.onlineDays} Tage im direkten Zugriff und anschließend ${privacy.hosting.logRetention.offlineMonths} Monate in einer Offline-Sicherung aufzubewahren. Danach werden sie gelöscht. Eine Speicherung erfolgt nur, soweit sie für die technische Bereitstellung, die IT-Sicherheit und die Abwehr missbräuchlicher Zugriffe erforderlich ist oder gesetzliche Aufbewahrungspflichten bestehen. Wir selbst legen darüber hinaus keine eigenen Zugriffsprotokolle an und werten die Protokolle des Anbieters nicht aus.`
+                    : 'Die Protokolldaten werden vom Anbieter im Rahmen seines Dienstbetriebs gespeichert. Maßgeblich ist der mit ihm geschlossene Auftragsverarbeitungsvertrag. Eine Speicherung erfolgt nur so lange, wie es für die technische Bereitstellung, die IT-Sicherheit und die Abwehr missbräuchlicher Zugriffe erforderlich ist oder gesetzliche Aufbewahrungspflichten bestehen. Danach werden die Daten gelöscht. Wir selbst legen darüber hinaus keine eigenen Zugriffsprotokolle an und werten die Protokolle des Anbieters nicht aus.'
                 }
               </dd>
             </div>
@@ -153,8 +153,31 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
               <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Drittlandbezug</dt>
               <dd class="min-w-0 break-words text-navy-900">
-                Der Anbieter ist ein US-Unternehmen; eine Verarbeitung in den USA ist nicht auszuschließen.
-                Die Übermittlung wird durch {privacy.hosting.transferSafeguards} abgesichert.
+                <p>
+                  Der Anbieter ist ein US-Unternehmen. Eine Verarbeitung in den USA ist nicht auszuschließen.{' '}
+                  {
+                    privacy.hosting.transferBasis === 'dpf' ? (
+                      <>
+                        Die Übermittlung stützt sich auf den Angemessenheitsbeschluss der EU-Kommission zum
+                        EU-U.S. Data Privacy Framework (Art. 45 DSGVO), unter dem der Anbieter zertifiziert ist. Die Zertifizierung ist im{' '}
+                        <a href={privacy.transferSources.dpfRegisterUrl} rel="noopener noreferrer" target="_blank" class={linkClass}>öffentlichen Register</a>{' '}
+                        einsehbar. Für den Fall, dass diese Grundlage entfällt, sind im{' '}
+                        <a href={privacy.hosting.dpaUrl} rel="noopener noreferrer" target="_blank" class={linkClass}>Auftragsverarbeitungsvertrag</a>{' '}
+                        mit dem Anbieter die{' '}
+                        <a href={privacy.transferSources.sccUrl} rel="noopener noreferrer" target="_blank" class={linkClass}>Standardvertragsklauseln der EU-Kommission</a>{' '}
+                        (Durchführungsbeschluss (EU) 2021/914, Modul 2) vereinbart (Art. 46 Abs. 2 lit. c DSGVO).
+                      </>
+                    ) : (
+                      <>
+                        Die Übermittlung stützt sich auf die{' '}
+                        <a href={privacy.transferSources.sccUrl} rel="noopener noreferrer" target="_blank" class={linkClass}>Standardvertragsklauseln der EU-Kommission</a>{' '}
+                        (Durchführungsbeschluss (EU) 2021/914, Modul 2, Art. 46 Abs. 2 lit. c DSGVO), die im{' '}
+                        <a href={privacy.hosting.dpaUrl} rel="noopener noreferrer" target="_blank" class={linkClass}>Auftragsverarbeitungsvertrag</a>{' '}
+                        mit dem Anbieter vereinbart sind.
+                      </>
+                    )
+                  }
+                </p>
               </dd>
             </div>
           </dl>
@@ -164,7 +187,7 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
         <div>
           <h2 class="font-display text-lg font-semibold text-navy-800">4. Cookies und lokale Speicherung</h2>
           <p class="mt-2">
-            Diese Website setzt und liest keine Cookies – weder eigene noch solche Dritter – und verwendet
+            Diese Website setzt und liest keine Cookies, weder eigene noch solche Dritter, und verwendet
             keinen localStorage, sessionStorage oder vergleichbare clientseitige Speichertechnologien. Es
             findet kein Tracking statt und es werden keine Nutzungsprofile erstellt.
           </p>
@@ -183,21 +206,20 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
           <p class="mt-2">
             Sollten künftig optionale Dienste (etwa für Statistik oder Marketing) eingesetzt werden, werden
             diese erst nach Ihrer ausdrücklichen Einwilligung geladen (Art. 6 Abs. 1 lit. a DSGVO, § 165
-            Abs. 3 TKG 2021). Sie werden in diesem Fall über ein Einwilligungs-Banner gefragt; Ihre Auswahl
+            Abs. 3 TKG 2021). Sie werden in diesem Fall über ein Einwilligungs-Banner gefragt. Ihre Auswahl
             wird dann lokal in Ihrem Browser gespeichert (Eintrag „sg-consent", Speicherdauer{' '}
             {privacy.retention.consentMonths} Monate) und nicht an unsere Server übermittelt. Ein Widerruf
-            ist jederzeit mit Wirkung für die Zukunft möglich und ebenso einfach wie die Erteilung; die
-            Rechtmäßigkeit der bis zum Widerruf erfolgten Verarbeitung bleibt unberührt. Der Zugang zu den
-            grundlegenden Funktionen der Website bleibt davon unberührt; einzelne optionale Inhalte können
+            ist jederzeit mit Wirkung für die Zukunft möglich und ebenso einfach wie die Erteilung. Die Rechtmäßigkeit der bis zum Widerruf erfolgten Verarbeitung bleibt unberührt. Der Zugang zu den
+            grundlegenden Funktionen der Website bleibt davon unberührt. Einzelne optionale Inhalte können
             gegebenenfalls nicht verfügbar sein. Einzelheiten enthält die{' '}
             <a href="/cookie-richtlinie" class="text-navy-800 underline underline-offset-2 hover:text-copper-600">
               Cookie-Richtlinie</a>.
           </p>
         </div>
 
-        {/* --- 5. Kontaktaufnahme --- */}
+        {/* --- 5. Kontaktaufnahme per Formular, E-Mail und Telefon --- */}
         <div>
-          <h2 class="font-display text-lg font-semibold text-navy-800">5. Kontaktaufnahme</h2>
+          <h2 class="font-display text-lg font-semibold text-navy-800">5. Kontaktaufnahme per Formular, E-Mail und Telefon</h2>
           <p class="mt-2">
             Wenn Sie uns über das Kontaktformular, per E-Mail oder telefonisch kontaktieren, verarbeiten wir
             die von Ihnen mitgeteilten Daten zur Bearbeitung Ihrer Anfrage.
@@ -206,106 +228,145 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
               <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Datenarten</dt>
               <dd class="min-w-0 break-words text-navy-900">
-                Name (Pflicht), E-Mail-Adresse (Pflicht), Nachricht (Pflicht), Telefonnummer (freiwillig)
+                Im Kontaktformular: Name (Pflicht), E-Mail-Adresse (Pflicht), Nachricht (Pflicht), Telefonnummer (freiwillig). Bei der Übermittlung des Formulars fallen zusätzlich technische Daten an, insbesondere
+                IP-Adresse, Zeitpunkt der Übermittlung sowie Browser- und Geräteangaben.
+                Bei der E-Mail-Kommunikation werden insbesondere Kontaktdaten, Kommunikationsinhalte
+                und technische Daten verarbeitet.
               </dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
               <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Zweck</dt>
-              <dd class="min-w-0 break-words text-navy-900">Bearbeitung und Beantwortung Ihrer Anfrage</dd>
+              <dd class="min-w-0 break-words text-navy-900">
+                Bearbeitung und Beantwortung Ihrer Anfrage, Bereitstellung unserer E-Mail-Dienste
+                sowie Abwehr automatisierter Spam-Einsendungen
+              </dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
               <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Rechtsgrundlage</dt>
               <dd class="min-w-0 break-words text-navy-900">
                 Art. 6 Abs. 1 lit. b DSGVO, sofern Ihre Anfrage der Anbahnung oder Durchführung eines
-                Vertrags dient; andernfalls Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der
-                Beantwortung Ihrer Anfrage).
+                Vertrags dient. Andernfalls gilt Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der
+                Beantwortung Ihrer Anfrage und an einer funktionsfähigen E-Mail-Kommunikation).
               </dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
               <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Empfänger</dt>
               <dd class="min-w-0 break-words text-navy-900">
-                Formulareinsendungen werden über den Formulardienst unseres Hosting-Anbieters
-                ({privacy.hosting.provider}, USA) verarbeitet und an unser E-Mail-Postfach weitergeleitet.
-                Das Postfach wird von {privacy.mail.provider}, {privacy.mail.providerAddress}, betrieben;
-                dieser Anbieter verarbeitet Ihre Nachricht als weiterer Auftragsverarbeiter, damit wir sie
-                empfangen, lesen und beantworten können. Mit dem Hosting-Anbieter und dem Betreiber des
-                Postfachs bestehen Auftragsverarbeitungsverträge gemäß Art. 28 DSGVO. Einzelheiten zur
-                Verarbeitung durch den Betreiber des Postfachs ergeben sich aus{' '}
-                <a
-                  href={privacy.mail.providerPrivacyUrl}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  class="text-navy-800 underline underline-offset-2 hover:text-copper-600"
-                >seinen Datenschutzhinweisen</a>. Zur Administration unserer E-Mail-Umgebung siehe Punkt 6.
-                Eine Weitergabe an sonstige Dritte findet nicht statt.
+                <p>
+                  Formulareinsendungen werden über den Formulardienst unseres Hosting-Anbieters
+                  ({privacy.hosting.provider}, USA, siehe Punkt 3) verarbeitet und an unser E-Mail-Postfach weitergeleitet.
+                  Im Rahmen der automatisierten Spam-Prüfung wird Ihre Einsendung zusätzlich an einen
+                  Spam-Filterdienst übermittelt, den der Hosting-Anbieter als Unterauftragsverarbeiter
+                  einsetzt (siehe Zeile „Spam-Prüfung"). E-Mails, die Sie direkt an uns richten, werden
+                  nicht über diesen Formulardienst verarbeitet.
+                </p>
+                <p class="mt-2">
+                  Für unsere E-Mail-Dienste nutzen wir Microsoft 365. Das Postfach wird von
+                  {privacy.mail.provider}, {privacy.mail.providerAddress}, betrieben. Dieser Anbieter
+                  verarbeitet Ihre Kontaktdaten, Kommunikationsinhalte und technischen Daten als weiterer
+                  Auftragsverarbeiter, damit wir Ihre Nachricht empfangen, lesen und beantworten können.
+                  Das betrifft Nachrichten aus dem Kontaktformular ebenso wie direkt an uns gerichtete
+                  E-Mails. Mit dem Hosting-Anbieter und dem Betreiber des Postfachs bestehen
+                  Auftragsverarbeitungsverträge gemäß Art. 28 DSGVO. Einzelheiten zur Verarbeitung durch
+                  den Betreiber des Postfachs ergeben sich aus{' '}
+                  <a
+                    href={privacy.mail.providerPrivacyUrl}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    class="text-navy-800 underline underline-offset-2 hover:text-copper-600"
+                  >seinen Datenschutzhinweisen</a>.
+                </p>
+                <p class="mt-2">
+                  {privacy.mailAdmin && 'Zur Administration unserer E-Mail-Umgebung siehe die folgende Zeile „Administration“. '}
+                  Über die genannten Auftragsverarbeiter und die von ihnen eingesetzten
+                  Unterauftragsverarbeiter hinaus geben wir Ihre Anfrage nicht an Dritte weiter. Eine Übermittlung zu deren eigenen Zwecken, insbesondere zu Werbezwecken, findet nicht
+                  statt. Gesetzliche Auskunfts- und Herausgabepflichten bleiben unberührt.
+                </p>
               </dd>
             </div>
+            {privacy.mailAdmin && (
+              <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
+                <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Administration</dt>
+                <dd class="min-w-0 break-words text-navy-900">
+                  Die Administration und Lizenzbereitstellung unserer Microsoft-365-Umgebung erfolgt
+                  teilweise über die {privacy.mailAdmin.provider}, {privacy.mailAdmin.providerAddress}.
+                  Dieses Unternehmen verfügt hierfür über delegierte Administratorrechte in unserer
+                  Microsoft-365-Umgebung und kann im Rahmen der Administration und Supportleistung
+                  personenbezogene Benutzer- und Administrationsdaten verarbeiten. Über administrative
+                  Funktionen, etwa das Zurücksetzen von Kennwörtern, kann darüber hinaus ein Zugriff auf
+                  die Inhalte unserer Postfächer erfolgen. Davon können auch Nachrichten betroffen sein,
+                  die Sie uns über das Kontaktformular oder unmittelbar per E-Mail übermitteln.
+                  {privacy.mailAdmin.avvConfirmed &&
+                    ' Mit diesem Dienstleister besteht ein Auftragsverarbeitungsvertrag gemäß Art. 28 DSGVO.'}
+                </dd>
+              </div>
+            )}
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
               <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Drittlandbezug</dt>
               <dd class="min-w-0 break-words text-navy-900">
-                Zur Übermittlung an den Hosting-Anbieter siehe Punkt 3. Der Betreiber des E-Mail-Postfachs
+                Zur Übermittlung an den Hosting-Anbieter und den von ihm eingesetzten Spam-Filterdienst
+                in den USA siehe Punkt 3. Der Betreiber des E-Mail-Postfachs
                 ist ein Unternehmen mit Sitz in der Europäischen Union, gehört jedoch zu einem US-Konzern.
                 {privacy.mail.dataResidency && (
                   <>
                     {' '}Nach Auskunft des Anbieters werden die Daten des Postfachs im Ruhezustand in{' '}
-                    {privacy.mail.dataResidency} gespeichert
-                    {privacy.mail.euDataBoundary && '; der Dienst unterliegt der EU-Datengrenze'}.
+                    {privacy.mail.dataResidency} gespeichert.
+                    {privacy.mail.euDataBoundary && ' Der Dienst unterliegt der EU-Datengrenze.'}
                   </>
                 )} Ein Zugriff aus einem Drittland im Rahmen von Betrieb, Wartung und Support ist
-                gleichwohl nicht vollständig auszuschließen. Die Übermittlung wird durch{' '}
-                {privacy.mail.transferSafeguards} abgesichert.
+                gleichwohl nicht vollständig auszuschließen. Soweit dabei Daten an die Microsoft
+                Corporation in den USA übermittelt werden, gelten die{' '}
+                <a href={privacy.transferSources.sccUrl} rel="noopener noreferrer" target="_blank" class={linkClass}>Standardvertragsklauseln der EU-Kommission</a>{' '}
+                (Durchführungsbeschluss (EU) 2021/914, Art. 46 Abs. 2 lit. c DSGVO), die der Anbieter in
+                seinen{' '}
+                <a href={privacy.mail.dpaUrl} rel="noopener noreferrer" target="_blank" class={linkClass}>Auftragsverarbeitungsvertrag</a>{' '}
+                einbezieht.
+                {privacy.mail.dpfCertified && (
+                  <>
+                    {' '}Zusätzlich ist die Microsoft Corporation unter dem EU-U.S. Data Privacy Framework
+                    zertifiziert (
+                    <a href={privacy.transferSources.dpfRegisterUrl} rel="noopener noreferrer" target="_blank" class={linkClass}>öffentliches Register</a>).
+                  </>
+                )}
               </dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
               <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Speicherdauer</dt>
-              <dd class="min-w-0 break-words text-navy-900">{privacy.retention.contact}</dd>
+              <dd class="min-w-0 space-y-2 break-words text-navy-900">
+                {privacy.retention.contact.split('\n\n').map((paragraph) => <p>{paragraph}</p>)}
+              </dd>
             </div>
             <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
               <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Bereitstellung</dt>
               <dd class="min-w-0 break-words text-navy-900">
-                Die als Pflicht gekennzeichneten Angaben sind für die Bearbeitung erforderlich; ohne sie
-                können wir Ihre Anfrage nicht beantworten. Zum Spam-Schutz nutzt das Formular ein für Sie
-                unsichtbares Feld (Honeypot); ein Captcha-Dienst kommt nicht zum Einsatz.
+                Die als Pflicht gekennzeichneten Angaben sind für die Bearbeitung erforderlich. Ohne sie
+                können wir Ihre Anfrage nicht beantworten.
               </dd>
             </div>
+            {privacy.formSpam && (
+              <div class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr] sm:gap-4">
+                <dt class="min-w-0 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Spam-Prüfung</dt>
+                <dd class="min-w-0 break-words text-navy-900">
+                  Der Formulardienst unseres Hosting-Anbieters prüft jede Einsendung automatisiert auf Spam.
+                  Dabei werden der Inhalt Ihrer Einsendung sowie die vorstehend genannten technischen Daten
+                  an den Spam-Filterdienst {privacy.formSpam.provider} ({privacy.formSpam.providerCountry})
+                  übermittelt. Dieser Dienst ist Unterauftragsverarbeiter unseres Hosting-Anbieters. Zu dessen Pflichten gegenüber seinen Unterauftragsverarbeitern und zur Absicherung der
+                  Übermittlung in die USA siehe Punkt 3. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO. Unser berechtigtes Interesse liegt in der Abwehr automatisierter Spam-Einsendungen. Die
+                  Prüfung dient allein der Einordnung als Spam. Eine automatisierte Entscheidung über Ihre
+                  Person im Sinne des Art. 22 DSGVO ist damit nicht verbunden. Wird eine Einsendung als Spam
+                  eingeordnet, erreicht sie uns möglicherweise nicht. In diesem Fall erreichen Sie uns per
+                  E-Mail oder telefonisch. Ergänzend nutzt das Formular ein für Sie unsichtbares Feld
+                  (Honeypot), das ohne Übermittlung an Dritte auskommt. Ein Captcha-Dienst kommt nicht zum
+                  Einsatz.
+                </dd>
+              </div>
+            )}
           </dl>
         </div>
 
-        {/* --- 6. E-Mail-Kommunikation und Microsoft 365 --- */}
+        {/* --- 6. Betroffenenrechte --- */}
         <div>
-          <h2 class="font-display text-lg font-semibold text-navy-800">6. E-Mail-Kommunikation und Microsoft 365</h2>
-          <p class="mt-2">
-            Für die Bereitstellung unserer E-Mail-Dienste nutzen wir Microsoft 365 der{' '}
-            {privacy.mail.provider}, {privacy.mail.providerAddress}. Im Rahmen der Nutzung können
-            personenbezogene Daten – insbesondere Kontaktdaten, Kommunikationsinhalte und technische
-            Daten – durch Microsoft verarbeitet werden. Das betrifft Nachrichten, die Sie uns über das
-            Kontaktformular senden, ebenso wie E-Mails, die Sie direkt an uns richten.
-          </p>
-          <p class="mt-2">
-            Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, sofern Ihre Nachricht der Anbahnung oder
-            Durchführung eines Vertrags dient, andernfalls Art. 6 Abs. 1 lit. f DSGVO (berechtigtes
-            Interesse an einer funktionsfähigen E-Mail-Kommunikation). Mit dem Betreiber besteht ein
-            Auftragsverarbeitungsvertrag gemäß Art. 28 DSGVO; zum Drittlandbezug siehe Punkt 5.
-          </p>
-          {privacy.mailAdmin && (
-            <p class="mt-2">
-              Die Administration und Lizenzbereitstellung unserer Microsoft-365-Umgebung erfolgt
-              teilweise über die {privacy.mailAdmin.provider}, {privacy.mailAdmin.providerAddress}.
-              Dieses Unternehmen verfügt hierfür über delegierte Administratorrechte in unserer
-              Microsoft-365-Umgebung und kann im Rahmen der Administration und Supportleistung
-              personenbezogene Benutzer- und Administrationsdaten verarbeiten. Über administrative
-              Funktionen – etwa das Zurücksetzen von Kennwörtern – kann darüber hinaus ein Zugriff auf
-              die Inhalte unserer Postfächer erfolgen. Davon können auch Nachrichten betroffen sein,
-              die Sie uns über das Kontaktformular oder unmittelbar per E-Mail übermitteln.
-              {privacy.mailAdmin.avvConfirmed &&
-                ' Mit diesem Dienstleister besteht ein Auftragsverarbeitungsvertrag gemäß Art. 28 DSGVO.'}
-            </p>
-          )}
-        </div>
-
-        {/* --- 7. Betroffenenrechte --- */}
-        <div>
-          <h2 class="font-display text-lg font-semibold text-navy-800">7. Ihre Rechte</h2>
+          <h2 class="font-display text-lg font-semibold text-navy-800">6. Ihre Rechte</h2>
           <p class="mt-2">
             Ihnen stehen nach Maßgabe der gesetzlichen Voraussetzungen die Rechte auf Auskunft (Art. 15),
             Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18) sowie
@@ -325,27 +386,25 @@ const isPlaceholder = (v: string) => v.trim().length === 0;
           <p class="mt-2">Zur Ausübung Ihrer Rechte genügt eine formlose Mitteilung an die unter Punkt 1 genannte Adresse.</p>
         </div>
 
-        {/* --- 8. Beschwerderecht --- */}
+        {/* --- 7. Beschwerderecht --- */}
         <div>
-          <h2 class="font-display text-lg font-semibold text-navy-800">8. Beschwerderecht</h2>
+          <h2 class="font-display text-lg font-semibold text-navy-800">7. Beschwerderecht</h2>
           <p class="mt-2">
             Sie haben gemäß Art. 77 DSGVO das Recht, sich bei einer Datenschutz-Aufsichtsbehörde zu
-            beschweren – insbesondere in dem Mitgliedstaat Ihres Aufenthaltsorts, Ihres Arbeitsplatzes oder
+            beschweren, insbesondere in dem Mitgliedstaat Ihres Aufenthaltsorts, Ihres Arbeitsplatzes oder
             des Orts des mutmaßlichen Verstoßes. In Österreich ist dies die Österreichische
-            Datenschutzbehörde, Barichgasse 40–42, 1030 Wien, E-Mail:{' '}
-            <a href="mailto:dsb@dsb.gv.at" class="text-navy-800 underline underline-offset-2 hover:text-copper-600">
-              dsb@dsb.gv.at</a>.
+            Datenschutzbehörde, Barichgasse 40-42, 1030 Wien.
           </p>
         </div>
 
-        {/* --- 9. Änderungen --- */}
+        {/* --- 8. Änderungen --- */}
         <div>
-          <h2 class="font-display text-lg font-semibold text-navy-800">9. Änderungen dieser Datenschutzerklärung</h2>
+          <h2 class="font-display text-lg font-semibold text-navy-800">8. Änderungen dieser Datenschutzerklärung</h2>
           <p class="mt-2">
             Wir aktualisieren diese Datenschutzerklärung, wenn sich unsere Datenverarbeitungen oder die
             rechtlichen Rahmenbedingungen ändern. Die jeweils aktuelle Fassung ist auf dieser Website
             abrufbar. Soweit gesetzlich erforderlich, informieren wir betroffene Personen gesondert über
-            wesentliche Änderungen; eine Änderung dieser Erklärung dient nicht dazu, nachträglich neue
+            wesentliche Änderungen. Eine Änderung dieser Erklärung dient nicht dazu, nachträglich neue
             Verarbeitungszwecke zu schaffen.
           </p>
           <p class="mt-3 font-mono text-xs uppercase tracking-[0.1em] text-slate-600">Stand: {privacy.stand}</p>
