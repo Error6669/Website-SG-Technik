@@ -11,6 +11,24 @@
 // bestätigen.
 // ---------------------------------------------------------------------------
 
+// Dienstleister mit administrativem Zugriff auf den E-Mail-Mandanten.
+// Wird auf `null` gesetzt, sobald der Zugriff endet — dann entfaellt der
+// entsprechende Absatz auf der Datenschutzseite automatisch.
+type MailAdmin = {
+  provider: string;
+  providerAddress: string;
+  /** Genehmigte Rollen, wie im Microsoft-365-Admin-Center ausgewiesen. */
+  roles: string[];
+  /** Ablaufdatum der GDAP-Beziehung (ISO), rein zur Dokumentation. */
+  rolesExpire: string;
+  /**
+   * Nur auf `true` setzen, wenn ein Auftragsverarbeitungsvertrag mit diesem
+   * Dienstleister tatsaechlich vorliegt. Steuert, ob die Seite den AVV als
+   * Tatsache behauptet.
+   */
+  avvConfirmed: boolean;
+};
+
 export const privacy = {
   // Stand der Erklärung (wird am Seitenende ausgegeben).
   stand: 'September 2026',
@@ -70,13 +88,12 @@ export const privacy = {
   // -> Microsoft 365 / Exchange Online. Vertragspartner für EU-Kunden ist
   //    Microsoft Ireland Operations Limited.
   //
+  // ERLEDIGT am 01.10.2026: Microsoft Products and Services Data Protection
+  // Addendum, Fassung 22.05.2026, liegt in der Nachweismappe.
+  //
   // NOCH ZU ERLEDIGEN (PRIVACY-CHECKLIST.md, A5):
-  //  - Microsoft Products and Services Data Protection Addendum in aktueller
-  //    Fassung abrufen und mit Datum in die Nachweismappe legen.
   //  - Datenregion des Tenants prüfen (EU Data Boundary). Solange das nicht
   //    bestätigt ist, behauptet die Seite BEWUSST keine reine EU-Speicherung.
-  //  - Rolle von A1 klären: bei delegierten Administratorrechten (GDAP) ist A1
-  //    selbst Auftragsverarbeiter und hier zusätzlich zu nennen.
   mail: {
     provider: 'Microsoft Ireland Operations Limited',
     providerAddress:
@@ -91,6 +108,41 @@ export const privacy = {
     transferSafeguards:
       'Standardvertragsklauseln der EU-Kommission (Art. 46 DSGVO) bzw. EU-U.S. Data Privacy Framework',
   },
+
+  // Dienstleister mit delegierten Administratorrechten (GDAP) auf den
+  // Microsoft-365-Mandanten. Am 01.10.2026 im Admin Center festgestellt
+  // (Einstellungen → Partnerbeziehungen).
+  //
+  // WARUM DAS HIER STEHT: Weder Exchange- noch globale Administratorrolle ist
+  // vergeben, Postfachinhalte sind also nicht direkt zugänglich. Helpdesk- und
+  // Benutzeradministrator dürfen aber Passwörter zurücksetzen — darüber ist ein
+  // Zugang zum Postfach erreichbar. Für Art. 28 DSGVO genügt die Möglichkeit
+  // des Zugriffs; der Dienstleister ist damit Auftragsverarbeiter und nach
+  // Art. 13 Abs. 1 lit. e als Empfänger zu nennen.
+  //
+  // Zu unterscheiden von der „A1 Digital International GmbH" (ohne & Co KG):
+  // die ist im Mandanten nur als Handelspartner ohne jede Rolle eingetragen,
+  // also reiner Vertrags- und Rechnungspartner und hier NICHT zu nennen.
+  //
+  // AUF `null` SETZEN, sobald die Rollen entzogen sind (Admin Center →
+  // Partnerbeziehungen → Rollen entfernen). Der Absatz auf der
+  // Datenschutzseite verschwindet dann von selbst.
+  mailAdmin: {
+    provider: 'A1 Digital International GmbH & Co KG',
+    providerAddress: 'Lassallestraße 9, 1020 Wien, Österreich',
+    roles: [
+      'Helpdesk-Administrator',
+      'Lizenzadministrator',
+      'Benutzeradministrator',
+      'Dienst-Supportadministrator',
+      'Verzeichnisleseberechtigte',
+      'Globaler Leser',
+    ],
+    rolesExpire: '2027-03-09',
+    // Angefordert am 01.10.2026, Antwort steht aus. Erst auf `true` setzen,
+    // wenn der Vertrag vorliegt und in der Nachweismappe abgelegt ist.
+    avvConfirmed: false,
+  } as MailAdmin | null,
 
   // Speicherfristen (Prosa, damit die Nuancen erhalten bleiben).
   retention: {

@@ -178,14 +178,39 @@ bewusst **nicht**, solange die Datenregion nicht geprüft ist.
       ließe sich die Aussage zugunsten der Besucher präzisieren.
       *Nicht über den Microsoft-Connector prüfbar — dessen Berechtigungen reichen
       nur für Postfach und Kalender, nicht für Tenant- oder Verzeichnisdaten.*
-- [ ] **Rolle von A1 klären:** nur Reseller, oder CSP-Partner mit delegierten
-      Administratorrechten (GDAP) auf den Tenant? Bei bestehendem Adminzugriff ist A1
-      selbst Auftragsverarbeiter und benötigt einen eigenen AVV.
-      Nachsehen unter Admin Center → Einstellungen → **Partnerbeziehungen**.
-      **Der einzige echte Blocker in A5:** hat A1 Adminrechte, ist A1 ein zweiter
-      Auftragsverarbeiter und müsste in Abschnitt 5 der Datenschutzerklärung als
-      Empfänger genannt werden — das ändert den Website-Text.
-      *Ebenfalls nicht über den Connector prüfbar, siehe oben.*
+- [x] **Rolle von A1 geklärt** (01.10.2026, Admin Center → Partnerbeziehungen).
+      Ergebnis: **zwei verschiedene Gesellschaften**, nur eine davon kritisch.
+
+| Eintrag im Mandanten | Art | Rollen | Einordnung |
+|---|---|---|---|
+| **A1 Digital International GmbH & Co KG** | GDAP, Status aktiv, Ablauf 09.03.2027 | Helpdesk-Administrator, Lizenzadministrator, Benutzeradministrator, Dienst-Supportadministrator, Verzeichnisleseberechtigte, Globaler Leser | **Auftragsverarbeiter** |
+| A1 Digital International GmbH *(ohne & Co KG)* | Handelspartner | keine zugewiesen | reiner Vertrags-/Rechnungspartner, nicht zu nennen |
+
+Die bisherige Annahme „A1 ist mutmaßlich nur Vertrags- und Rechnungspartner"
+stimmt also **nur für die GmbH**, nicht für die GmbH & Co KG.
+
+**Bewertung:** Weder Exchange- noch globale Administratorrolle ist vergeben,
+Postfachinhalte sind nicht direkt zugänglich. Helpdesk- und Benutzeradministrator
+dürfen aber Passwörter zurücksetzen — darüber ist ein Zugang zum Postfach
+erreichbar. Für Art. 28 DSGVO genügt die Möglichkeit des Zugriffs. Unabhängig
+davon geben Globaler Leser und Verzeichnisleseberechtigte laufenden Lesezugriff
+auf alle Benutzerkonten und Mailadressen der Mitarbeiter — das ist keine bloße
+Möglichkeit, sondern tatsächliche Verarbeitung.
+
+- [x] A1 als Empfänger in der Datenschutzerklärung genannt (01.10.2026) — neuer
+      **Abschnitt 6 „E-Mail-Kommunikation und Microsoft 365"**. Er deckt zugleich
+      eine bislang offene Lücke: direkte E-Mails an `office@sgt.co.at` waren
+      nirgends beschrieben, Abschnitt 5 behandelt nur Formularanfragen.
+      Werte in `src/content/privacy.ts` → `mailAdmin`.
+- [ ] **AVV bei A1 anfordern** — Mailentwurf liegt bereit. Liegt der Vertrag vor
+      und in der Nachweismappe, `mailAdmin.avvConfirmed` auf `true` setzen; die
+      Seite nennt den AVV dann als Tatsache, vorher bewusst nicht.
+- [ ] **Dabei klären, ob der Zugriff überhaupt gebraucht wird.** Wird er nicht
+      benötigt: Admin Center → Partnerbeziehungen → **Rollen entfernen**, danach
+      `mailAdmin` auf `null` setzen — der Absatz verschwindet dann von selbst und
+      A5 ist vollständig erledigt. Das ist die sauberere Lösung als ein AVV.
+- [ ] A1-Zugriff auch in den Zeilen 3–5 des Verarbeitungsverzeichnisses nachziehen
+      (Verzeichnisdaten der Mitarbeiter) — betrifft nicht die Website-Freigabe
 
 ### A6 — Juristische Endkontrolle ⚠️ offen
 
