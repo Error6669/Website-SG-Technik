@@ -338,6 +338,12 @@ Aufwand erfahrungsgemäß 30–45 Minuten.
       Er verweist auf diesen Abschnitt und enthält den Hinweis auf den
       GDAP-Ablauf am 09.03.2027.
 
+**Zum Abarbeiten auf Papier:** `Datenschutz-Wiedervorlage.pdf` im Projektordner —
+vier Seiten mit Ankreuzfeld und Notizzeile je Punkt. Sie wird **aus diesem
+Abschnitt erzeugt**, nicht getrennt gepflegt; nach Änderungen hier neu bauen mit
+`npm run wiedervorlage:pdf`. Weicht ein Ausdruck von dieser Datei ab, gilt diese
+Datei.
+
 Jeder Punkt nennt **wo nachsehen**, den **Soll-Stand** zum Vergleich und
 **was zu tun ist, wenn es abweicht**. Wer das in einem Jahr abarbeitet, soll
 nichts rekonstruieren müssen.
