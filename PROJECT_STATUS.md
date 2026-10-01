@@ -1,9 +1,9 @@
 # SG Technik Website — Projektstatus
 
-Grundlage: `Aufbau Website 2.0.docx`, `Website-Struktur_SG_Technik_GmbH.csv`, `Logo/` (siehe diese Dateien für Originalinhalte).
+Grundlage: `Unterlagen/Aufbau Website 2.0.docx`, `Unterlagen/Website-Struktur_SG_Technik_GmbH.csv`, `Logo/` (siehe diese Dateien für Originalinhalte).
 
 ## Deployment (Stand aktuell)
-- **GitHub-Repo:** https://github.com/Error6669/Website-SG-Technik. **Branches: `develop` (aktueller Stand, alles Neue) und `main` (alt — das ist der Live-Stand).** Ausgeschlossen (siehe `.gitignore`): Original-Briefingdokumente (`Aufbau Website 2.0.docx`, `Website-Struktur_SG_Technik_GmbH.csv`), lokale Claude-Code-Einstellungen. `.claude/skills/` (Tooling) ist bewusst mit eingecheckt.
+- **GitHub-Repo:** https://github.com/Error6669/Website-SG-Technik. **Branches: `develop` (aktueller Stand, alles Neue) und `main` (alt — das ist der Live-Stand).** Ausgeschlossen (siehe `.gitignore`): der Ordner `Unterlagen/` (Original-Briefing, Seitenstruktur, Verarbeitungsverzeichnis), lokale Claude-Code-Einstellungen. `.claude/skills/` (Tooling) ist bewusst mit eingecheckt.
 - **Hosting:** Netlify, verbunden mit dem GitHub-Repo → **jeder Push auf `main` löst automatisch einen neuen Build + Deploy aus**, kein manueller Schritt nötig. Live-URL: **https://sg-technik.netlify.app**
 - **Kontaktformular:** Netlify Forms ist bestätigt aktiv — "kontakt" wird nach einem "Clear cache and deploy" korrekt erkannt (vorher musste unter Site settings → Build & deploy → Post processing → **"Form detection"** aktiviert werden, war zunächst aus). E-Mail-Benachrichtigung wird im Netlify-Dashboard unter Forms → kontakt → Settings and usage → Form notifications eingerichtet (nicht im Code).
 - **Noch offen:** eigene Domain (`sg-technik.at`, bereits in `astro.config.mjs` als `site` hinterlegt) noch nicht mit Netlify verbunden (DNS-Eintrag beim Domain-Anbieter nötig, sobald gewünscht).
@@ -56,7 +56,7 @@ Schwerpunkt: Rechtstexte präzisieren und die dahinterliegenden Nachweise kläre
 
 **Neu: `PRIVACY-CHECKLIST.md`** (versioniert) — organisatorische Nachweise vor dem Live-Gang. Geklärt in dieser Session: DPA gilt bei Netlify automatisch über das Self-Serve Subscription Agreement; Vertretungsbefugnis liegt vor; E-Mail läuft laut MX/SPF über **Microsoft 365**, nicht über A1 (A1 vermutlich nur Reseller — Rolle noch zu klären); Löschturnus für Formulardaten auf **halbjährlich** festgelegt.
 
-**Neu: `Verarbeitungsverzeichnis_SG_Technik_GmbH.xlsx`** (Art. 30 DSGVO, **per `.gitignore` ausgenommen** — Geschäftsdokument, gehört in die Firmenablage). Drei Blätter, fünf Verarbeitungstätigkeiten: Website-Bereitstellung, Kontaktanfragen, Geschäftspartnerverwaltung, Buchhaltung, Personalverwaltung. Offene Felder mit `[AUSFÜLLEN]` markiert; Blatt 3 führt 9 offene Punkte.
+**Neu: `Unterlagen/Verarbeitungsverzeichnis_SG_Technik_GmbH.xlsx`** (Art. 30 DSGVO, **per `.gitignore` ausgenommen** — Geschäftsdokument, gehört in die Firmenablage). Drei Blätter, fünf Verarbeitungstätigkeiten: Website-Bereitstellung, Kontaktanfragen, Geschäftspartnerverwaltung, Buchhaltung, Personalverwaltung. Offene Felder mit `[AUSFÜLLEN]` markiert; Blatt 3 führt 9 offene Punkte.
 
 **`.gitignore`:** Verarbeitungsverzeichnis plus generisches `~$*` für Office-Sperrdateien.
 
@@ -130,7 +130,7 @@ Aussagen hängen an Werten statt im Fließtext zu stehen — ändert sich die La
 
 - **`Datenschutz-Wiedervorlage.pdf`** (4 Seiten A4) + **`scripts/wiedervorlage-pdf.py`**, `npm run wiedervorlage:pdf`. Wird **aus Abschnitt C erzeugt**, nicht getrennt gepflegt — sonst laufen Datei und Ausdruck auseinander. Ankreuzfeld und Notizzeile je Punkt, Kopf für „geprüft am / durch / nächster Termin". Gerendert mit Chrome headless (`--print-to-pdf`); wkhtmltopdf, pandoc, weasyprint und python-markdown sind auf dem Rechner **nicht** vorhanden, das Skript bringt deshalb einen kleinen Markdown-Konverter mit.
 - **`Nachweise/`** — Durchgangsordner für heruntergeladene Nachweisdokumente auf dem Weg in die Firmenablage. Per `.gitignore` ausgenommen, **nur die README ist versioniert** (hält Quelle, Fassung und Abrufdatum jedes Dokuments fest).
-- `.gitignore` erweitert: `Verarbeitungsverzeichnis_SG_Technik_GmbH*.xlsx` (das Muster griff nur auf den exakten Namen — eine Sicherungskopie wäre beim nächsten `git add .` im Repo gelandet, samt Namen der Zugriffsberechtigten und Angaben zu Dienstnehmern) und `Nachweise/*` mit `!Nachweise/README.md`.
+- `.gitignore` erweitert: `Nachweise/*` mit `!Nachweise/README.md`, und das Muster für das Verarbeitungsverzeichnis korrigiert (es griff nur auf den exakten Namen — eine Sicherungskopie wäre beim nächsten `git add .` im Repo gelandet, samt Namen der Zugriffsberechtigten und Angaben zu Dienstnehmern). **Seit dem Aufräumen am 01.10.2026** liegen die lokalen Firmendokumente gebündelt in **`Unterlagen/`**, der Ordner ist als Ganzes ausgenommen (nur die README ist versioniert).
 
 ### Branches aufgeräumt
 
@@ -232,7 +232,7 @@ Verifiziert: `npx astro build` erfolgreich nach allen Änderungen.
 11. ~~`/impeccable critique` erneut laufen lassen~~ — erledigt (dual-agent, echte Sub-Agents, unabhängig). Score 24/40 (vorher 26/40), aber **P0 jetzt 0** (vorher 1) und P1 nur noch 1 (vorher 2) — die verbliebenen offenen Punkte sind inhaltlich (fehlende echte Telefonnummer/E-Mail, siehe Punkt 1) statt strukturell/Bugs. Snapshot: `.impeccable/critique/2026-07-16T21-39-00Z__src-pages-index-astro.md`. Zwei sich widersprechende Kontrast-Behauptungen zwischen den beiden Sub-Agents wurden von mir unabhängig nachgerechnet und zugunsten des Detector-Assessments aufgelöst (beide Werte bestehen WCAG AA, einer davon nur mit 0.02 Marge — als P3 vermerkt).
     - **P3-Fixes umgesetzt (Nutzerentscheidung: nur die beiden P3-Punkte):** `ContactSection.astro` — `text-slate-300/70` → `text-slate-300` (Kontrast-Marge von 4.52:1 auf komfortable 7.75:1 erhöht, betrifft Labels + Platzhaltertexte). Der zweite gemeldete P3 ("Hero-Stat '100–980 t' bricht bei ≤768px um") **konnte mit Playwright über den gesamten Bereich 320–1920px nicht reproduziert werden** (`dd`-Element bleibt überall einzeilig) — keine Änderung vorgenommen, um keinen spekulativen Fix für einen nicht nachvollziehbaren Bug einzubauen. `npx astro build` und Detector nach dem Fix weiterhin sauber.
 
-**Bewusst nicht geplant:** Aktuelles/News, Downloads/Zertifikate, Team-Fotos, Kundenstimmen — diese Bereiche aus der CSV-Seitenstruktur wurden absichtlich weggelassen, da im Word-Dokument (`Aufbau Website 2.0.docx`) keine echten Inhalte dafür vorhanden sind. Keine erfundenen Inhalte.
+**Bewusst nicht geplant:** Aktuelles/News, Downloads/Zertifikate, Team-Fotos, Kundenstimmen — diese Bereiche aus der CSV-Seitenstruktur wurden absichtlich weggelassen, da im Word-Dokument (`Unterlagen/Aufbau Website 2.0.docx`) keine echten Inhalte dafür vorhanden sind. Keine erfundenen Inhalte.
 
 ## Bekannte Stolperfallen
 - Astro-Dev-Server kann nach mehreren schnellen Datei-Überschreibungen eine veraltete Vite-Style-Cache-Version ausliefern (war schon einmal der Fall bei `LogoMark.astro`). Falls Animationen/Styles im Browser nicht aktuell aussehen: Dev-Server neu starten (`pkill -f "astro dev"`, `rm -rf .astro node_modules/.astro`, neu starten) statt lange zu debuggen.

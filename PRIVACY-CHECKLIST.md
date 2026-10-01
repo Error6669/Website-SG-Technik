@@ -76,7 +76,7 @@ eigener Umbau inklusive Spam-Schutz.
 
 ### A4 — Verarbeitungsverzeichnis nach Art. 30 DSGVO ✅ für die Website vollständig (29.09.2026)
 
-> Datei: **`Verarbeitungsverzeichnis_SG_Technik_GmbH.xlsx`** im Projektordner
+> Datei: **`Unterlagen/Verarbeitungsverzeichnis_SG_Technik_GmbH.xlsx`**
 > (per `.gitignore` von der Versionierung ausgenommen — gehört in die Firmenablage).
 > Stand **29.09.2026, Version 1.1**. Blatt „Offene Punkte" führt die verbleibenden
 > Lücken; offene Felder sind im Dokument mit `[AUSFÜLLEN]` markiert.
@@ -429,7 +429,7 @@ Registrierung nicht funktioniert hat.
 
 | | |
 |---|---|
-| **Wo** | `Verarbeitungsverzeichnis_SG_Technik_GmbH.xlsx` in der Firmenablage |
+| **Wo** | `Unterlagen/Verarbeitungsverzeichnis_SG_Technik_GmbH.xlsx` (Arbeitsfassung) bzw. die Fassung in der Firmenablage |
 | **Soll** | Stand und Version auf Blatt 1 aktuell; Blatt „Offene Punkte" durchgesehen |
 | **Abweichung** | Neue Dienste, geänderte Fristen oder neue Zugriffsberechtigte eintragen, Version hochzählen, Prüfdatum neu setzen. |
 

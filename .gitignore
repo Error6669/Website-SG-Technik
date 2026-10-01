@@ -19,15 +19,13 @@ node_modules/
 # local Claude Code settings (machine-specific, not shared)
 .claude/settings.local.json
 
-# original source briefing docs (internal, not for the public repo)
-Aufbau Website 2.0.docx
-~$fbau Website 2.0.docx
-Website-Struktur_SG_Technik_GmbH.csv
-
-# Verarbeitungsverzeichnis nach Art. 30 DSGVO — internes Geschäftsdokument mit
-# Angaben zu eingesetzten Systemen und Zugriffsberechtigten. Gehört in die
-# Firmenablage, nicht ins Repository. (PRIVACY-CHECKLIST.md bleibt versioniert.)
-Verarbeitungsverzeichnis_SG_Technik_GmbH*.xlsx
+# Firmen- und Briefingdokumente (Unterlagen/): Original-Briefing, Seitenstruktur
+# und das Verarbeitungsverzeichnis nach Art. 30 DSGVO. Enthalten interne Angaben
+# zu Systemen, Zugriffsberechtigten und Dienstnehmern und gehoeren nicht ins
+# Repository. Die README bleibt versioniert, damit nachvollziehbar ist, was dort
+# liegt. (PRIVACY-CHECKLIST.md bleibt ebenfalls versioniert.)
+Unterlagen/*
+!Unterlagen/README.md
 
 # temporäre Sperrdateien von Excel/Word
 ~$*
