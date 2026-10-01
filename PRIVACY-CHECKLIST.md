@@ -144,7 +144,7 @@ Zeilen 3–5; das ist ein eigenes Vorhaben.
 
 Kostenlose Vorlagen: Österreichische Datenschutzbehörde (`dsb.gv.at`), WKO.
 
-### A5 — AVV für den E-Mail-Provider ⚠️ offen
+### A5 — AVV für den E-Mail-Provider 🔶 DPA abgerufen, zwei Prüfungen offen
 
 Formulareinsendungen landen im Postfach `office@sgt.co.at`. Dessen Betreiber ist
 **ebenfalls Auftragsverarbeiter** und braucht einen AVV.
@@ -164,14 +164,30 @@ Drittland-Pfad ist (Art. 13 Abs. 1 lit. e und f DSGVO). Werte stehen in
 `src/content/privacy.ts` → `mail`. Eine reine EU-Speicherung behauptet der Text
 bewusst **nicht**, solange die Datenregion nicht geprüft ist.
 
-- [ ] Microsoft Products and Services **Data Protection Addendum** in aktueller
-      Fassung abrufen, mit Datum in die Nachweismappe legen
+- [x] Microsoft Products and Services **Data Protection Addendum** abgerufen
+      (01.10.2026) — Fassung **22.05.2026**, deutsch und englisch, liegt in
+      `Nachweise/` samt README mit Quelle und Abrufdatum. Inhalt geprüft: das
+      Dokument nennt sein Datum selbst und enthält Standardvertragsklauseln und
+      EU-Datengrenze. **Maßgeblich ist die englische Fassung** — sie stellt
+      ausdrücklich fest, dass nur sie Microsoft bindet und Übersetzungen
+      nachgereicht werden.
+- [ ] Beide Dateien aus `Nachweise/` in die Nachweismappe der Firmenablage
+      kopieren *(wie beim Firmenbuchauszug — der Projektordner ist nur
+      Durchgangsstation)*
 - [ ] Datenregion des Tenants prüfen (Microsoft 365 Admin Center → Einstellungen →
-      Organisationsprofil bzw. EU Data Boundary)
+      Organisationsprofil bzw. EU Data Boundary). **Kein Blocker:** die Erklärung
+      behauptet bewusst keine reine EU-Speicherung. Ergibt die Prüfung „Europa",
+      ließe sich die Aussage zugunsten der Besucher präzisieren.
+      *Nicht über den Microsoft-Connector prüfbar — dessen Berechtigungen reichen
+      nur für Postfach und Kalender, nicht für Tenant- oder Verzeichnisdaten.*
 - [ ] **Rolle von A1 klären:** nur Reseller, oder CSP-Partner mit delegierten
       Administratorrechten (GDAP) auf den Tenant? Bei bestehendem Adminzugriff ist A1
       selbst Auftragsverarbeiter und benötigt einen eigenen AVV.
       Nachsehen unter Admin Center → Einstellungen → **Partnerbeziehungen**.
+      **Der einzige echte Blocker in A5:** hat A1 Adminrechte, ist A1 ein zweiter
+      Auftragsverarbeiter und müsste in Abschnitt 5 der Datenschutzerklärung als
+      Empfänger genannt werden — das ändert den Website-Text.
+      *Ebenfalls nicht über den Connector prüfbar, siehe oben.*
 
 ### A6 — Juristische Endkontrolle ⚠️ offen
 

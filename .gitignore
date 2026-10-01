@@ -53,3 +53,10 @@ FB_*.pdf
 # bleiben, sonst ist die Zuordnung nur lokal vorhanden.
 Rechtstexte/*
 !Rechtstexte/README.md
+
+# Heruntergeladene Nachweisdokumente zur Datenschutz-Freigabe (Microsoft-DPA
+# u. a., je ~6 MB). Durchgangsstation auf dem Weg in die Nachweismappe der
+# Firmenablage, nicht ins Repository. Die README bleibt versioniert: sie haelt
+# Quelle, Fassung und Abrufdatum jedes Dokuments fest.
+Nachweise/*
+!Nachweise/README.md
