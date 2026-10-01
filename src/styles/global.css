@@ -95,6 +95,25 @@ body {
   outline-offset: 2px;
 }
 
+/* Fahrzeuge der Straßen-Hintergründe (src/scripts/road-animation.ts). Sie
+   entstehen erst im Browser per JS und tragen deshalb kein Astro-Scoping-
+   Attribut — eine komponenteneigene, gescopte Regel würde sie nie treffen.
+   Deshalb hier global, mit engem sg-Namensraum. */
+.sg-car {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  will-change: transform;
+  pointer-events: none;
+}
+
+.sg-car svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

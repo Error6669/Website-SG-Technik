@@ -1,0 +1,148 @@
+---
+// Animierter Hintergrund: Luftbild einer verschneiten Serpentine, über die
+// Fahrzeuge entlang eines von Hand digitalisierten Straßenpfads fahren.
+// Herkunft: Animationen/waldstrasse-serpentine.html (lokaler Prototyp).
+//
+// Drei bewusste Abweichungen vom Prototyp:
+//   1. Der Prototyp belegte die Leertaste global mit Pause. Das nimmt der Seite
+//      das Scrollen und ist hier ersatzlos gestrichen.
+//   2. Der Pause-Knopf war nur bei :hover sichtbar — per Tastatur und am
+//      Touchgerät also praktisch nicht auffindbar. Er ist jetzt dauerhaft da.
+//   3. Der Knopf trug border-radius:999px und backdrop-filter:blur(6px).
+//      Beides widerspricht DESIGN.md (rounded-sm, keine Glasoptik), daher
+//      auf das Sekundärknopf-Vokabular der Seite umgestellt.
+//
+// Der Knopf selbst ist keine Zierde: die Animation läuft dauerhaft in Schleife,
+// und WCAG 2.2.2 verlangt für Bewegung, die länger als fünf Sekunden läuft,
+// eine Möglichkeit sie anzuhalten.
+import { Image } from 'astro:assets';
+import photo from '../assets/waldstrasse-serpentine.jpg';
+import { serpentine } from '../content/serpentine';
+
+const aspect = serpentine.width / serpentine.height;
+---
+
+<div class="sg-backdrop" style={`--sg-ar:${aspect.toFixed(5)}`} aria-hidden="true">
+  {/* Die Bühne behält immer exakt das Seitenverhältnis des Fotos und wird
+      formatfüllend zugeschnitten. Das ist der Grund für die max()-Rechnung im
+      CSS: nur solange die Bühne maßstabsgetreu bleibt, sitzen die prozentual
+      positionierten Fahrzeuge weiterhin auf der Straße. */}
+  <div class="sg-stage" data-serpentine-stage>
+    {/* 1600 px bei Qualität 58 ergibt 297 kB statt 552 kB bei 2000/72. Der
+        verschneite Wald ist extrem detailreich, deshalb komprimiert er schlecht —
+        unter 68 % Deckschleier fällt weder die geringere Auflösung noch die
+        stärkere Kompression auf. Auf sehr breiten Bildschirmen wird das Bild
+        hochskaliert; das ist hier der bessere Handel. */}
+    <Image
+      src={photo}
+      alt=""
+      width={1600}
+      quality={58}
+      loading="eager"
+      fetchpriority="high"
+      class="sg-photo"
+    />
+  </div>
+  <div class="sg-veil"></div>
+</div>
+
+<button class="sg-toggle" type="button" data-serpentine-toggle aria-pressed="false">
+  Animation pausieren
+</button>
+
+<style>
+  .sg-backdrop {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    /* Bezugsrahmen für die cqw/cqh-Einheiten der Bühne. */
+    container-type: size;
+    background: var(--color-navy-900);
+  }
+
+  /* Formatfüllender Zuschnitt bei erhaltenem Seitenverhältnis. Ist der Container
+     breiter als das Bild, gewinnt die Breite und die Höhe wächst über 100 %
+     hinaus; ist er höher, umgekehrt. Beide max() liefern zusammen immer wieder
+     exakt --sg-ar, sodass die Bühne nie verzerrt. */
+  .sg-stage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: max(100cqw, calc(100cqh * var(--sg-ar)));
+    height: max(100cqh, calc(100cqw / var(--sg-ar)));
+  }
+
+  .sg-photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    user-select: none;
+  }
+
+  /* Deckschleier in der Farbe der Kopfzeile. 0.68 ist nicht frei gewählt:
+     navy-900 bei 68 % über reinem Weiß ergibt rgb(90,106,118), worauf fog-50
+     auf 5,20:1 kommt. Das Foto ist streckenweise fast weißer Schnee, also muss
+     der ungünstigste Fall die Schwelle halten, nicht der Durchschnitt.
+     Wer den Wert ändert: unter 0,65 fällt der Text unter 4,5:1. */
+  .sg-veil {
+    position: absolute;
+    inset: 0;
+    background: color-mix(in srgb, var(--color-navy-900) 68%, transparent);
+  }
+
+  .sg-toggle {
+    position: absolute;
+    right: 1.5rem;
+    bottom: 1.5rem;
+    z-index: 1;
+    border: 1px solid rgb(255 255 255 / 0.4);
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--color-navy-900) 70%, transparent);
+    padding: 0.5rem 0.85rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-fog-50);
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+  }
+
+  .sg-toggle:hover {
+    border-color: var(--color-fog-50);
+  }
+
+  /* Ohne Bewegung gibt es nichts zu pausieren — dann ist der Knopf nur Ballast. */
+  @media (prefers-reduced-motion: reduce) {
+    .sg-toggle {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  import { mountRoadAnimation } from '../scripts/road-animation';
+  import { serpentine } from '../content/serpentine';
+
+  const stage = document.querySelector<HTMLElement>('[data-serpentine-stage]');
+  const toggle = document.querySelector<HTMLButtonElement>('[data-serpentine-toggle]');
+
+  if (stage) {
+    const anim = mountRoadAnimation(stage, serpentine);
+
+    if (anim.reduced) {
+      // Ohne Bewegung gibt es nichts zu pausieren.
+      toggle?.remove();
+    } else {
+      toggle?.addEventListener('click', () => {
+        const next = !anim.isRunning();
+        anim.setRunning(next);
+        toggle.textContent = next ? 'Animation pausieren' : 'Animation fortsetzen';
+        toggle.setAttribute('aria-pressed', next ? 'false' : 'true');
+      });
+    }
+  }
+</script>
