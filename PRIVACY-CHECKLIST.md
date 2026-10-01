@@ -275,14 +275,52 @@ Eine **fertig formulierte englische Anfrage an `privacy@netlify.com`** wurde am
 Bestätigung des Vertragsverhältnisses (A2), vollständige Subprozessorenliste samt
 Änderungsbenachrichtigung (B1) und die Log-Speicherdauer (A4/`logRetentionDays`).
 
-- [ ] Mail von einer `@sgt.co.at`-Adresse absenden — nicht privat, die Antwort soll
-      das Vertragsverhältnis der GmbH belegen
-- [ ] Als Empfangsadresse für Änderungsmeldungen ein dauerhaft gelesenes Postfach
-      angeben (z. B. `office@sgt.co.at`), keine persönliche Adresse
-- [ ] Parallel Zugang über `trust.netlify.com` anfragen — der „Request access"-Knopf
-      läuft erfahrungsgemäß schneller als der Mail-Weg
+- [x] Anfrage abgesendet (30.07.2026) — ging jedoch an eine Vertriebsadresse
+- [x] **Antwort ausgewertet (12.08.2026).** Netlify (Senior Account Executive)
+      erklärt, DPA-Fassungen, Subprozessoren-Dokumentation und Log-Fristen seien
+      „generally tied to our paid plans", und bietet MNDA plus Enterprise-Gespräch
+      an. **Dieser Darstellung wird nicht gefolgt** — Begründung siehe unten.
+- [ ] **Nachfassen an `privacy@netlify.com`** (Entwurf liegt in Outlook, Marina
+      Shynkarenka in CC). Kein Enterprise-Interesse, keine Vertragsverhandlung.
+
+#### Warum die Tarif-Begründung nicht trägt
+
+Das Netlify-DPA (Fassung 09.06.2026, liegt in `Nachweise/`) wurde am 01.10.2026
+im Volltext geprüft. Es enthält **keine Klausel**, die eine der verlangten
+Angaben an einen Tarif knüpft — weder unter „Enterprise", „paid plan" noch
+„Self-Serve". Im Gegenteil, Abschnitt 7 sagt zu:
+
+> „…of their processing activities and countries of location is located at
+> `https://www.netlify.com/legal/subprocessors/`. … Netlify shall provide
+> notification to Customer by email or other written notice mechanism of the
+> appointment of a new Sub-processor **at least thirty (30) days** before
+> permitting such Sub-processor to process Customer Data."
+
+Die Subprozessorenliste **samt Tätigkeiten und Standorten** ist dort also als
+öffentlich bezeichnet, und die 30-Tage-Vorabmeldung ist vorbehaltlos zugesagt.
+Die im DPA genannte URL leitet heute auf das Trust Center um, wo das Dokument
+eine Zugriffsanfrage erfordert — Netlify hat den Zugang also hinter eine Hürde
+verlegt, den der eigene Vertrag als offen beschreibt.
+
+Unabhängig davon verpflichtet Art. 28 Abs. 3 lit. h DSGVO den Auftragsverarbeiter,
+alle zum Nachweis erforderlichen Informationen bereitzustellen — unabhängig von
+der kommerziellen Ausgestaltung.
+
+**Berechtigt ist der Einwand nur für SOC-2- und Pentest-Berichte.** Das sind
+freiwillige Compliance-Dokumente, kein Gegenstand von Art. 28. Sie wurden in der
+Anfrage vom 30.07.2026 auch nie verlangt; die Antwort vermengt sie mit den
+DSGVO-Punkten. Der neue Entwurf stellt das ausdrücklich klar.
+
 - [ ] Antwort als PDF in die Nachweismappe legen; aktuelle Subprozessorenliste
       mit Datum dazu
+
+#### Kein Blocker für den Live-Gang
+
+Bleibt die Antwort aus, ändert sich nichts an der Seite: `logRetentionDays`
+steht auf `null`, die Erklärung gibt Kriterien statt einer erfundenen Frist aus,
+und die Subprozessoren sind über das Trust Center namentlich bekannt — für
+Art. 30 Abs. 1 lit. d genügen Kategorien von Empfängern. Der Punkt gehört zu A6
+auf den Tisch, blockiert aber nichts.
 
 ---
 

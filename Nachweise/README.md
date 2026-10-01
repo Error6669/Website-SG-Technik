@@ -15,6 +15,7 @@ nachvollziehbar bleibt.
 | `Microsoft-DPA_Mai2026_DE.docx` | `aka.ms/dpa` → *Datenschutznachtrag für Produkte und Services von Microsoft* | 22.05.2026 | 01.10.2026 |
 | `Microsoft-DPA_Mai2026_EN.docx` | `aka.ms/dpa` → *Microsoft Products and Services Data Protection Addendum* | 22.05.2026 | 01.10.2026 |
 | `A1-Digital-International-GmbH-Co-KG_AGB-Auftragsverarbeitung_DE.pdf` | `a1.digital/de/agb/` → *AGB Auftragsverarbeitung* | V2.1, gültig ab Juni 2025 | 01.10.2026 |
+| `Netlify-DPA.pdf` | `netlify.com/pdf/netlify-dpa.pdf` | 09.06.2026 | 01.10.2026 |
 
 **Maßgeblich ist die englische Fassung.** Sie sagt das selbst: „Published in
 English on May 22, 2026. Translations will be published by Microsoft when
