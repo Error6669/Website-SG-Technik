@@ -139,8 +139,20 @@ export const privacy = {
       'Globaler Leser',
     ],
     rolesExpire: '2027-03-09',
-    // Angefordert am 01.10.2026, Antwort steht aus. Erst auf `true` setzen,
-    // wenn der Vertrag vorliegt und in der Nachweismappe abgelegt ist.
+    //
+    // ENTSCHEIDUNG vom 01.10.2026: Es wird KEIN AVV bei A1 angefordert.
+    // Stattdessen beschreibt die Datenschutzerklärung den ungünstigsten Fall —
+    // dass über administrative Funktionen auch auf Postfachinhalte zugegriffen
+    // werden kann. Der Text bleibt damit richtig, ohne dass eine Rückmeldung
+    // des Dienstleisters abgewartet werden muss.
+    //
+    // ACHTUNG, das ersetzt den Vertrag NICHT: Art. 28 Abs. 3 DSGVO verlangt
+    // den AVV unabhängig davon, was auf der Website steht. Der Punkt steht in
+    // PRIVACY-CHECKLIST.md unter A5 und ist bei der juristischen Endkontrolle
+    // (A6) vorzulegen.
+    //
+    // Erst auf `true` setzen, wenn ein Vertrag tatsächlich vorliegt und in der
+    // Nachweismappe abgelegt ist.
     avvConfirmed: false,
   } as MailAdmin | null,
 

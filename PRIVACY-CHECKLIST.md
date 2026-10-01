@@ -202,20 +202,44 @@ Möglichkeit, sondern tatsächliche Verarbeitung.
       eine bislang offene Lücke: direkte E-Mails an `office@sgt.co.at` waren
       nirgends beschrieben, Abschnitt 5 behandelt nur Formularanfragen.
       Werte in `src/content/privacy.ts` → `mailAdmin`.
-- [ ] **AVV bei A1 anfordern** — Mailentwurf liegt bereit. Liegt der Vertrag vor
-      und in der Nachweismappe, `mailAdmin.avvConfirmed` auf `true` setzen; die
-      Seite nennt den AVV dann als Tatsache, vorher bewusst nicht.
-- [ ] **Dabei klären, ob der Zugriff überhaupt gebraucht wird.** Wird er nicht
-      benötigt: Admin Center → Partnerbeziehungen → **Rollen entfernen**, danach
-      `mailAdmin` auf `null` setzen — der Absatz verschwindet dann von selbst und
-      A5 ist vollständig erledigt. Das ist die sauberere Lösung als ein AVV.
+- [x] A1 in Zeile 2 des Verarbeitungsverzeichnisses eingetragen (01.10.2026,
+      Version 1.2) — Empfänger, AVV-Status und die Einschränkung in den TOMs.
+
+#### Vorgehen ab 01.10.2026: zweigleisig
+
+**Auf der Website** beschreibt die Erklärung den **ungünstigsten Fall** — dass
+über administrative Funktionen wie das Zurücksetzen von Kennwörtern auch auf
+Postfachinhalte zugegriffen werden kann, einschließlich der Nachrichten von
+Website-Besuchern. Der Text ist damit unabhängig davon richtig, wie A1 die
+Rechte tatsächlich nutzt; der Live-Gang hängt nicht an fremder Antwortzeit.
+
+**Parallel** wird der Vertrag geklärt, denn Art. 28 Abs. 3 DSGVO verlangt den
+AVV unabhängig davon, was auf der Website steht — Transparenz heilt einen
+fehlenden Auftragsverarbeitungsvertrag nicht.
+
+- [ ] **Mail an A1 absenden** (Entwurf liegt in Outlook, ohne Empfänger).
+      Von einer `@sgt.co.at`-Adresse senden, damit die Antwort das
+      Vertragsverhältnis der GmbH belegt.
+- [ ] Antwort auswerten und in die Nachweismappe legen. Danach eine von drei
+      Folgen in `src/content/privacy.ts`:
+      AVV liegt vor → `mailAdmin.avvConfirmed` auf `true`;
+      Rechte werden entzogen → `mailAdmin` auf `null`, Absatz entfällt;
+      keine Reaktion → Zustand bleibt, bei A6 vorlegen.
+      *(Verarbeitungsverzeichnis, Blatt „Offene Punkte" Nr. 10)*
 - [ ] A1-Zugriff auch in den Zeilen 3–5 des Verarbeitungsverzeichnisses nachziehen
       (Verzeichnisdaten der Mitarbeiter) — betrifft nicht die Website-Freigabe
+      *(ebenda, Nr. 11)*
 
 ### A6 — Juristische Endkontrolle ⚠️ offen
 
 - [ ] Datenschutzerklärung, Cookie-Richtlinie und Impressum von einer rechtskundigen
       Person gegenlesen lassen (WKO bietet Mitgliedern kostenlose Erstberatung)
+- [ ] **Dabei ansprechen, falls bis dahin ungeklärt:** der Auftragsverarbeitungs-
+      vertrag mit A1 Digital International GmbH & Co KG, die aktive
+      Administratorrechte auf den Microsoft-365-Mandanten hält (siehe A5).
+      Angefordert am 01.10.2026; bis zur Antwort beschreibt die Erklärung den
+      ungünstigsten Fall. Die Pflicht aus Art. 28 Abs. 3 DSGVO besteht unabhängig
+      von dieser Transparenz fort.
 - [x] `firmenbuchgericht` in `src/content/legal.ts` — Pflichtangabe nach § 14 UGB,
       am 30.07.2026 aus dem Firmenbuchauszug FN 624545 z übernommen:
       **Landesgericht Linz**. Aus derselben Quelle die Geschäftsführer-Titel
