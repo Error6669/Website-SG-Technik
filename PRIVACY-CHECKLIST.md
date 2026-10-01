@@ -217,9 +217,20 @@ Rechte tatsächlich nutzt; der Live-Gang hängt nicht an fremder Antwortzeit.
 AVV unabhängig davon, was auf der Website steht — Transparenz heilt einen
 fehlenden Auftragsverarbeitungsvertrag nicht.
 
-- [ ] **Mail an A1 absenden** (Entwurf liegt in Outlook, ohne Empfänger).
-      Von einer `@sgt.co.at`-Adresse senden, damit die Antwort das
-      Vertragsverhältnis der GmbH belegt.
+- [x] **AVV-Text gefunden und abgelegt** (01.10.2026): *AGB Auftragsverarbeitung
+      der A1 Digital International GmbH & Co. KG, V2.1, gültig ab Juni 2025*,
+      von `a1.digital/de/agb/`, liegt in `Nachweise/`. Nach Punkt 1 Abs. 1 gilt
+      er **automatisch** für bestehende Vertragsbeziehungen — kein gesonderter
+      Vertragsschluss nötig, wie bei Netlify und Microsoft auch.
+- [ ] **In den A1-Vertragsunterlagen nach dem „Anhang zum Datenschutz" suchen.**
+      Punkt 2 Abs. 1 der AGB AVV verweist für Art, Zweck, Datenkategorien und
+      Betroffenenkreise dorthin — genau das, was Art. 28 Abs. 3 lit. a DSGVO
+      zwingend verlangt. Ohne diesen Anhang ist der Vertrag unvollständig.
+- [ ] **Mail an A1 absenden** (Entwurf liegt in Outlook, an `datenschutz@a1.at`
+      aus deren Datenschutzerklärung). Von einer `@sgt.co.at`-Adresse senden,
+      damit die Antwort das Vertragsverhältnis der GmbH belegt. Sie fragt die
+      vier verbliebenen Lücken ab: Wird der Zugriff gebraucht, Anhang zum
+      Datenschutz, Unterauftragsverarbeiter, Drittlandbezug.
 - [ ] Antwort auswerten und in die Nachweismappe legen. Danach eine von drei
       Folgen in `src/content/privacy.ts`:
       AVV liegt vor → `mailAdmin.avvConfirmed` auf `true`;
