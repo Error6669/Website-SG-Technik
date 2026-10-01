@@ -3,7 +3,7 @@
 Grundlage: `Aufbau Website 2.0.docx`, `Website-Struktur_SG_Technik_GmbH.csv`, `Logo/` (siehe diese Dateien für Originalinhalte).
 
 ## Deployment (Stand aktuell)
-- **GitHub-Repo:** https://github.com/Error6669/Website-SG-Technik (Branch `main`). Ausgeschlossen (siehe `.gitignore`): Original-Briefingdokumente (`Aufbau Website 2.0.docx`, `Website-Struktur_SG_Technik_GmbH.csv`), lokale Claude-Code-Einstellungen. `.claude/skills/` (Tooling) ist bewusst mit eingecheckt.
+- **GitHub-Repo:** https://github.com/Error6669/Website-SG-Technik. **Branches: `develop` (aktueller Stand, alles Neue) und `main` (alt — das ist der Live-Stand).** Ausgeschlossen (siehe `.gitignore`): Original-Briefingdokumente (`Aufbau Website 2.0.docx`, `Website-Struktur_SG_Technik_GmbH.csv`), lokale Claude-Code-Einstellungen. `.claude/skills/` (Tooling) ist bewusst mit eingecheckt.
 - **Hosting:** Netlify, verbunden mit dem GitHub-Repo → **jeder Push auf `main` löst automatisch einen neuen Build + Deploy aus**, kein manueller Schritt nötig. Live-URL: **https://sg-technik.netlify.app**
 - **Kontaktformular:** Netlify Forms ist bestätigt aktiv — "kontakt" wird nach einem "Clear cache and deploy" korrekt erkannt (vorher musste unter Site settings → Build & deploy → Post processing → **"Form detection"** aktiviert werden, war zunächst aus). E-Mail-Benachrichtigung wird im Netlify-Dashboard unter Forms → kontakt → Settings and usage → Form notifications eingerichtet (nicht im Code).
 - **Noch offen:** eigene Domain (`sg-technik.at`, bereits in `astro.config.mjs` als `site` hinterlegt) noch nicht mit Netlify verbunden (DNS-Eintrag beim Domain-Anbieter nötig, sobald gewünscht).
@@ -84,6 +84,63 @@ Ausgangspunkt war eine Durchsicht aller Datenschutz-/Cookie-Dateien. Vier Funde,
 
 **Nicht getestet:** kein Browser-Test der Rechtsseiten — die Claude-Chrome-Extension ist in dieser Session nicht verbunden. Geprüft wurde über das gebaute HTML und den Dev-Server per `curl`, nicht visuell.
 
+## Letzte Änderungen (Session 2026-09-29 bis 10-01) — committet auf `develop`
+
+Die Freigabe-Checkliste **`PRIVACY-CHECKLIST.md`** wurde Punkt für Punkt abgearbeitet. Dort stehen die Details samt Begründungen; hier nur, was sich daraus für Code und Projekt ergeben hat. Die Checkliste ist von 199 auf 462 Zeilen gewachsen.
+
+### Was an der Website geändert wurde
+
+**1. Neuer Abschnitt 6 „E-Mail-Kommunikation und Microsoft 365" (`datenschutz.astro`, `privacy.ts` → `mailAdmin`).** Auslöser: Im Microsoft-365-Admin-Center (Einstellungen → Partnerbeziehungen) wurde festgestellt, dass die **A1 Digital International GmbH & Co KG** aktive GDAP-Rechte auf den Mandanten hält — sechs Rollen (Helpdesk-, Lizenz-, Benutzer-, Dienst-Supportadministrator, Verzeichnisleseberechtigte, Globaler Leser), befristet bis **09.03.2027**. Keine Exchange- oder Globaladmin-Rolle, aber Helpdesk- und Benutzeradministrator dürfen Kennwörter zurücksetzen, womit mittelbar ein Postfachzugriff erreichbar ist. Für Art. 28 DSGVO genügt die Möglichkeit → A1 ist Auftragsverarbeiter und nach Art. 13 Abs. 1 lit. e als Empfänger zu nennen.
+  - **Nicht zu verwechseln:** Die **A1 Digital International GmbH** (ohne „& Co KG") ist im Mandanten nur Handelspartner ohne zugewiesene Rollen — reiner Vertrags-/Rechnungspartner, wird nirgends genannt. Die frühere Annahme „A1 ist mutmaßlich nur Reseller" traf nur auf diese Gesellschaft zu.
+  - Der Abschnitt schließt nebenbei eine **unabhängig davon bestehende Lücke**: direkte E-Mails an `office@sgt.co.at` waren nirgends beschrieben, Abschnitt 5 behandelt ausschließlich Formularanfragen. Die Adresse steht aber im Impressum.
+  - **Nutzerentscheidung:** Der Text beschreibt den *ungünstigsten Fall* („Über administrative Funktionen – etwa das Zurücksetzen von Kennwörtern – kann ein Zugriff auf die Inhalte unserer Postfächer erfolgen"), damit er unabhängig von A1s Antwortzeit richtig ist. **Das ersetzt den Vertrag nicht** — Art. 28 Abs. 3 verlangt ihn unabhängig von der Transparenz; steht als offener Punkt bei A6.
+  - Abschnitte 6–8 wurden zu 7–9 umnummeriert. Die zwei Querverweise im Text zeigen auf Punkt 1 und 3 und blieben gültig.
+
+**2. Abschnitt 5 präzisiert.** „Mit **beiden** Anbietern bestehen Auftragsverarbeitungsverträge" nennt jetzt Hoster und Postfachbetreiber ausdrücklich, damit die Aussage nicht fälschlich auf A1 abfärbt; davor ein Verweis auf Punkt 6, sonst verdeckt der Satz „keine Weitergabe an sonstige Dritte" den A1-Zugriff. Neu außerdem der **Speicherort**: Exchange Online weist im Admin Center (Organisationsprofil → Datenspeicherort) aktuelle *und* zugesicherte Geografie `European Union\EFTA` aus, die Produktbestimmungen nennen als Committed Geography **Austria**, und der Dienst ist EU-Datengrenzendienst. Werte in `privacy.ts` → `mail.dataResidency` / `mail.euDataBoundary`.
+  - **Bewusst nicht behauptet:** dass keine Drittlandübermittlung stattfindet. Die EU-Datengrenze betrifft ruhende Daten und schließt Support-/Sicherheitszugriffe nicht restlos aus; der CLOUD Act bleibt unberührt. Der Satz lautet daher „gleichwohl nicht vollständig auszuschließen".
+
+**3. `privacy.stand` → „Oktober 2026".** Stand war September, die Seite wurde aber am 01.10. inhaltlich geändert. Ein Stand, der älter ist als die letzte Änderung, ist irreführend.
+
+**4. Serpentinen-Animation auf der Danke-Seite** (`SerpentineBackdrop.astro`, `road-animation.ts`, `serpentine.ts`, `waldstrasse-serpentine.jpg`, `.sg-car`-Block in `global.css`). **Selektiv** aus dem gelöschten Branch `feature/newdesign` übernommen — nur die Danke-Seite, **nicht** der Header-Umbau desselben Branches.
+  - Bewusst draußen gelassen: `HeaderRoadStrip.astro`, Änderungen an `Header.astro`, `flussstrasse.ts` samt Bild, und die CSS-Variable `--sg-header-h`. Letztere sieht harmlos aus, gehört aber zum Header-Umbau (die Kopfzeile wird mobil höher, sobald der Animationsstreifen darin liegt) und hätte die Abstandsberechnung **aller** Seiten verändert.
+  - Der `.sg-car`-Block **muss** global stehen: Die Fahrzeuge entstehen erst im Browser per JS und tragen kein Astro-Scoping-Attribut; eine gescopte Regel würde sie nie treffen.
+
+### Schaltstellen in `privacy.ts` (wichtig für künftige Änderungen)
+
+Aussagen hängen an Werten statt im Fließtext zu stehen — ändert sich die Lage, genügt ein Wert:
+
+| Wert | Bedeutung |
+|---|---|
+| `mailAdmin` → `null` | A1 hat die Rechte verloren; Absatz in Abschnitt 6 verschwindet von selbst |
+| `mailAdmin.avvConfirmed` → `true` | konkretisierter AVV liegt vor; Seite nennt ihn dann als Tatsache |
+| `mail.dataResidency` → `null` | Nachweis des Speicherorts weggefallen; Seite fällt auf Formulierung ohne Ortsangabe zurück |
+| `hosting.logRetentionDays` bleibt `null` | Seite gibt Kriterien statt einer unbelegten Frist aus |
+| `hosting.analyticsEnabled: false` | **harte Tatsachenbehauptung** — wird Netlify Analytics zugebucht, muss der Wert mit |
+
+### Organisatorisch (nicht im Code)
+
+- **A1/A2 erledigt:** Firmenbuchauszug in der Nachweismappe. Dabei zwei Fehler in der Checkliste korrigiert (Auszug belegt Vertretungsbefugnis der Geschäftsführung, **nicht Prokura**; Namensform der Geschäftsführer an den Firmenbuchauszug angeglichen).
+- **A3 erledigt:** Netlify-Forms-Einsendungen gesichtet, Benachrichtigung auf Firmenpostfach geprüft, halbjährlicher Löschturnus (30.06./31.12.) als Kalendereintrag angelegt. Systembedingter Rest: Jede Einsendung existiert **zweimal** (Postfach + Netlify-Dashboard), Netlify löscht nichts automatisch — der Turnus muss beide Orte umfassen.
+- **A4 erledigt für die Website:** Verarbeitungsverzeichnis auf **Version 1.2**, Zugriffsberechtigte in den TOMs dokumentiert, A1 in Zeile 2 eingetragen. Neu aufgefallen: In den Zeilen 3–5 fehlt durchgängig das **Backup- und Wiederherstellungskonzept** (Art. 32 Abs. 1 lit. c) — betrifft das Unternehmen, nicht die Website.
+- **A5:** Microsoft-DPA (Fassung 22.05.2026) und A1 AGB AVV (V2.1, Juni 2025) abgerufen und abgelegt. Beide gelten **automatisch** über die Nutzungsbedingungen, wie bei Netlify. **Aber:** Punkt 2 Abs. 1 der A1-AGB verweist für Art, Zweck, Datenkategorien und Betroffenenkreise auf einen „Anhang zum Datenschutz", der in den A1-Vertragsunterlagen **nicht gefunden** wurde — der AVV ist damit unvollständig (Art. 28 Abs. 3 lit. a). Angefragt.
+- **B1:** Netlify-Vertrieb erklärte, DPA-Fassungen, Subprozessoren und Logfristen seien „tied to our paid plans". Das DPA (09.06.2026) wurde im Volltext geprüft: **keine Klausel knüpft diese Angaben an einen Tarif**; Abschnitt 7 bezeichnet die Subprozessorenliste samt Tätigkeiten und Standorten als öffentlich und sagt 30-Tage-Vorabmeldung vorbehaltlos zu. Berechtigt ist der Einwand nur für SOC-2-/Pentest-Berichte (kein Art.-28-Gegenstand, wurden nie verlangt). Nachgefasst beim **Datenschutzteam statt beim Vertrieb**. Ein bezahltes Konto ist nicht gewünscht und nicht nötig.
+- **C erledigt:** Abschnitt C der Checkliste von einer Stichwortliste zu einer **Arbeitsanleitung mit zehn Punkten** ausgebaut (je Fundstelle, Soll-Stand, konkrete Folge bei Abweichung). Kalendereintrag **07.01.2027** angelegt — liegt bewusst vor dem GDAP-Ablauf im März und fällt mit dem Prüftermin im Verarbeitungsverzeichnis zusammen.
+
+### Neue Dateien und Werkzeuge
+
+- **`Datenschutz-Wiedervorlage.pdf`** (4 Seiten A4) + **`scripts/wiedervorlage-pdf.py`**, `npm run wiedervorlage:pdf`. Wird **aus Abschnitt C erzeugt**, nicht getrennt gepflegt — sonst laufen Datei und Ausdruck auseinander. Ankreuzfeld und Notizzeile je Punkt, Kopf für „geprüft am / durch / nächster Termin". Gerendert mit Chrome headless (`--print-to-pdf`); wkhtmltopdf, pandoc, weasyprint und python-markdown sind auf dem Rechner **nicht** vorhanden, das Skript bringt deshalb einen kleinen Markdown-Konverter mit.
+- **`Nachweise/`** — Durchgangsordner für heruntergeladene Nachweisdokumente auf dem Weg in die Firmenablage. Per `.gitignore` ausgenommen, **nur die README ist versioniert** (hält Quelle, Fassung und Abrufdatum jedes Dokuments fest).
+- `.gitignore` erweitert: `Verarbeitungsverzeichnis_SG_Technik_GmbH*.xlsx` (das Muster griff nur auf den exakten Namen — eine Sicherungskopie wäre beim nächsten `git add .` im Repo gelandet, samt Namen der Zugriffsberechtigten und Angaben zu Dienstnehmern) und `Nachweise/*` mit `!Nachweise/README.md`.
+
+### Branches aufgeräumt
+
+- `cookies` → `develop` gemergt (`--no-ff`, 15 Commits), Branch lokal und remote gelöscht.
+- `feature/newdesign` gelöscht, **vorher als Tag `archiv/newdesign-header` gesichert und gepusht** — der Header-Umbau (`HeaderRoadStrip.astro`, `Header.astro`, `flussstrasse.ts`, Luftbild, `--sg-header-h`) existierte nach dem selektiven Merge nirgendwo sonst und wäre nach dem Löschen nur noch über das Reflog erreichbar gewesen (~90 Tage).
+  Zurückholen: `git checkout -b feature/newdesign archiv/newdesign-header`. Achtung: Stand vom 28.07.2026, berührt seither mehrfach geänderte Dateien.
+- Verbleibend: **`develop`** (aktuell) und **`main`** (alt, Live-Stand).
+
+**Verifiziert:** `npm run build` nach jedem Schritt sauber (8 Seiten). Gerendertes HTML per `curl` gegengeprüft — Abschnitt 6 vorhanden, Animation auf `/danke`, Startseite ohne Header-Streifen. **Nicht visuell geprüft** (kein Screenshot-Vergleich).
+
 ## Stack
 Astro + TypeScript + Tailwind v4 (CSS-first, `@theme` Tokens in `src/styles/global.css`). Selbst gehostete Fonts (IBM Plex Sans/Mono, Montserrat nur fürs Logo) unter `public/fonts/`. Kein CMS, kein Backend.
 
@@ -138,13 +195,20 @@ Astro + TypeScript + Tailwind v4 (CSS-first, `@theme` Tokens in `src/styles/glob
 2. ~~CTA-Beschriftung vereinheitlichen~~ — erledigt, einheitlich "Kostenloses Erstgespräch vereinbaren".
 3. ~~Produkte & Technik-Sektion bauen~~ — erledigt (`ProductsSection.astro`, Nav-Link ergänzt), bündelt bestehende technische Fakten aus den Leistungen.
 
-### Phase 2 — Rechtliches & Vertrauen (P1) — 🔶 fast fertig
+### Phase 2 — Rechtliches & Vertrauen (P1) — 🔶 Texte fertig, juristische Endkontrolle offen
 4. ~~Impressum- und Datenschutz-Seiten.~~ Gebaut; echte Firmendaten sind eingetragen (Adresse, FN, UID, Kammer, **beide Geschäftsführer**), Rechtstexte in Session 2026-07-28/30 überarbeitet (siehe oben).
    **Update 2026-07-30 (Firmenbuchauszug FN 624545 z):** `firmenbuchgericht` ist jetzt mit **„Landesgericht Linz"** befüllt (Pflichtangabe § 14 UGB, war leer), die Geschäftsführer stehen mit den eingetragenen Titeln als „Ing. Gregor Hofer und Dipl.-Ing. Simon Paireder, EMBA", und `behoerdeEcg` wurde auf **Bezirkshauptmannschaft Linz-Land** korrigiert (vorher „Magistrat der Stadt Linz"). Die Adresse bleibt bewusst „Kroisbach 5" — der Auszug schreibt „Koisbach", die Website-Schreibweise ist die richtige. Der Auszug selbst gehört nicht ins Repo (Geburtsdaten/Privatadressen), `.gitignore` ignoriert `FB_*.pdf`.
    **Update 2026-09-29:** Abschnitt 5 nennt jetzt auch den **E-Mail-Provider** (Microsoft Ireland Operations Limited) als weiteren Auftragsverarbeiter samt eigener Zeile „Drittlandbezug" — vorher fehlte er ganz, obwohl er ein zweiter Auftragsverarbeiter und ein zweiter Drittland-Pfad ist. Werte in `privacy.ts` → `mail`. Details siehe Session 2026-09-29 oben.
+   **Update 2026-10-01:** Abschnitt 6 „E-Mail-Kommunikation und Microsoft 365" neu, Speicherort des Postfachs belegt, Stand auf Oktober 2026. Details siehe Session-Abschnitt oben. **Aus Textsicht ist die Seite fertig** — jede Aussage ist entweder belegt oder bewusst als Kriterium statt als Tatsachenbehauptung formuliert.
+
    **Noch offen:**
-   - **Juristische Endkontrolle** von Impressum, Datenschutzerklärung und Cookie-Richtlinie durch eine rechtskundige Person, bevor die Seite live geht (WKO-Erstberatung ist für Mitglieder kostenlos). Der Hinweis steht auch im Kopfkommentar von `legal.ts` und `privacy.ts`. **Dabei mitprüfen:** der Satz „Mit beiden Anbietern bestehen Auftragsverarbeitungsverträge gemäß Art. 28 DSGVO" in Abschnitt 5.
-   - Organisatorische Nachweise: siehe **`PRIVACY-CHECKLIST.md`** (nicht Code, aber Live-Gang-relevant). Direkt an der neuen Textstelle hängt **A5** (Microsoft-DPA in die Nachweismappe, Datenregion prüfen, Rolle von A1 klären).
+   - **Juristische Endkontrolle (A6)** von Impressum, Datenschutzerklärung und Cookie-Richtlinie durch eine rechtskundige Person, bevor die Seite live geht (WKO-Erstberatung ist für Mitglieder kostenlos). Der Hinweis steht auch im Kopfkommentar von `legal.ts` und `privacy.ts`. **Drei Punkte gehören dort ausdrücklich auf den Tisch:**
+     1. Der **unvollständige AVV mit A1 Digital** — Rahmen (AGB AVV V2.1) gilt, die nach Art. 28 Abs. 3 lit. a verlangte Konkretisierung fehlt, während A1 aktive Administratorrechte auf den Mandanten hält.
+     2. Netlifys **Weigerung**, Art.-28-Auskünfte ohne bezahlten Tarif zu erteilen.
+     3. `behoerdeEcg` in `legal.ts` steht auf **Bezirkshauptmannschaft Linz-Land** — gegen den GISA-Auszug abgleichen lassen.
+   - **Antworten abwarten:** Anfragen an A1 (`datenschutz@a1.at`) und Netlify (`privacy@netlify.com`) sind am 01.10.2026 raus. Gegenüber der Aufsichtsbehörde zählt der dokumentierte Versuch, nicht nur das Ergebnis.
+   - **Kalendereintrag 07.01.2027 in Outlook auf „jährlich" stellen** — das Outlook-Tool konnte keine Serie anlegen, er erinnert sonst genau einmal.
+   - Organisatorische Nachweise insgesamt: siehe **`PRIVACY-CHECKLIST.md`**. A1–A5, B1 und C sind abgearbeitet.
 5. ~~Call-to-Action-Band vor dem Footer~~ — erledigt (`CtaBand.astro`), zwischen Referenzen und Kontakt platziert.
 
 ### Phase 3 — Responsive- & Detail-Feinschliff (P2/P3, ursprünglich Schritt 6–7) — ✅ erledigt
