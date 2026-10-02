@@ -88,7 +88,7 @@ export interface WinterRoadOptions {
 export interface WinterRoad {
   /** Verlauf neu berechnen, z. B. wenn sich Inhalte verschoben haben, ohne
    *  dass sich die Größe der Fläche geändert hat. */
-  rebuild(): void;
+  rebuild(): Promise<void>;
   /** Fortschritt fest vorgeben (0…1) statt aus dem Scrollen zu lesen; `null` gibt wieder frei. */
   setProgress(value: number | null): void;
   destroy(): void;
@@ -178,8 +178,8 @@ export async function mountWinterRoad(
   // Ebene 1: die Straße in voller Länge, fest in der Seite.
   const roadCanvas = document.createElement('canvas');
   roadCanvas.className = 'wd-road-canvas';
-  // Ebene 2: das Fahrzeug. Die Schiene ist so hoch wie die Spalte; darin hält
-  // der Browser die Fläche am Bildschirm fest. Auf ihr liegen die Bilder des
+  // Ebene 2: das Fahrzeug. Die Schiene reicht vom Anfang bis zum Ende der
+  // Straße; darin hält der Browser die Fläche am Bildschirm fest. Auf ihr liegen die Bilder des
   // Fahrzeugs und darüber die Zeichenfläche für fliegenden Schnee und Salz.
   const rigTrack = document.createElement('div');
   rigTrack.className = 'wd-rig-track';
@@ -260,6 +260,12 @@ export async function mountWinterRoad(
   let rigHeight = 0;
   /** Abstand der festgehaltenen Fläche zur Oberkante des Bildschirms. */
   let stickyTop = 0;
+  /** Höchste und tiefste Lage der festgehaltenen Fläche in der Spalte: die
+   *  Enden der Schiene, in der sie läuft. */
+  let rigMin = 0;
+  let rigMax = 0;
+  /** Kantenlänge der Zeichenfläche für fliegenden Schnee und Salz. */
+  let flightSize = 0;
   /** Fahrweg bis zu jedem Stützpunkt der Straße (aufsteigend). */
   let way: number[] = [0];
   /** Höhe im Bildschirm, auf der der Fahrweg am Seitenanfang bzw. am
@@ -316,26 +322,53 @@ export async function mountWinterRoad(
     lineStart = startDoc < window.innerHeight ? startDoc : window.innerHeight * cfg.anchor + lead;
     lineEnd = Math.max(lineStart, startDoc + total - limit);
 
-    // Die Fläche muss das Fahrzeug samt Salzwurf hinten und Schneeauswurf vorne
-    // einschließen, auf jeder Höhe, die es im Bildschirm einnimmt.
-    let top = Infinity;
-    let bottom = -Infinity;
-    for (let i = 0; i <= 80; i++) {
-      const scroll = (limit * i) / 80;
+    // Die festgehaltene Fläche soll dem Fahrzeug von selbst folgen, so gut das
+    // mit sticky geht: Sie liegt zunächst fest in der Seite auf Höhe des
+    // Straßenanfangs, haftet dann am Bildschirm und bleibt am Ende auf Höhe des
+    // Straßenendes wieder in der Seite liegen. Das passt zu einer Straße, die
+    // waagrecht beginnt und endet: dort ändert das Fahrzeug seine Höhe in der
+    // Seite nicht, dazwischen fährt es so schnell abwärts, wie gescrollt wird.
+    const firstY = path.at(0).y;
+    const lastY = path.at(path.length).y;
+    const samples: Array<{ scroll: number; y: number }> = [];
+    const onScreen: number[] = [];
+    for (let i = 0; i <= 120; i++) {
+      const scroll = (limit * i) / 120;
       const s = distanceAt(scroll);
-      if (s <= 0 || s >= path.length) continue;
-      const y = path.at(s).y + rootDocTop - scroll;
-      top = Math.min(top, y);
-      bottom = Math.max(bottom, y);
+      const y = path.at(s).y;
+      samples.push({ scroll, y });
+      if (s > 0 && s < path.length) onScreen.push(y + rootDocTop - scroll);
     }
-    if (top > bottom) top = bottom = window.innerHeight * cfg.anchor;
+    // Höhe im Bildschirm, auf der das Fahrzeug haftet: dort, wo es sich die
+    // meiste Zeit ohnehin aufhält.
+    onScreen.sort((a, b) => a - b);
+    const hold = onScreen.length ? onScreen[onScreen.length >> 1] : window.innerHeight * cfg.anchor;
+    // Was sticky nicht abdeckt, steckt in den Animationen. Die Fläche muss so
+    // hoch sein, dass das Fahrzeug samt Salzwurf hinten und Schneeauswurf vorne
+    // auch mit dieser Abweichung hineinpasst.
+    let above = 0;
+    let below = 0;
+    for (const { scroll, y } of samples) {
+      const rest = y - clamp(scroll + hold - rootDocTop, firstY, lastY);
+      above = Math.min(above, rest);
+      below = Math.max(below, rest);
+    }
     const reach = (vehLen * RIG_HEIGHT) / 2;
-    stickyTop = Math.round(top - reach);
-    rigHeight = Math.min(height, Math.ceil(bottom - top + 2 * reach));
+    const lift = reach - above;
+    rigHeight = Math.ceil(lift + below + reach);
+    stickyTop = Math.round(hold - lift);
+    rigMin = Math.round(firstY - lift);
+    rigMax = Math.round(lastY - lift);
+    rigTrack.style.top = `${rigMin}px`;
+    rigTrack.style.height = `${rigMax - rigMin + rigHeight}px`;
     rig.style.top = `${stickyTop}px`;
     rig.style.height = `${rigHeight}px`;
-    rigCanvas.width = Math.round(width * ratio);
-    rigCanvas.height = Math.round(rigHeight * ratio);
+    // Die Zeichenfläche für fliegenden Schnee und Salz ist nur so groß wie die
+    // Umgebung des Fahrzeugs und wird ihm in jedem Bild nachgeschoben. So muss
+    // pro Bild nur ein kleines Stück geleert und neu gezeichnet werden.
+    flightSize = Math.ceil(vehLen * RIG_HEIGHT);
+    rigCanvas.style.width = rigCanvas.style.height = `${flightSize}px`;
+    rigCanvas.width = rigCanvas.height = Math.round(flightSize * ratio);
   };
 
   /** Fahrstrecke bei einer Scroll-Position. */
@@ -349,21 +382,49 @@ export async function mountWinterRoad(
   /** Oberkante der festgehaltenen Fläche in der Spalte bei einer
    *  Scroll-Position — dieselbe Rechnung, die der Browser für sticky anstellt. */
   const rigTopAt = (scroll: number): number =>
-    clamp(scroll + stickyTop - rootDocTop, 0, Math.max(0, height - rigHeight));
+    clamp(scroll + stickyTop - rootDocTop, rigMin, rigMax);
 
-  const rebuild = (): void => {
-    width = root.clientWidth;
-    height = root.clientHeight;
-    if (!width || !height) return;
+  /** Zählt die Aufbauten: Ein älterer, der noch läuft, wird verworfen. */
+  let building = 0;
 
-    route = options.layout({ width, height });
-    if (!route) {
+  const rebuild = async (): Promise<void> => {
+    const w = root.clientWidth;
+    const h = root.clientHeight;
+    if (!w || !h) return;
+
+    const next = options.layout({ width: w, height: h });
+    if (!next) {
+      building++;
+      route = null;
       world = null;
       path = null;
       buildDrive();
       root.classList.remove('is-ready');
       return;
     }
+    // Gleicher Verlauf auf gleicher Fläche: Die Szene stimmt noch, nur die
+    // Fahrt hängt zusätzlich an Fensterhöhe und Seitenlänge.
+    if (
+      world &&
+      route &&
+      w === width &&
+      h === height &&
+      next.path === route.path &&
+      next.roadWidth === route.roadWidth &&
+      next.shadeFrom === route.shadeFrom
+    ) {
+      measure();
+      buildDrive();
+      draw();
+      return;
+    }
+
+    const token = ++building;
+    width = w;
+    height = h;
+    route = next;
+    // Bis die neue Szene steht, wird nichts gezeichnet.
+    world = null;
 
     unit = route.roadWidth / cfg.roadWidth;
     road = cfg.roadWidth * unit;
@@ -379,10 +440,11 @@ export async function mountWinterRoad(
 
     // Die Verlängerung muss über die Wurfzone und das Schild hinausreichen.
     path = new RoadPath(route.path, 1, 1, vehLen * 3);
-    world = buildWorld({ width, height, ratio, road }, path, tex, cfg);
+    const built = await buildWorld({ width, height, ratio, road }, path, tex, cfg);
+    if (token !== building) return;
     if (route.shadeFrom !== undefined) {
       // Nur über bereits Gezeichnetes legen: neben der Straße bleibt es frei.
-      for (const layer of [world.snow, world.cleared]) {
+      for (const layer of [built.snow, built.cleared]) {
         const lctx = layer.getContext('2d')!;
         lctx.setTransform(ratio, 0, 0, ratio, 0, 0);
         lctx.globalCompositeOperation = 'source-atop';
@@ -391,6 +453,7 @@ export async function mountWinterRoad(
         lctx.globalCompositeOperation = 'source-over';
       }
     }
+    world = built;
     salt = buildSalt(path, cfg, road);
     spray = buildSpray(path, cfg, road);
 
@@ -681,10 +744,13 @@ export async function mountWinterRoad(
 
     // Fliegender Schnee und Salz auf der festgehaltenen Fläche.
     const pose = poseAt(s);
-    const originY = Math.round(rigTopAt(scroll) * ratio);
+    const rigTop = rigTopAt(scroll);
+    const left = Math.round(pose.x - flightSize / 2);
+    const top = Math.round(pose.y - rigTop - flightSize / 2);
+    rigCanvas.style.transform = `translate3d(${left}px, ${top}px, 0)`;
     vctx.setTransform(1, 0, 0, 1, 0, 0);
     vctx.clearRect(0, 0, rigCanvas.width, rigCanvas.height);
-    vctx.setTransform(ratio, 0, 0, ratio, 0, -originY);
+    vctx.setTransform(ratio, 0, 0, ratio, Math.round(-left * ratio), Math.round(-(rigTop + top) * ratio));
     if (salt && salt.count) drawSaltInFlight(spreader, reach);
     if (spray && spray.count) drawSpray(s, pose.pivot, pose.blade);
 
@@ -784,8 +850,8 @@ export async function mountWinterRoad(
     request();
     window.clearTimeout(resizeTimer);
     resizeTimer = window.setTimeout(() => {
-      if (root.clientWidth !== width || root.clientHeight !== height) rebuild();
-      else {
+      if (root.clientWidth !== width || root.clientHeight !== height) void rebuild();
+      else if (world) {
         // Fahrlinie und Fahrt hängen auch an Fensterhöhe und Seitenlänge.
         measure();
         buildDrive();
@@ -794,7 +860,7 @@ export async function mountWinterRoad(
     }, 150);
   };
 
-  rebuild();
+  await rebuild();
 
   const observer = new ResizeObserver(onResize);
   observer.observe(root);

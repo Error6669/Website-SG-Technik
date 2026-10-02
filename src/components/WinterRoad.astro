@@ -52,7 +52,7 @@ const { route } = Astro.props;
     if (fixed) road.setProgress(Number(fixed));
     // Nachgeladene Schriften verschieben Textkanten, ohne dass sich die Höhe
     // der Seite ändern muss.
-    document.fonts.ready.then(() => road.rebuild());
+    document.fonts.ready.then(() => void road.rebuild());
   };
 
   // Ohne Straße bleibt die Seite vollständig, ein Fehler hier darf nichts stören.
@@ -102,13 +102,14 @@ const { route } = Astro.props;
     display: block;
   }
 
-  /* Ebene 2: das Fahrzeug. Die Schiene ist so hoch wie der Streifen; darin hält
-     der Browser die Fläche am Bildschirm fest (sticky), top und Höhe setzt das
-     Skript. Darauf liegen Schatten, Karosserie und Schild als einzelne Bilder
+  /* Ebene 2: das Fahrzeug. Die Schiene reicht vom Anfang bis zum Ende der
+     Straße (top und Höhe setzt das Skript); darin hält der Browser die Fläche
+     am Bildschirm fest (sticky), auch deren top und Höhe setzt das Skript. Darauf liegen Schatten, Karosserie und Schild als einzelne Bilder
      und darüber die Zeichenfläche für fliegenden Schnee und Salz. */
   .wd-rig-track {
     position: absolute;
-    inset: 0;
+    left: 0;
+    right: 0;
   }
 
   .wd-rig {
@@ -136,12 +137,13 @@ const { route } = Astro.props;
     height: 100%;
   }
 
+  /* Größe und Lage setzt das Skript. */
   .wd-rig-canvas {
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: 0;
     display: block;
-    width: 100%;
-    height: 100%;
+    will-change: transform;
   }
 
   .wd-road-canvas,

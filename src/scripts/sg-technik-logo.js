@@ -197,6 +197,16 @@
       new IntersectionObserver(function (es) { visible = es[0].isIntersecting; visible ? start() : stop(); }).observe(svg);
     }
     document.addEventListener('visibilitychange', function () { document.hidden ? stop() : (visible && start()); });
+    // Abweichung vom Original (Animationen/sg-technik-logo.js): Während gescrollt
+    // wird, ruht der Loop. Er baut in jedem Bild Pfade und Körner des SVG neu auf;
+    // das nimmt der scrollgekoppelten Winterdienst-Straße auf der Startseite die
+    // Rechenzeit und ließ sie ruckeln, solange das Logo im Bild war.
+    var idle = 0;
+    window.addEventListener('scroll', function () {
+      stop();
+      clearTimeout(idle);
+      idle = setTimeout(function () { if (visible && !document.hidden) start(); }, 180);
+    }, { passive: true });
     start();
   }
 

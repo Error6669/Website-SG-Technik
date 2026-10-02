@@ -217,12 +217,17 @@ export function buildSpray(path: RoadPath, cfg: WinterRoadConfig, road: number):
   return spray;
 }
 
-export function buildWorld(
+/** Gibt dem Browser zwischen zwei Arbeitsschritten Luft für Eingaben und Bilder. */
+const breathe = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0));
+
+/** Der Aufbau dauert einige Zehntelsekunden. Er läuft deshalb in Etappen und
+ *  gibt dazwischen die Kontrolle ab, statt die Seite am Stück zu blockieren. */
+export async function buildWorld(
   layout: WorldLayout,
   path: RoadPath,
   tex: Textures,
   cfg: WinterRoadConfig,
-): World {
+): Promise<World> {
   const { width, height, ratio, road } = layout;
   const W = Math.round(width * ratio);
   const H = Math.round(height * ratio);
@@ -364,6 +369,7 @@ export function buildWorld(
     strokeTextured(sx, tex.frost, TILE.frost, road);
     stamp(ctx, cfg.iceAmount * 0.6);
   }
+  await breathe();
 
   // Schneedecke: geschlossen über die ganze Fahrbahn. Die Fahrspuren sind bis
   // auf den Asphalt freigefahren — dort liegt nichts mehr über dem Belag, er
@@ -401,18 +407,20 @@ export function buildWorld(
     }
     stamp(ctx, 0.75 + cfg.snowAmount * 0.25);
   }
+  await breathe();
 
   // Schneeränder. Der durchgehende Streifen verdeckt die gerade Asphaltkante,
   // die unregelmäßigen Klumpen ragen in die Fahrbahn und nach außen.
-  const drawEdges = (target: CanvasRenderingContext2D): void => {
+  const drawEdges = async (target: CanvasRenderingContext2D): Promise<void> => {
     if (cfg.roadEdgeSnow <= 0) return;
     for (const side of [-1, 1]) {
       const edge = side * road * 0.5;
       snowBank(target, edge + side * road * 0.03, road * 0.085, road * 0.1, cfg.roadEdgeSnow, 0.24, road * 0.075 * cfg.roadEdgeSnow);
       snowBank(target, edge - side * road * 0.05, road * 0.045, road * 0.09, cfg.roadEdgeSnow * 0.7, 0.16);
+      await breathe();
     }
   };
-  drawEdges(ctx);
+  await drawEdges(ctx);
 
   // ── 2. Geräumte Fahrbahn ─────────────────────────────────────────────────
   const cleared = createCanvas(W, H);
@@ -426,6 +434,8 @@ export function buildWorld(
   strokeTextured(cx, tex.asphalt, TILE.asphalt, swath, lane);
   strokeRoad(cx, 'rgba(6,10,16,0.3)', swath, 1, lane); // nasser, dunklerer Belag
 
+  await breathe();
+
   // Dünne Schnee- und Reifreste, die das Schild stehen lässt.
   clearScratch();
   strokeTextured(sx, tex.frost, TILE.frost, swath, lane);
@@ -438,7 +448,9 @@ export function buildWorld(
 
   // Pflugwall: bei geradem Schild beidseitig, bei angestelltem auf der Wurfseite.
   const right = throwRight(cfg);
+  await breathe();
   snowBank(cx, lane + swath * 0.5 + road * 0.035, road * 0.06, road * 0.05, 1, 0.3, 0, () => right);
+  await breathe();
   snowBank(cx, lane - swath * 0.5 - road * 0.035, road * 0.06, road * 0.05, 1, 0.3, 0, () => 1 - right);
 
   // Die Hilfsebene belegt so viel Speicher wie eine ganze Szene — freigeben.
