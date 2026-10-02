@@ -10,6 +10,8 @@ README ist versioniert — damit nachvollziehbar bleibt, was hier liegt.
 | `Aufbau Website 2.0.docx` | Original-Briefing, Quelle aller Website-Inhalte |
 | `Website-Struktur_SG_Technik_GmbH.csv` | geplante Seitenstruktur aus dem Briefing |
 | `Verarbeitungsverzeichnis_SG_Technik_GmbH.xlsx` | Verzeichnis nach Art. 30 DSGVO, **gehört in die Firmenablage** |
+| `Datenschutz-Pruefbericht_2026-10-01.pdf` | Prüfbericht Datenschutz & Cookies vom 01.10.2026, nennt offene Lücken und Nachweise |
+| `securitybericht.md` | Securitybericht vom 02.10.2026 zum lokalen Projektstand, nennt verwundbare Abhängigkeiten |
 
 ## Zum Verarbeitungsverzeichnis
 
