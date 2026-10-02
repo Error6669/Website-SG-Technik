@@ -2,12 +2,17 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ProcessSection from '../components/ProcessSection.astro';
 import CtaBand from '../components/CtaBand.astro';
+import WinterRoad from '../components/WinterRoad.astro';
 ---
 
 <BaseLayout
   title="Leistungen — SG Technik GmbH"
   description="Der Ablauf von der Anfrage bis zum Notdienst — sieben Schritte, ein Ansprechpartner."
 >
-  <ProcessSection />
-  <CtaBand />
+  {/* Bezugsrahmen für die Winterdienst-Straße, die rechts an beiden Abschnitten entlangläuft. */}
+  <div class="relative">
+    <ProcessSection />
+    <CtaBand />
+    <WinterRoad route="leistungen" />
+  </div>
 </BaseLayout>

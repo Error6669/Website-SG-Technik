@@ -1,0 +1,159 @@
+---
+// Winterdienst-Straße am rechten Rand der Startseite: Ein Räumfahrzeug fährt
+// beim Scrollen eine verschneite Straße entlang, räumt und streut Salz.
+// Herkunft: winterdienst-scroll-demo/ (eigenständige Demo).
+//
+// Die Komponente muss in einem Element mit `position: relative` liegen, das
+// alle Abschnitte umschließt, an denen die Straße vorbeiführt. Sie legt sich
+// als Streifen an dessen rechten Rand. Der Verlauf wird aus den mit
+// `data-wd-anchor` markierten Stellen der Seite berechnet, je Seite in einer
+// eigenen Datei: `route="startseite"` → src/scripts/winterdienst/route.ts,
+// `route="leistungen"` → route-leistungen.ts. Die Stellwerte des Effekts
+// stehen in src/content/winterdienst.ts.
+//
+// Reine Zierde: für Screenreader ausgeblendet, fängt keine Klicks ab. Unter
+// 1360 px Breite ist rechts neben dem Inhalt kein Platz, dort wird weder
+// gezeichnet noch etwas geladen. Dasselbe gilt bei „Bewegung reduzieren“.
+//
+// Zum Einstellen: `?wd-debug` in der Adresse zeichnet den Pfad mit allen
+// Punkten ein, `?wd-p=0.5` stellt das Fahrzeug auf 50 % der Strecke (nur ohne
+// Scrollen sinnvoll, fliegender Schnee und Salz fehlen dabei).
+interface Props {
+  route: 'startseite' | 'leistungen';
+}
+
+const { route } = Astro.props;
+---
+
+<div class="wd-road" data-winter-road={route} aria-hidden="true"></div>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-winter-road]');
+  const wide = window.matchMedia('(min-width: 85rem)');
+  const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let started = false;
+
+  const start = async (): Promise<void> => {
+    if (started || !root || !wide.matches || calm.matches) return;
+    started = true;
+    const [{ mountWinterRoad }, { planRoute }, { WINTER_ROAD }] = await Promise.all([
+      import('../scripts/winterdienst/winter-road'),
+      root.dataset.winterRoad === 'leistungen'
+        ? import('../scripts/winterdienst/route-leistungen')
+        : import('../scripts/winterdienst/route'),
+      import('../content/winterdienst'),
+    ]);
+    const params = new URLSearchParams(location.search);
+    const road = await mountWinterRoad(root, WINTER_ROAD, {
+      layout: (size) => planRoute(root, size),
+      debug: params.has('wd-debug'),
+    });
+    const fixed = params.get('wd-p');
+    if (fixed) road.setProgress(Number(fixed));
+    // Nachgeladene Schriften verschieben Textkanten, ohne dass sich die Höhe
+    // der Seite ändern muss.
+    document.fonts.ready.then(() => void road.rebuild());
+  };
+
+  // Ohne Straße bleibt die Seite vollständig, ein Fehler hier darf nichts stören.
+  const run = (): void => void start().catch(() => root?.classList.remove('is-ready'));
+  run();
+  wide.addEventListener('change', run);
+</script>
+
+<style is:global>
+  /* Streifen am rechten Rand, so hoch wie der umschließende Bereich. Er reicht
+     vom Bildschirmrand 12rem in die Inhaltsspalte (72rem breit, 1.5rem
+     Innenabstand) hinein, damit der Schwenk zur Seitenmitte Platz hat. Der
+     Hintergrund bleibt frei, es scheint durch, was dahinter liegt. */
+  .wd-road {
+    display: none;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: calc(50% - 22.5rem);
+    z-index: 1;
+    /* clip statt hidden: hidden würde den Streifen zum Scroll-Container machen
+       und das am Bildschirm festgehaltene Fahrzeug (sticky) aushebeln. */
+    overflow: clip;
+    pointer-events: none;
+  }
+
+  @media (min-width: 85rem) and (prefers-reduced-motion: no-preference) {
+    .wd-road {
+      display: block;
+    }
+  }
+
+  @media print {
+    .wd-road {
+      display: none;
+    }
+  }
+
+  /* Ebene 1: die Straße in voller Länge. Liegt fest in der Seite und scrollt
+     mit ihr. */
+  .wd-road-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* Ebene 2: das Fahrzeug. Die Schiene reicht vom Anfang bis zum Ende der
+     Straße (top und Höhe setzt das Skript); darin hält der Browser die Fläche
+     am Bildschirm fest (sticky), auch deren top und Höhe setzt das Skript. Darauf liegen Schatten, Karosserie und Schild als einzelne Bilder
+     und darüber die Zeichenfläche für fliegenden Schnee und Salz. */
+  .wd-rig-track {
+    position: absolute;
+    left: 0;
+    right: 0;
+  }
+
+  .wd-rig {
+    position: sticky;
+    width: 100%;
+  }
+
+  .wd-sprites {
+    position: absolute;
+    inset: 0;
+  }
+
+  .wd-sprite {
+    position: absolute;
+    top: 0;
+    left: 0;
+    will-change: transform;
+  }
+
+  .wd-sprite > * {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Größe und Lage setzt das Skript. */
+  .wd-rig-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    will-change: transform;
+  }
+
+  .wd-road-canvas,
+  .wd-rig {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .wd-road.is-ready .wd-road-canvas,
+  .wd-road.is-ready .wd-rig {
+    opacity: 1;
+  }
+</style>

@@ -1,0 +1,216 @@
+/* Demo-Seite der Winterdienst-Scroll-Animation.
+   Farben und Schriften sind aus src/styles/global.css der Website übernommen,
+   damit die Demo im späteren Umfeld beurteilt werden kann. */
+
+@font-face {
+  font-family: 'Plex Sans';
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../public/fonts/plexsans-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Plex Sans';
+  font-weight: 600;
+  font-display: swap;
+  src: url('../../public/fonts/plexsans-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Plex Mono';
+  font-weight: 500;
+  font-display: swap;
+  src: url('../../public/fonts/plexmono-500.woff2') format('woff2');
+}
+
+:root {
+  --color-navy-900: #0d2436;
+  --color-navy-800: #183a59;
+  --color-slate-600: #526376;
+  --color-fog-50: #f5f7f8;
+  --color-copper-500: #b15a2e;
+  --color-line: rgba(24, 58, 89, 0.12);
+  --font-body: 'Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'Plex Mono', 'SFMono-Regular', Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-fog-50);
+  color: var(--color-navy-900);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Der Effekt selbst (wird später in die Website übernommen) ───────────── */
+
+/* Die Spalte, in der die Straße läuft. Breite und Höhe kommen vom Layout der
+   Seite: so breit wie die Spalte, so hoch wie der Inhalt daneben. Der
+   Hintergrund bleibt frei — es scheint durch, was dahinter liegt. */
+.wd-road {
+  position: relative;
+  min-width: 0;
+  /* clip statt hidden: hidden würde die Spalte zum Scroll-Container machen und
+     das mitlaufende Fahrzeug (sticky) aushebeln. */
+  overflow: clip;
+  pointer-events: none;
+}
+
+/* Ebene 1: die Straße in voller Länge. Liegt fest in der Seite und scrollt
+   mit ihr — der Browser verschiebt sie selbst, ohne dass gerechnet wird. */
+.wd-road-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Ebene 2: das Fahrzeug. Der Browser hält die Fläche selbst auf der Fahrlinie
+   des Bildschirms fest (sticky) — sie kann beim Scrollen nicht nachhinken.
+   Höhe und top setzt das Skript. */
+.wd-rig-track {
+  position: absolute;
+  inset: 0;
+}
+
+.wd-rig-canvas {
+  position: sticky;
+  display: block;
+  width: 100%;
+}
+
+.wd-road-canvas,
+.wd-rig-canvas {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.wd-road.is-ready .wd-road-canvas,
+.wd-road.is-ready .wd-rig-canvas {
+  opacity: 1;
+}
+
+/* ── Nur Demo: Rahmenseite und Anzeige ───────────────────────────────────── */
+
+.demo-block {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 6rem 1.5rem;
+}
+
+.demo-block--end {
+  min-height: 70vh;
+}
+
+/* Text links, Straße rechts. Die Straßenspalte reicht bis an den rechten
+   Bildschirmrand, damit Ein- und Ausfahrt wirklich aus dem Bild laufen. Ihre
+   Breite ist das Einzige, was die Größe der Straße auf der Seite bestimmt. */
+.demo-layout {
+  display: grid;
+  grid-template-columns: minmax(1.5rem, 1fr) minmax(0, 40rem) clamp(7rem, 30vw, 24rem);
+  column-gap: clamp(0.5rem, 3vw, 3rem);
+  /* SCROLL_LENGTH aus config.ts: Mindesthöhe der Strecke. */
+  min-height: calc(var(--wd-scroll-length, 4) * 100vh);
+  border-top: 1px solid var(--color-line);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.demo-layout::before {
+  content: '';
+}
+
+.demo-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 4rem 0;
+}
+
+.demo-text section {
+  max-width: 34rem;
+}
+
+.demo-eyebrow {
+  margin: 0 0 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-copper-500);
+}
+
+.demo-block h1,
+.demo-block h2,
+.demo-text h2 {
+  margin: 0 0 1rem;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  line-height: 1.15;
+  font-weight: 600;
+}
+
+.demo-block p,
+.demo-text p {
+  margin: 0 0 1rem;
+  max-width: 38rem;
+  line-height: 1.6;
+  color: var(--color-slate-600);
+}
+
+.demo-block code,
+.demo-text code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+}
+
+.demo-hud {
+  position: fixed;
+  left: 1rem;
+  bottom: 1rem;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  max-width: calc(100% - 2rem);
+  border: 1px solid rgb(255 255 255 / 0.4);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--color-navy-900) 88%, transparent);
+  padding: 0.5rem 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-fog-50);
+}
+
+.demo-hud [data-placeholder] {
+  color: #f0b48f;
+}
+
+.demo-error {
+  padding: 2rem 0;
+  color: var(--color-copper-500);
+}
+
+/* ?solo: nur die Straße, mittig, ohne Texte. */
+.is-solo .demo-block,
+.is-solo .demo-text {
+  display: none;
+}
+
+.is-solo .demo-layout {
+  grid-template-columns: minmax(0, 24rem);
+  justify-content: center;
+  border: 0;
+}
+
+.is-solo .demo-layout::before {
+  content: none;
+}
+
+/* ?dark: dunkler Seitenhintergrund, um die Transparenz zu prüfen. */
+.is-dark {
+  background: var(--color-navy-900);
+}
