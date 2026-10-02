@@ -306,14 +306,14 @@ export async function mountWinterRoad(
     }
     const total = way[way.length - 1];
 
-    // Auf halber Strecke soll das Fahrzeug auf `anchor` der Bildschirmhöhe
-    // stehen. Am Seitenanfang darf es noch nicht losgefahren, am Seitenende
-    // muss es angekommen sein.
+    // Ist der Straßenanfang am Seitenanfang schon im Bild, fährt das Fahrzeug
+    // mit dem ersten Scrollen los. Sonst steht es auf halber Strecke auf
+    // `anchor` der Bildschirmhöhe. Am Seitenende muss es angekommen sein.
     const limit = maxScroll();
     const startDoc = rootDocTop + path.at(0).y;
     const half = path.length / 2;
     const lead = way[Math.round(half / WAY_STEP)] - (path.at(half).y - path.at(0).y);
-    lineStart = Math.min(window.innerHeight * cfg.anchor + lead, startDoc);
+    lineStart = startDoc < window.innerHeight ? startDoc : window.innerHeight * cfg.anchor + lead;
     lineEnd = Math.max(lineStart, startDoc + total - limit);
 
     // Die Fläche muss das Fahrzeug samt Salzwurf hinten und Schneeauswurf vorne

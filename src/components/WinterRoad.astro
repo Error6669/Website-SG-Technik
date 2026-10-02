@@ -5,10 +5,11 @@
 //
 // Die Komponente muss in einem Element mit `position: relative` liegen, das
 // alle Abschnitte umschließt, an denen die Straße vorbeiführt. Sie legt sich
-// als Streifen an dessen rechten Rand. Der Verlauf wird in
-// src/scripts/winterdienst/route.ts aus den mit `data-wd-anchor` markierten
-// Stellen berechnet, die Stellwerte des Effekts stehen in
-// src/content/winterdienst.ts.
+// als Streifen an dessen rechten Rand. Der Verlauf wird aus den mit
+// `data-wd-anchor` markierten Stellen der Seite berechnet, je Seite in einer
+// eigenen Datei: `route="startseite"` → src/scripts/winterdienst/route.ts,
+// `route="leistungen"` → route-leistungen.ts. Die Stellwerte des Effekts
+// stehen in src/content/winterdienst.ts.
 //
 // Reine Zierde: für Screenreader ausgeblendet, fängt keine Klicks ab. Unter
 // 1360 px Breite ist rechts neben dem Inhalt kein Platz, dort wird weder
@@ -17,9 +18,14 @@
 // Zum Einstellen: `?wd-debug` in der Adresse zeichnet den Pfad mit allen
 // Punkten ein, `?wd-p=0.5` stellt das Fahrzeug auf 50 % der Strecke (nur ohne
 // Scrollen sinnvoll, fliegender Schnee und Salz fehlen dabei).
+interface Props {
+  route: 'startseite' | 'leistungen';
+}
+
+const { route } = Astro.props;
 ---
 
-<div class="wd-road" data-winter-road aria-hidden="true"></div>
+<div class="wd-road" data-winter-road={route} aria-hidden="true"></div>
 
 <script>
   const root = document.querySelector<HTMLElement>('[data-winter-road]');
@@ -32,7 +38,9 @@
     started = true;
     const [{ mountWinterRoad }, { planRoute }, { WINTER_ROAD }] = await Promise.all([
       import('../scripts/winterdienst/winter-road'),
-      import('../scripts/winterdienst/route'),
+      root.dataset.winterRoad === 'leistungen'
+        ? import('../scripts/winterdienst/route-leistungen')
+        : import('../scripts/winterdienst/route'),
       import('../content/winterdienst'),
     ]);
     const params = new URLSearchParams(location.search);
