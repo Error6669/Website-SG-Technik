@@ -7,9 +7,9 @@
 
 // ── Stellwerte ───────────────────────────────────────────────────────────────
 /** Fahrbahnbreite: Anteil des freien Rands, begrenzt auf diesen Bereich. */
-const ROAD_SHARE = 0.5;
-const ROAD_MIN = 60;
-const ROAD_MAX = 84;
+const ROAD_SHARE = 0.32;
+const ROAD_MIN = 38;
+const ROAD_MAX = 54;
 /** Halbe Gesamtbreite samt Schneerändern, als Vielfaches der Fahrbahnbreite. */
 const HALF_WITH_SNOW = 0.66;
 /** Abstand der Schneeränder zu Inhalt und Bildschirmrand. */

@@ -103,16 +103,21 @@
     var lanes = [0, 1, 2].map(function (i) {
       var x0 = lx(i), R = rnd(4321 + i * 777), pool = [], g = q(svg, '.sgt-p', i), dg = q(svg, '.sgt-d', i), k;
       for (k = 0; k < 140; k++) { var c = mk('circle', { r: 0, fill: '#fff' }); g.appendChild(c); pool.push({ c: c, a: 0 }); }
-      var fr = document.createDocumentFragment();
+      // Abweichung vom Original: Die ruhenden Körner (rund 460 je Kammer) stehen
+      // nicht als einzelne <circle>, sondern als wenige Pfade, je Deckkraftstufe
+      // einer. Gleiches Bild, aber der Browser muss nicht in jedem Bild hunderte
+      // Elemente durchgehen — auf schwachen Rechnern ruckelte das Logo sonst.
+      var buckets = {};
       for (var y = YT - 12; y < 368; y += SP * 0.87) {
         for (var x = x0 + 18; x < x0 + 178; x += SP) {
           var cx = x + (R() - 0.5) * SP * 0.9 + ((y / SP | 0) % 2) * SP / 2, cy = y + (R() - 0.5) * SP * 0.8;
           var rr = 0.38 + R() * 0.42, op = Math.min(1, (0.4 + R() * 0.4) * DOP[i]);
           if (!inPoly(cx, cy, CHP[i])) continue;
-          fr.appendChild(mk('circle', { cx: cx.toFixed(1), cy: cy.toFixed(1), r: rr.toFixed(2), fill: '#fff', opacity: op.toFixed(2) }));
+          var key = (Math.round(op * 20) / 20).toFixed(2), r2 = rr.toFixed(2);
+          buckets[key] = (buckets[key] || '') + 'M' + (cx - rr).toFixed(2) + ',' + cy.toFixed(1) + 'a' + r2 + ',' + r2 + ' 0 1,0 ' + (2 * rr).toFixed(2) + ',0a' + r2 + ',' + r2 + ' 0 1,0 ' + (-2 * rr).toFixed(2) + ',0';
         }
       }
-      dg.appendChild(fr);
+      for (var b in buckets) dg.appendChild(mk('path', { d: buckets[b], fill: '#fff', opacity: b }));
       var xs = [], hh = [], j = [];
       for (var xx = x0 + 18; xx <= x0 + 178; xx += STEP) { xs.push(xx); hh.push(0); j.push((R() - 0.5) * 1.4); }
       return { i: i, x: x0, pool: pool, acc: 0, level: YB, st: 'wait', tt: -i * 1.2, f: q(svg, '.sgt-f', i), w: q(svg, '.sgt-w', i), e: q(svg, '.sgt-e', i), xs: xs, h: hh, j: j, ph: R() * 6, vx: x0 + 93.3 };
@@ -217,7 +222,16 @@
     var loop = !reduce && el.getAttribute('data-loop') !== 'false';
     var speed = parseFloat(el.getAttribute('data-speed')) || 1;
     var svg = build(el, intro);
-    var go = function () { if (loop) Salt(svg, speed); };
+    // Abweichung vom Original: Der Aufbau des Loops wartet auf eine ruhige
+    // Stelle, statt direkt im letzten Bild des Intros zu laufen. Danach erfährt
+    // die Seite per Ereignis, dass das Intro durch ist (die Winterdienst-Straße
+    // wartet darauf mit ihrem Aufbau).
+    var go = function () {
+      if (intro) document.dispatchEvent(new Event('sgt:intro-done'));
+      if (!loop) return;
+      var later = window.requestIdleCallback || function (f) { setTimeout(f, 50); };
+      later(function () { Salt(svg, speed); }, { timeout: 600 });
+    };
     if (!intro) { go(); return; }
     if ('IntersectionObserver' in window) {
       var io = new IntersectionObserver(function (es) {

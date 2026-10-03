@@ -2,8 +2,11 @@
 // Animated SG Technik logo mark.
 // Source: Animationen/sg-technik-logo.js (+ einbau-snippet.html) — Intro, bei dem
 // sich Ring, Chevrons und Schrift aufbauen, danach der Salz-Silo-Loop. Das
-// Script liegt in src/scripts/ und baut das SVG in `.sgt-logo` auf. Einzige
-// Abweichung vom Original: Der Loop ruht, während gescrollt wird (dort kommentiert).
+// Script liegt in src/scripts/ und baut das SVG in `.sgt-logo` auf. Abweichungen
+// vom Original (dort kommentiert): Der Loop ruht, während gescrollt wird; die
+// ruhenden Salzkörner sind zu wenigen Pfaden zusammengefasst; der Loop wird erst
+// in einer ruhigen Stelle nach dem Intro aufgebaut, das Ende des Intros meldet
+// das Ereignis `sgt:intro-done`.
 //
 // Der äußere Kasten ist quadratisch wie die frühere 900×900-Zeichnung. Das neue
 // Artwork (viewBox 410.21 × 410.07) füllt seinen Kasten randlos, das alte hatte
@@ -36,5 +39,8 @@ const { class: className = '' } = Astro.props;
     left: 1.416%; /* 12.74 / 900 */
     top: 1.243%; /* 11.19 / 900 */
     width: 96.855%; /* 410.21 × 2.125 / 900 */
+    /* Eigene Ebene: Das Logo wird in jedem Bild neu gezeichnet, der Rest des
+       Hero (z. B. die zählenden Kennzahlen) soll dabei nicht mitgezeichnet werden. */
+    will-change: transform;
   }
 </style>

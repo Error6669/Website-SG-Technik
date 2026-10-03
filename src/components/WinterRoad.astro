@@ -33,6 +33,26 @@ const { route } = Astro.props;
   const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
   let started = false;
 
+  // Läuft oben im Bild das Intro des Logos, wartet der Aufbau der Szene, bis es
+  // fertig ist: Beides zugleich ließ das Intro auf schwachen Rechnern ruckeln.
+  // Wer vorher scrollt, bekommt die Straße sofort; spätestens nach INTRO_WAIT
+  // geht es ohnehin los.
+  const INTRO_WAIT = 2600;
+  const afterLogoIntro = (): Promise<void> =>
+    new Promise((resolve) => {
+      const logo = document.querySelector('.sgt-logo:not([data-intro="false"])');
+      if (!logo || window.scrollY > window.innerHeight / 2) return resolve();
+      const done = (): void => {
+        clearTimeout(timer);
+        document.removeEventListener('sgt:intro-done', done);
+        window.removeEventListener('scroll', done);
+        resolve();
+      };
+      const timer = setTimeout(done, INTRO_WAIT);
+      document.addEventListener('sgt:intro-done', done);
+      window.addEventListener('scroll', done, { passive: true });
+    });
+
   const start = async (): Promise<void> => {
     if (started || !root || !wide.matches || calm.matches) return;
     started = true;
@@ -42,6 +62,7 @@ const { route } = Astro.props;
         ? import('../scripts/winterdienst/route-leistungen')
         : import('../scripts/winterdienst/route'),
       import('../content/winterdienst'),
+      afterLogoIntro(),
     ]);
     const params = new URLSearchParams(location.search);
     const road = await mountWinterRoad(root, WINTER_ROAD, {
