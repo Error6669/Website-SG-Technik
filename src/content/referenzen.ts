@@ -11,6 +11,8 @@ export interface Projekt {
   slug: string;
   title: string;
   location: string;
+  /** Auftraggeber. Die Zeile steht immer da, ohne Eintrag bleibt sie leer. */
+  auftraggeber?: string;
   /** Anlagentyp, z. B. „Silo- und Soleanlage". */
   typ: string;
   /** Optional — nur rendern, wenn vorhanden. */
@@ -25,6 +27,7 @@ export const projekte: Projekt[] = [
     slug: 'mondsee',
     title: 'Neubau Siloanlage',
     location: 'Mondsee',
+    auftraggeber: 'Amt der Oö. Landesregierung',
     typ: 'Silo- und Soleanlage',
     kapazitaet: '300 t',
     detail: 'Neubau einer Siloanlage mit integrierter Soleaufbereitung.',
@@ -33,6 +36,7 @@ export const projekte: Projekt[] = [
     slug: 'mitterweissenbach',
     title: 'Neubau Siloanlage',
     location: 'Mitterweißenbach',
+    auftraggeber: 'Amt der Oö. Landesregierung',
     typ: 'Silo- und Soleanlage',
     kapazitaet: '680 t',
     detail: 'Neubau einer Siloanlage mit Soleaufbereitung.',
@@ -41,6 +45,7 @@ export const projekte: Projekt[] = [
     slug: 'steinerkirchen',
     title: 'Siloumstellung',
     location: 'Steinerkirchen',
+    auftraggeber: 'Marktgemeinde Steinerkirchen an der Traun',
     typ: 'Siloanlage',
     detail: 'Umstellung und Modernisierung einer bestehenden Siloanlage.',
   },
@@ -48,6 +53,7 @@ export const projekte: Projekt[] = [
     slug: 'gmunden',
     title: 'Silo- und Soleanlage',
     location: 'Gmunden',
+    auftraggeber: 'Straßenmeisterei Gmunden',
     typ: 'Silo- und Soleanlage',
     detail: 'Siloanlage mit Soleaufbereitung.',
   },
@@ -55,6 +61,7 @@ export const projekte: Projekt[] = [
     slug: 'obernberg',
     title: 'Neubau Siloanlage',
     location: 'Obernberg',
+    auftraggeber: 'Amt der Oö. Landesregierung',
     typ: 'Silo- und Soleanlage',
     kapazitaet: '300 t',
     detail: 'Neubau einer Siloanlage mit Soleaufbereitung, inklusive Erneuerung der Platten.',

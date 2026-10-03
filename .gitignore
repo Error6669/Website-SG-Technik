@@ -27,6 +27,11 @@ node_modules/
 Unterlagen/*
 !Unterlagen/README.md
 
+# Angebote aus der Firmenablage (01_Projekte/00_Angebote), lokal zum Auslesen
+# der Auftraggeber für die Referenzen. Interne Kunden- und Preisangaben, nicht
+# ins Repository.
+00_Angebote/
+
 # temporäre Sperrdateien von Excel/Word
 ~$*
 
