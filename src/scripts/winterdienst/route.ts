@@ -8,7 +8,7 @@
 //           kommt die Straße aus dem rechten Bildschirmrand
 //   values  „Wofür wir stehen“: hier schwenkt sie zur Seitenmitte, bleibt
 //           aber rechts vom Text
-//   cta     Trennlinie des CTA-Streifens: bis dorthin ist sie zurück im Rand
+//   cta     Inhalt des CTA-Streifens: bis zu seiner Oberkante ist sie zurück im Rand
 //   end     Nachricht-Feld im Kontaktformular: daneben läuft sie wieder
 //           rechts aus dem Bildschirm
 //
