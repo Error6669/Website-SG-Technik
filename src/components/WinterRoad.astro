@@ -71,6 +71,13 @@ const { route } = Astro.props;
     });
     const fixed = params.get('wd-p');
     if (fixed) road.setProgress(Number(fixed));
+    // Nur Safari: Mausrad-Rasten weich ausrollen, sonst springt die Seite samt
+    // Fahrzeug je Raste (siehe smooth-wheel.ts). `?wd-wheel=off` zum Vergleich.
+    const safari = /^((?!chrome|chromium|crios|fxios|android).)*safari/i.test(navigator.userAgent);
+    if (safari && params.get('wd-wheel') !== 'off') {
+      const { smoothWheel } = await import('../scripts/winterdienst/smooth-wheel');
+      smoothWheel(() => wide.matches && root.classList.contains('is-ready'));
+    }
     // Nachgeladene Schriften verschieben Textkanten, ohne dass sich die Höhe
     // der Seite ändern muss.
     document.fonts.ready.then(() => void road.rebuild());
