@@ -17,7 +17,7 @@
 //
 // Zum Einstellen: `?wd-debug` in der Adresse zeichnet den Pfad mit allen
 // Punkten ein, `?wd-p=0.5` stellt das Fahrzeug auf 50 % der Strecke (nur ohne
-// Scrollen sinnvoll, fliegender Schnee und Salz fehlen dabei).
+// Scrollen sinnvoll).
 interface Props {
   route: 'startseite' | 'leistungen';
 }
@@ -123,21 +123,9 @@ const { route } = Astro.props;
     display: block;
   }
 
-  /* Ebene 2: das Fahrzeug. Die Schiene reicht vom Anfang bis zum Ende der
-     Straße (top und Höhe setzt das Skript); darin hält der Browser die Fläche
-     am Bildschirm fest (sticky), auch deren top und Höhe setzt das Skript. Darauf liegen Schatten, Karosserie und Schild als einzelne Bilder
-     und darüber die Zeichenfläche für fliegenden Schnee und Salz. */
-  .wd-rig-track {
-    position: absolute;
-    left: 0;
-    right: 0;
-  }
-
-  .wd-rig {
-    position: sticky;
-    width: 100%;
-  }
-
+  /* Ebene 2: das Fahrzeug, ebenfalls fest in der Seite. Schatten, Karosserie
+     und Schild als einzelne Bilder, darüber die Zeichenfläche für fliegenden
+     Schnee und Salz; Lage und Drehung setzt das Skript in jedem Bild. */
   .wd-sprites {
     position: absolute;
     inset: 0;
@@ -168,13 +156,15 @@ const { route } = Astro.props;
   }
 
   .wd-road-canvas,
-  .wd-rig {
+  .wd-sprites,
+  .wd-rig-canvas {
     opacity: 0;
     transition: opacity 0.4s ease;
   }
 
   .wd-road.is-ready .wd-road-canvas,
-  .wd-road.is-ready .wd-rig {
+  .wd-road.is-ready .wd-sprites,
+  .wd-road.is-ready .wd-rig-canvas {
     opacity: 1;
   }
 </style>

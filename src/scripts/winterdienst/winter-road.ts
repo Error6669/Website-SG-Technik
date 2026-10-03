@@ -13,40 +13,29 @@
 //                                    aus `options.layout` ist in ihren
 //                                    CSS-Pixeln angegeben.
 //
-// Aufbau in zwei Ebenen. Beide werden vom Browser selbst bewegt, nicht vom
-// Skript — nur so bleibt es auch beim schnellen Scrollen ruhig:
+// Alles liegt fest in der Seite und scrollt mit ihr, das macht der Browser
+// selbst — auch beim schnellen Scrollen bleibt deshalb nichts gegenüber der
+// Straße zurück:
 //
-//   1. Die STRASSE ist ein Bild in voller Länge, das fest in der Seite liegt
-//      und mit ihr scrollt. Das Skript malt nur den schmalen Streifen nach,
-//      der gerade geräumt bzw. gestreut wurde.
-//   2. Das FAHRZEUG liegt auf einer Fläche, die der Browser am Bildschirm
-//      festhält (position: sticky). Auf den Stücken, die abwärts führen, fährt
-//      es genau so schnell, wie die Seite scrollt, und steht deshalb in der
-//      Höhe still, während die Straße unter ihm durchläuft. Das kann jeder
-//      Browser ohne Zutun des Skripts.
+//   1. Die STRASSE ist ein Bild in voller Länge. Das Skript malt nur den
+//      schmalen Streifen nach, der gerade geräumt bzw. gestreut wurde.
+//   2. Das FAHRZEUG (Schatten, Karosserie, Schild als einzelne Bilder) und
+//      eine kleine Zeichenfläche für fliegenden Schnee und Salz liegen auf der
+//      Straße. Das Skript schiebt sie in jedem Bild an ihre Stelle.
 //
-// Übrig bleibt, was sich mit der Straße ändert: die seitliche Lage und die
-// Drehung von Schatten, Karosserie und Schild. Sie sind für die ganze Strecke
-// vorab als Animation hinterlegt, die direkt an der Scroll-Position hängt
-// (ScrollTimeline). Auch das rechnet der Browser im selben Schritt wie das
-// Scrollen. Browser ohne ScrollTimeline (derzeit Firefox) bekommen dieselben
-// Animationen, nur stellt dort das Skript sie bei jedem Bild; weil es dabei
-// immer ein Bild hinter dem Scrollen liegt, rechnet es die Scroll-Position um
-// ein Bild voraus.
+// Wo das Fahrzeug stehen soll, folgt aus der Scroll-Position; das Fahrzeug
+// fährt dieser Stelle nach (FOLLOW_TIME, höchstens MAX_SPEED). Bei schnellem
+// Scrollen bleibt es also zurück und holt auf, statt zu springen, und beim
+// Zurückscrollen fährt es ebenso rückwärts nach. Fahrzeug, Räumspur, Schnee
+// und Salz werden im selben Schritt gezeichnet und passen deshalb immer
+// zueinander, ganz gleich, wie spät das Skript das Scrollen mitbekommt.
 //
-// Fliegender Schnee und Salz zeichnet das Skript auf dieselbe festgehaltene
-// Fläche, sie bleiben dadurch am Fahrzeug. Kommt das Skript ein Bild zu spät,
-// endet die Räumspur ein Stück hinter dem Schild — unter der Karosserie.
-//
-// Wo das Fahrzeug steht, bestimmt der „Fahrweg“: Er wächst auf steilen Stücken
-// mit der Höhe der Straße und auf flachen Stücken mit ihrer Länge (FLAT_RATE).
+// Die Sollstelle bestimmt der „Fahrweg“: Er wächst auf steilen Stücken mit
+// der Höhe der Straße und auf flachen Stücken mit ihrer Länge (FLAT_RATE).
 // Dadurch fährt das Fahrzeug auch durch waagrechte Stücke wie Ein- und Ausfahrt
-// in ruhigem Tempo, statt sie in einem Scrollschritt zu überspringen. Nur dort
-// wandert es im Bildschirm etwas nach oben; diese Bewegung steckt wie die
-// seitliche Lage in den hinterlegten Animationen.
+// in ruhigem Tempo, statt sie in einem Scrollschritt zu überspringen.
 //
-// Es gibt keine Uhr: Die Scroll-Position ist die einzige Eingangsgröße. Beim
-// Zurückscrollen läuft alles rückwärts — Räumspur und Salz eingeschlossen.
+// Beim Zurückscrollen läuft alles rückwärts — Räumspur und Salz eingeschlossen.
 //
 // Der Hintergrund bleibt transparent; gezeichnet werden nur Straße,
 // Schneeränder und Fahrzeug.
@@ -106,21 +95,20 @@ interface Box {
 
 /** Größte Kantenlänge, die alle gängigen Browser für ein Canvas zulassen. */
 const MAX_CANVAS_SIDE = 16000;
-/** Höhe der Fahrzeug-Fläche als Vielfaches der Fahrzeuglänge. Muss Salzwurf
- *  hinten und Schneeauswurf vorne einschließen. */
-const RIG_HEIGHT = 2.8;
+/** Kantenlänge der Zeichenfläche für fliegenden Schnee und Salz als Vielfaches
+ *  der Fahrzeuglänge. Muss Salzwurf hinten und Schneeauswurf vorne einschließen. */
+const FLIGHT_SIZE = 2.8;
 /** Fahrweg je Pixel Straße auf flachen Stücken. Dort fährt das Fahrzeug
  *  1 / FLAT_RATE mal so schnell, wie die Seite scrollt. */
 const FLAT_RATE = 0.6;
 /** Abstand der Stützpunkte des Fahrwegs entlang der Straße, in Pixeln. */
 const WAY_STEP = 3;
-/** Abstand der hinterlegten Fahrzeuglagen in Pixeln Scrollweg. */
-const POSE_STEP = 3;
-/** Dauer der Animationen, wenn das Skript sie selbst stellt (reiner Rechenwert). */
-const MANUAL_MS = 1000;
-
-type ScrollTimelineCtor = new (options: { source: Element; axis: 'block' }) => AnimationTimeline;
-const ScrollTimelineImpl = (globalThis as { ScrollTimeline?: ScrollTimelineCtor }).ScrollTimeline;
+/** Nachfahren: So viele Sekunden braucht das Fahrzeug, um rund zwei Drittel
+ *  des Abstands zu seiner Sollstelle aufzuholen. Kleiner = folgt enger. */
+const FOLLOW_TIME = 0.16;
+/** Höchstes Tempo beim Nachfahren in Fahrzeuglängen je Sekunde. Bei
+ *  schnellem Scrollen bleibt das Fahrzeug zurück und holt danach auf. */
+const MAX_SPEED = 14;
 /** Rand des Fahrzeugschattens um das Bild herum (Anteil der Bildgröße). */
 const SHADOW_PAD = 0.25;
 
@@ -178,21 +166,14 @@ export async function mountWinterRoad(
   // Ebene 1: die Straße in voller Länge, fest in der Seite.
   const roadCanvas = document.createElement('canvas');
   roadCanvas.className = 'wd-road-canvas';
-  // Ebene 2: das Fahrzeug. Die Schiene reicht vom Anfang bis zum Ende der
-  // Straße; darin hält der Browser die Fläche am Bildschirm fest. Auf ihr liegen die Bilder des
-  // Fahrzeugs und darüber die Zeichenfläche für fliegenden Schnee und Salz.
-  const rigTrack = document.createElement('div');
-  rigTrack.className = 'wd-rig-track';
-  const rig = document.createElement('div');
-  rig.className = 'wd-rig';
+  // Ebene 2: die Bilder des Fahrzeugs und darüber die Zeichenfläche für
+  // fliegenden Schnee und Salz, ebenfalls fest in der Seite.
   const sprites = document.createElement('div');
   sprites.className = 'wd-sprites';
   const rigCanvas = document.createElement('canvas');
   rigCanvas.className = 'wd-rig-canvas';
   for (const c of [roadCanvas, rigCanvas]) c.setAttribute('aria-hidden', 'true');
-  rig.append(sprites, rigCanvas);
-  rigTrack.append(rig);
-  root.append(roadCanvas, rigTrack);
+  root.append(roadCanvas, sprites, rigCanvas);
   const rctx = roadCanvas.getContext('2d')!;
   const vctx = rigCanvas.getContext('2d')!;
 
@@ -227,10 +208,6 @@ export async function mountWinterRoad(
   const shadowEl = sprite(vehicleShadow);
   const bodyEl = sprite(vehicleImg, vehicleNight);
   const plowEl = sprite(plowImg, plowNight);
-  /** Laufende Animationen der Fahrzeug-Ebenen. */
-  let drive: Animation[] = [];
-  /** true, wenn der Browser die Animationen selbst an die Scroll-Position hängt. */
-  let scrollLinked = false;
   const flake = softDot('255,255,255', '240,246,252');
   // Schatten unter fliegendem Schnee. Ohne ihn wäre Weiß vor dem weißen
   // Schneerand nicht zu sehen.
@@ -257,13 +234,6 @@ export async function mountWinterRoad(
   let lane = 0;
   let vehLen = 0;
   let vehWid = 0;
-  let rigHeight = 0;
-  /** Abstand der festgehaltenen Fläche zur Oberkante des Bildschirms. */
-  let stickyTop = 0;
-  /** Höchste und tiefste Lage der festgehaltenen Fläche in der Spalte: die
-   *  Enden der Schiene, in der sie läuft. */
-  let rigMin = 0;
-  let rigMax = 0;
   /** Kantenlänge der Zeichenfläche für fliegenden Schnee und Salz. */
   let flightSize = 0;
   /** Fahrweg bis zu jedem Stützpunkt der Straße (aufsteigend). */
@@ -297,8 +267,7 @@ export async function mountWinterRoad(
     return Math.min(path.length, s);
   };
 
-  /** Legt Fahrweg und festgehaltene Fläche fest. Hängt an Straße, Fensterhöhe
-   *  und Seitenlänge. */
+  /** Legt den Fahrweg fest. Hängt an Straße, Fensterhöhe und Seitenlänge. */
   const measure = (): void => {
     if (!path) return;
     rootDocTop = root.getBoundingClientRect().top + window.scrollY;
@@ -322,51 +291,10 @@ export async function mountWinterRoad(
     lineStart = startDoc < window.innerHeight ? startDoc : window.innerHeight * cfg.anchor + lead;
     lineEnd = Math.max(lineStart, startDoc + total - limit);
 
-    // Die festgehaltene Fläche soll dem Fahrzeug von selbst folgen, so gut das
-    // mit sticky geht: Sie liegt zunächst fest in der Seite auf Höhe des
-    // Straßenanfangs, haftet dann am Bildschirm und bleibt am Ende auf Höhe des
-    // Straßenendes wieder in der Seite liegen. Das passt zu einer Straße, die
-    // waagrecht beginnt und endet: dort ändert das Fahrzeug seine Höhe in der
-    // Seite nicht, dazwischen fährt es so schnell abwärts, wie gescrollt wird.
-    const firstY = path.at(0).y;
-    const lastY = path.at(path.length).y;
-    const samples: Array<{ scroll: number; y: number }> = [];
-    const onScreen: number[] = [];
-    for (let i = 0; i <= 120; i++) {
-      const scroll = (limit * i) / 120;
-      const s = distanceAt(scroll);
-      const y = path.at(s).y;
-      samples.push({ scroll, y });
-      if (s > 0 && s < path.length) onScreen.push(y + rootDocTop - scroll);
-    }
-    // Höhe im Bildschirm, auf der das Fahrzeug haftet: dort, wo es sich die
-    // meiste Zeit ohnehin aufhält.
-    onScreen.sort((a, b) => a - b);
-    const hold = onScreen.length ? onScreen[onScreen.length >> 1] : window.innerHeight * cfg.anchor;
-    // Was sticky nicht abdeckt, steckt in den Animationen. Die Fläche muss so
-    // hoch sein, dass das Fahrzeug samt Salzwurf hinten und Schneeauswurf vorne
-    // auch mit dieser Abweichung hineinpasst.
-    let above = 0;
-    let below = 0;
-    for (const { scroll, y } of samples) {
-      const rest = y - clamp(scroll + hold - rootDocTop, firstY, lastY);
-      above = Math.min(above, rest);
-      below = Math.max(below, rest);
-    }
-    const reach = (vehLen * RIG_HEIGHT) / 2;
-    const lift = reach - above;
-    rigHeight = Math.ceil(lift + below + reach);
-    stickyTop = Math.round(hold - lift);
-    rigMin = Math.round(firstY - lift);
-    rigMax = Math.round(lastY - lift);
-    rigTrack.style.top = `${rigMin}px`;
-    rigTrack.style.height = `${rigMax - rigMin + rigHeight}px`;
-    rig.style.top = `${stickyTop}px`;
-    rig.style.height = `${rigHeight}px`;
     // Die Zeichenfläche für fliegenden Schnee und Salz ist nur so groß wie die
     // Umgebung des Fahrzeugs und wird ihm in jedem Bild nachgeschoben. So muss
     // pro Bild nur ein kleines Stück geleert und neu gezeichnet werden.
-    flightSize = Math.ceil(vehLen * RIG_HEIGHT);
+    flightSize = Math.ceil(vehLen * FLIGHT_SIZE);
     rigCanvas.style.width = rigCanvas.style.height = `${flightSize}px`;
     rigCanvas.width = rigCanvas.height = Math.round(flightSize * ratio);
   };
@@ -378,11 +306,6 @@ export async function mountWinterRoad(
     const line = scroll + lineStart + (lineEnd - lineStart) * (limit > 0 ? scroll / limit : 0);
     return distanceForWay(line - (rootDocTop + path.at(0).y));
   };
-
-  /** Oberkante der festgehaltenen Fläche in der Spalte bei einer
-   *  Scroll-Position — dieselbe Rechnung, die der Browser für sticky anstellt. */
-  const rigTopAt = (scroll: number): number =>
-    clamp(scroll + stickyTop - rootDocTop, rigMin, rigMax);
 
   /** Zählt die Aufbauten: Ein älterer, der noch läuft, wird verworfen. */
   let building = 0;
@@ -398,7 +321,6 @@ export async function mountWinterRoad(
       route = null;
       world = null;
       path = null;
-      buildDrive();
       root.classList.remove('is-ready');
       return;
     }
@@ -414,8 +336,7 @@ export async function mountWinterRoad(
       next.shadeFrom === route.shadeFrom
     ) {
       measure();
-      buildDrive();
-      draw();
+      snap();
       return;
     }
 
@@ -471,10 +392,9 @@ export async function mountWinterRoad(
     size(shadowEl, dw * grow, dh * grow);
     size(bodyEl, dw, dh);
     size(plowEl, vehWid, (vehWid * plowImg.naturalHeight) / plowImg.naturalWidth);
-    buildDrive();
 
     paintedPlow = paintedSalt = NaN;
-    draw();
+    snap();
     root.classList.add('is-ready');
   };
 
@@ -641,120 +561,79 @@ export async function mountWinterRoad(
     return { x, y, heading, pivot, blade };
   };
 
-  /** Hinterlegt die Fahrt als Animationen: für jede Scroll-Position die Lage
-   *  von Schatten, Karosserie und Schild auf der festgehaltenen Fläche. Muss
-   *  neu aufgebaut werden, wenn sich Straße, Fensterhöhe oder Seitenlänge ändern. */
-  const buildDrive = (): void => {
-    for (const a of drive) a.cancel();
-    drive = [];
-    if (!path) return;
-
-    const limit = maxScroll();
-    scrollLinked = !!ScrollTimelineImpl && forced === null && limit > 0;
-    const count = clamp(Math.ceil(limit / POSE_STEP), 2, 1500);
-    const drop = vehLen * 0.05;
-    const imageTurn = (cfg.vehicle.imageRotation * Math.PI) / 180;
-    const shadow: Keyframe[] = [];
-    const body: Keyframe[] = [];
-    const plow: Keyframe[] = [];
-    // Winkel fortlaufend halten: ein Sprung von 359° auf 0° würde das Fahrzeug
-    // zwischen zwei Lagen einmal um sich selbst drehen.
-    const follow = (angle: number, last: number): number =>
-      Number.isNaN(last) ? angle : last + Math.atan2(Math.sin(angle - last), Math.cos(angle - last));
-    const place = (el: HTMLElement, x: number, y: number, angle: number): string =>
-      `translate(${(x - parseFloat(el.style.width) / 2).toFixed(2)}px, ${(y - parseFloat(el.style.height) / 2).toFixed(2)}px) rotate(${angle.toFixed(4)}rad)`;
-    let spin = NaN;
-    let blade = NaN;
-    /** Erste Lage, in der das Fahrzeug im abgedunkelten Bereich steht. */
-    let nightFrom = -1;
-    for (let i = 0; i <= count; i++) {
-      const p = i / count;
-      // Mit fest vorgegebenem Fortschritt (Testhilfe) steht die Seite still.
-      const scroll = forced !== null ? window.scrollY : p * limit;
-      const pose = poseAt(forced !== null ? p * path.length : distanceAt(scroll));
-      const top = rigTopAt(scroll);
-      spin = follow(pose.heading + Math.PI / 2 + imageTurn, spin);
-      blade = follow(pose.blade, blade);
-      // Schatten fällt in Lichtrichtung der Szene, unabhängig von der Fahrtrichtung.
-      shadow.push({ transform: place(shadowEl, pose.x + cfg.light.x * drop, pose.y - top + cfg.light.y * drop, spin) });
-      body.push({ transform: place(bodyEl, pose.x, pose.y - top, spin) });
-      plow.push({ transform: place(plowEl, pose.pivot.x, pose.pivot.y - top, blade) });
-      if (nightFrom < 0 && route?.shadeFrom !== undefined && pose.y >= route.shadeFrom) nightFrom = i;
-    }
-
-    const timing: KeyframeAnimationOptions = scrollLinked
-      ? { fill: 'both', timeline: new ScrollTimelineImpl!({ source: document.documentElement, axis: 'block' }) }
-      : { fill: 'both', duration: MANUAL_MS };
-    const run = (el: Element, frames: Keyframe[]): void => {
-      const animation = el.animate(frames, timing);
-      if (!scrollLinked) animation.pause();
-      drive.push(animation);
-    };
-    for (const [el, frames] of [[shadowEl, shadow], [bodyEl, body], [plowEl, plow]] as const) {
-      // Gilt, solange die Animation (noch) nicht greift.
-      el.style.transform = String(frames[0].transform);
-      run(el, frames);
-    }
-
-    // Abgedunkelte Fassung von Karosserie und Schild: ab dem dunklen Bereich
-    // eingeblendet, hart umgeschaltet wie die Kante des Seitenhintergrunds.
-    for (const night of [vehicleNight, plowNight]) {
-      night.style.opacity = nightFrom === 0 ? '1' : '0';
-      if (nightFrom <= 0) continue;
-      const at = nightFrom / count;
-      run(night, [
-        { opacity: 0, offset: 0 },
-        { opacity: 0, offset: at - 1 / count },
-        { opacity: 1, offset: at },
-        { opacity: 1, offset: 1 },
-      ]);
-    }
+  /** Stellt Schatten, Karosserie und Schild an ihre Lage auf der Straße. */
+  const place = (el: HTMLElement, x: number, y: number, angle: number): void => {
+    el.style.transform = `translate(${(x - parseFloat(el.style.width) / 2).toFixed(2)}px, ${(y - parseFloat(el.style.height) / 2).toFixed(2)}px) rotate(${angle.toFixed(4)}rad)`;
   };
+  /** Abgedunkelte Fassung von Karosserie und Schild ab dem dunklen Bereich,
+   *  hart umgeschaltet wie die Kante des Seitenhintergrunds. */
+  let night: boolean | null = null;
 
-  // Scroll-Position des vorigen Bildes, für die Vorausrechnung ohne ScrollTimeline.
-  let lastScroll = NaN;
-  let lastTime = 0;
-
-  const draw = (): void => {
+  /** Zeichnet alles für das Fahrzeug an der Fahrstrecke `s`. */
+  const draw = (s: number): void => {
     if (!world || !path) return;
-    const limit = maxScroll();
-    let scroll = window.scrollY;
-
-    if (!scrollLinked) {
-      // Das Skript sieht die Scroll-Position ein Bild später, als der Browser
-      // sie zeigt. Bei gleichmäßigem Scrollen gleicht ein Bild Vorausrechnung
-      // das aus; ein weiteres Bild danach rückt alles an die echte Stelle.
-      const now = performance.now();
-      const step = now - lastTime < 50 && !Number.isNaN(lastScroll) ? scroll - lastScroll : 0;
-      lastScroll = scroll;
-      lastTime = now;
-      if (step) request();
-      scroll = clamp(scroll + step, 0, limit);
-      const time = (forced ?? (limit > 0 ? scroll / limit : 0)) * MANUAL_MS;
-      for (const a of drive) a.currentTime = time;
-    }
-    if (forced !== null) scroll = window.scrollY;
-
-    const s = forced !== null ? forced * path.length : distanceAt(scroll);
     const spreader = s - vehLen * cfg.vehicle.spreaderPosition;
     const reach = vehLen * cfg.saltThrow;
-    const frontier = s + vehLen * (cfg.plow.position - 0.04);
+    updateRoad(s + vehLen * (cfg.plow.position - 0.04), spreader - reach);
 
-    updateRoad(frontier, spreader - reach);
-
-    // Fliegender Schnee und Salz auf der festgehaltenen Fläche.
     const pose = poseAt(s);
-    const rigTop = rigTopAt(scroll);
+    const imageTurn = (cfg.vehicle.imageRotation * Math.PI) / 180;
+    const spin = pose.heading + Math.PI / 2 + imageTurn;
+    const drop = vehLen * 0.05;
+    // Schatten fällt in Lichtrichtung der Szene, unabhängig von der Fahrtrichtung.
+    place(shadowEl, pose.x + cfg.light.x * drop, pose.y + cfg.light.y * drop, spin);
+    place(bodyEl, pose.x, pose.y, spin);
+    place(plowEl, pose.pivot.x, pose.pivot.y, pose.blade);
+    const dark = route?.shadeFrom !== undefined && pose.y >= route.shadeFrom;
+    if (dark !== night) {
+      night = dark;
+      vehicleNight.style.opacity = plowNight.style.opacity = dark ? '1' : '0';
+    }
+
+    // Fliegender Schnee und Salz auf der kleinen Fläche um das Fahrzeug.
     const left = Math.round(pose.x - flightSize / 2);
-    const top = Math.round(pose.y - rigTop - flightSize / 2);
+    const top = Math.round(pose.y - flightSize / 2);
     rigCanvas.style.transform = `translate3d(${left}px, ${top}px, 0)`;
     vctx.setTransform(1, 0, 0, 1, 0, 0);
     vctx.clearRect(0, 0, rigCanvas.width, rigCanvas.height);
-    vctx.setTransform(ratio, 0, 0, ratio, Math.round(-left * ratio), Math.round(-(rigTop + top) * ratio));
+    vctx.setTransform(ratio, 0, 0, ratio, -left * ratio, -top * ratio);
     if (salt && salt.count) drawSaltInFlight(spreader, reach);
     if (spray && spray.count) drawSpray(s, pose.pivot, pose.blade);
 
     options.onProgress?.(clamp(s / path.length, 0, 1));
+  };
+
+  /** Fahrstrecke, an der das Fahrzeug gerade steht (NaN = noch nirgends). */
+  let shown = NaN;
+  let lastTick = 0;
+
+  /** Sollstelle des Fahrzeugs. */
+  const targetNow = (): number =>
+    !path ? 0 : forced !== null ? forced * path.length : distanceAt(window.scrollY);
+
+  /** Fährt der Sollstelle ein Stück nach und zeichnet. */
+  const advance = (now: number): void => {
+    if (!world || !path) return;
+    const target = targetNow();
+    // Nach einer Pause rechnet das erste Bild mit normaler Bilddauer.
+    const dt = now - lastTick > 100 ? 1 / 60 : (now - lastTick) / 1000;
+    lastTick = now;
+    if (Number.isNaN(shown)) shown = target;
+    else {
+      const top = vehLen * MAX_SPEED;
+      const speed = clamp((target - shown) / FOLLOW_TIME, -top, top);
+      const next = shown + speed * dt;
+      // Nicht über die Sollstelle hinausschießen.
+      shown = (target - shown) * (target - next) <= 0 || Math.abs(target - next) < 0.2 ? target : next;
+    }
+    draw(shown);
+    if (shown !== target) request();
+  };
+
+  /** Stellt das Fahrzeug ohne Nachfahren an seine Sollstelle. */
+  const snap = (): void => {
+    shown = NaN;
+    advance(performance.now());
   };
 
   /** Streusalz im Flug. Jedes Korn hat einen festen Landeplatz. Liegt der
@@ -839,10 +718,11 @@ export async function mountWinterRoad(
   };
 
   // ── Scroll-Kopplung ──────────────────────────────────────────────────────
-  // Höchstens ein Bild je Bildschirm-Aktualisierung, und nur wenn gescrollt wurde.
-  const tick = (): void => {
+  // Höchstens ein Bild je Bildschirm-Aktualisierung, solange gescrollt wird
+  // oder das Fahrzeug noch nachfährt.
+  const tick = (now: number): void => {
     frame = 0;
-    draw();
+    advance(now);
   };
 
   let resizeTimer = 0;
@@ -854,8 +734,7 @@ export async function mountWinterRoad(
       else if (world) {
         // Fahrlinie und Fahrt hängen auch an Fensterhöhe und Seitenlänge.
         measure();
-        buildDrive();
-        draw();
+        request();
       }
     }, 150);
   };
@@ -872,8 +751,7 @@ export async function mountWinterRoad(
     rebuild,
     setProgress(value) {
       forced = value === null ? null : clamp(value, 0, 1);
-      buildDrive();
-      request();
+      snap();
     },
     destroy() {
       observer.disconnect();
@@ -881,9 +759,9 @@ export async function mountWinterRoad(
       window.removeEventListener('resize', onResize);
       window.clearTimeout(resizeTimer);
       if (frame) cancelAnimationFrame(frame);
-      for (const a of drive) a.cancel();
       roadCanvas.remove();
-      rigTrack.remove();
+      sprites.remove();
+      rigCanvas.remove();
       root.classList.remove('is-ready');
     },
   };
