@@ -13,7 +13,7 @@ import { about, customers, values } from '../content/site';
 // dichten Schleier fällt stärkere Kompression nicht auf (2400 px: rund 0,5 MB).
 ---
 
-<section id="ueber-uns" class="relative isolate scroll-mt-24 overflow-hidden bg-navy-900 py-20 sm:py-28">
+<section id="ueber-uns" class="about relative isolate scroll-mt-24 overflow-hidden py-20 sm:py-28">
   <Image
     src={forest}
     alt=""
@@ -26,51 +26,51 @@ import { about, customers, values } from '../content/site';
   <div class="about-shade" data-wd-shade></div>
 
   <div class="mx-auto max-w-6xl px-6">
-    <p class="flex items-center gap-3 font-mono text-xs uppercase tracking-[0.14em] text-slate-300">
+    <p class="flex items-center gap-3 font-mono text-xs uppercase tracking-[0.14em] about-label">
       <span class="inline-block h-px w-6 bg-copper-500"></span>
       {about.eyebrow}
     </p>
 
     <div class="mt-10 grid gap-12 sm:grid-cols-2 lg:gap-x-20 lg:gap-y-16">
       <div>
-        <h2 class="font-mono text-xs uppercase tracking-[0.14em] text-slate-300">
+        <h2 class="font-mono text-xs uppercase tracking-[0.14em] about-label">
           {about.headline}
         </h2>
-        <p class="mt-5 text-justify text-base leading-relaxed text-fog-50">
+        <p class="mt-5 text-justify text-base leading-relaxed about-text">
           {about.lead}
         </p>
       </div>
 
       <div>
-        <h3 class="font-mono text-xs uppercase tracking-[0.14em] text-slate-300">
+        <h3 class="font-mono text-xs uppercase tracking-[0.14em] about-label">
           {about.whatWeDo.headline}
         </h3>
-        <p class="mt-5 text-justify text-base leading-relaxed text-fog-50">
+        <p class="mt-5 text-justify text-base leading-relaxed about-text">
           {about.whatWeDo.text}
         </p>
       </div>
 
       <div>
-        <h3 class="font-mono text-xs uppercase tracking-[0.14em] text-slate-300">
+        <h3 class="font-mono text-xs uppercase tracking-[0.14em] about-label">
           {customers.headline}
         </h3>
         <ul class="mt-5 space-y-3">
           {
             customers.items.map((item) => (
-              <li class="text-base font-semibold text-white">{item}</li>
+              <li class="text-base font-semibold about-item">{item}</li>
             ))
           }
         </ul>
       </div>
 
       <div data-wd-anchor="values">
-        <h3 class="font-mono text-xs uppercase tracking-[0.14em] text-slate-300">
+        <h3 class="font-mono text-xs uppercase tracking-[0.14em] about-label">
           {values.headline}
         </h3>
         <ul class="mt-5 space-y-3">
           {
             values.items.map((item) => (
-              <li class="text-base font-semibold text-white">{item}</li>
+              <li class="text-base font-semibold about-item">{item}</li>
             ))
           }
         </ul>
@@ -80,6 +80,38 @@ import { about, customers, values } from '../content/site';
 </section>
 
 <style>
+  /* Schriftfarben hier statt als Tailwind-Klassen, damit der Schalter in der
+     Kopfzeile sie umstellen kann. */
+  .about {
+    background: var(--color-navy-900);
+  }
+  .about-label {
+    color: var(--color-slate-300);
+  }
+  .about-text {
+    color: var(--color-fog-50);
+  }
+  .about-item {
+    color: var(--color-white);
+  }
+
+  /* Waldbild per Schalter abgeschaltet (Klasse fx-off-forest am <html>):
+     wieder hell auf bg-band mit dunkler Schrift wie vor dem Waldbild. */
+  :global(.fx-off-forest) .about {
+    background: var(--color-band);
+  }
+  :global(.fx-off-forest) .about-label,
+  :global(.fx-off-forest) .about-text {
+    color: var(--color-slate-600);
+  }
+  :global(.fx-off-forest) .about-item {
+    color: var(--color-navy-800);
+  }
+  :global(.fx-off-forest .about-forest),
+  :global(.fx-off-forest) .about-shade {
+    display: none;
+  }
+
   /* Foto und Schleier füllen den Abschnitt. bg-navy-900 steht darunter, bis
      das Foto geladen ist. <Image> bekommt das Merkmal für bereichsgebundene
      Stile nicht, daher :global. */

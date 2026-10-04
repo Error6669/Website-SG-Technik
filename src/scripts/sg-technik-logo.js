@@ -22,6 +22,11 @@
   var RING_L = 2 * Math.PI * 201, CH_L = 470;
   var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   var uid = 0;
+  // Abweichung vom Original: Der Schalter in der Kopfzeile kann die Animation
+  // abstellen (Klasse fx-off-logo am <html>, Ereignis sg:fx). Dann steht das
+  // fertige Logo still, bis die Seite neu geladen oder wieder eingeschaltet wird.
+  function isOff() { return document.documentElement.classList.contains('fx-off-logo'); }
+  var states = [];
 
   function lx(i) { return 85 + i * 36.58; }
 
@@ -100,6 +105,7 @@
   function mk(tag, attrs) { var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); return e; }
 
   function Salt(svg, speed) {
+    var dead = false;
     var lanes = [0, 1, 2].map(function (i) {
       var x0 = lx(i), R = rnd(4321 + i * 777), pool = [], g = q(svg, '.sgt-p', i), dg = q(svg, '.sgt-d', i), k;
       for (k = 0; k < 140; k++) { var c = mk('circle', { r: 0, fill: '#fff' }); g.appendChild(c); pool.push({ c: c, a: 0 }); }
@@ -196,50 +202,89 @@
       lanes.forEach(function (L) { step(L, dt); });
       raf = requestAnimationFrame(frame);
     }
-    function start() { if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); } }
+    function start() { if (!raf && !dead) { last = performance.now(); raf = requestAnimationFrame(frame); } }
     function stop() { if (raf) { cancelAnimationFrame(raf); raf = 0; } }
+    var io = null;
     if ('IntersectionObserver' in window) {
-      new IntersectionObserver(function (es) { visible = es[0].isIntersecting; visible ? start() : stop(); }).observe(svg);
+      io = new IntersectionObserver(function (es) { visible = es[0].isIntersecting; visible ? start() : stop(); });
+      io.observe(svg);
     }
-    document.addEventListener('visibilitychange', function () { document.hidden ? stop() : (visible && start()); });
+    function onVisibility() { document.hidden ? stop() : (visible && start()); }
+    document.addEventListener('visibilitychange', onVisibility);
     // Abweichung vom Original (Animationen/sg-technik-logo.js): Während gescrollt
     // wird, ruht der Loop. Er baut in jedem Bild Pfade und Körner des SVG neu auf;
     // das nimmt der scrollgekoppelten Winterdienst-Straße auf der Startseite die
     // Rechenzeit und ließ sie ruckeln, solange das Logo im Bild war.
     var idle = 0;
-    window.addEventListener('scroll', function () {
+    function onScroll() {
       stop();
       clearTimeout(idle);
       idle = setTimeout(function () { if (visible && !document.hidden) start(); }, 180);
-    }, { passive: true });
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
     start();
+    // Beendet den Loop endgültig (Animation per Schalter abgestellt).
+    return function () {
+      dead = true;
+      stop();
+      clearTimeout(idle);
+      if (io) io.disconnect();
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('scroll', onScroll);
+    };
+  }
+
+  // Baut den Loop an einer ruhigen Stelle auf, sofern das SVG bis dahin nicht
+  // ersetzt und die Animation nicht abgestellt wurde.
+  function startLoop(st) {
+    var svg = st.svg;
+    var later = window.requestIdleCallback || function (f) { setTimeout(f, 50); };
+    later(function () { if (st.svg === svg && !isOff()) st.salt = Salt(svg, st.speed); }, { timeout: 600 });
   }
 
   function init(el) {
     if (el.getAttribute('data-sgt-ready')) return;
     el.setAttribute('data-sgt-ready', '1');
-    var intro = !reduce && el.getAttribute('data-intro') !== 'false';
+    var intro = !reduce && !isOff() && el.getAttribute('data-intro') !== 'false';
     var loop = !reduce && el.getAttribute('data-loop') !== 'false';
     var speed = parseFloat(el.getAttribute('data-speed')) || 1;
     var svg = build(el, intro);
+    var st = { el: el, svg: svg, loop: loop, speed: speed, salt: null, io: null };
+    states.push(st);
     // Abweichung vom Original: Der Aufbau des Loops wartet auf eine ruhige
     // Stelle, statt direkt im letzten Bild des Intros zu laufen. Danach erfährt
     // die Seite per Ereignis, dass das Intro durch ist (die Winterdienst-Straße
     // wartet darauf mit ihrem Aufbau).
     var go = function () {
+      if (st.svg !== svg) return; // inzwischen per Schalter ersetzt
       if (intro) document.dispatchEvent(new Event('sgt:intro-done'));
-      if (!loop) return;
-      var later = window.requestIdleCallback || function (f) { setTimeout(f, 50); };
-      later(function () { Salt(svg, speed); }, { timeout: 600 });
+      if (loop && !isOff()) startLoop(st);
     };
     if (!intro) { go(); return; }
     if ('IntersectionObserver' in window) {
-      var io = new IntersectionObserver(function (es) {
-        if (es[0].isIntersecting) { io.disconnect(); playIntro(svg, go); }
+      var io = st.io = new IntersectionObserver(function (es) {
+        if (es[0].isIntersecting) { io.disconnect(); st.io = null; playIntro(svg, go); }
       }, { threshold: 0.3 });
       io.observe(el);
     } else playIntro(svg, go);
   }
+
+  // Schalter in der Kopfzeile: Aus ersetzt jedes Logo durch das fertige,
+  // stehende Bild (laufendes Intro und Loop enden damit). An startet den Loop
+  // wieder, das Intro wird nicht wiederholt.
+  function setAnimated(on) {
+    states.forEach(function (st) {
+      if (st.salt) { st.salt(); st.salt = null; }
+      if (st.io) { st.io.disconnect(); st.io = null; }
+      st.svg = build(st.el, false);
+      if (on && st.loop) startLoop(st);
+    });
+    // Wer auf das Ende des Intros wartet (Winterdienst-Straße), muss nicht länger warten.
+    if (!on) document.dispatchEvent(new Event('sgt:intro-done'));
+  }
+  document.addEventListener('sg:fx', function (e) {
+    if (e.detail && e.detail.name === 'logo' && !reduce) setAnimated(e.detail.on);
+  });
 
   function initAll() { [].forEach.call(document.querySelectorAll('.sgt-logo'), init); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAll); else initAll();

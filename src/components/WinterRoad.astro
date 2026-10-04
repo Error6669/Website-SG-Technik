@@ -14,6 +14,8 @@
 // Reine Zierde: für Screenreader ausgeblendet, fängt keine Klicks ab. Unter
 // 1360 px Breite ist rechts neben dem Inhalt kein Platz, dort wird weder
 // gezeichnet noch etwas geladen. Dasselbe gilt bei „Bewegung reduzieren“.
+// Der Schalter in der Kopfzeile nimmt Straße und Fahrzeug ganz weg (Klasse
+// fx-off-road am <html>, Ereignis sg:fx) und baut sie beim Einschalten neu auf.
 //
 // Zum Einstellen: `?wd-debug` in der Adresse zeichnet den Pfad mit allen
 // Punkten ein, `?wd-p=0.5` stellt das Fahrzeug auf 50 % der Strecke (nur ohne
@@ -31,7 +33,19 @@ const { route } = Astro.props;
   const root = document.querySelector<HTMLElement>('[data-winter-road]');
   const wide = window.matchMedia('(min-width: 85rem)');
   const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const isOff = (): boolean => document.documentElement.classList.contains('fx-off-road');
   let started = false;
+  let road: { destroy(): void } | null = null;
+  let wheel = false;
+
+  /** Nimmt Straße, Fahrzeug und Baumschatten wieder aus der Seite. */
+  const unmount = (): void => {
+    road?.destroy();
+    road = null;
+    root?.querySelector('.wd-canopy-canvas')?.remove();
+    root?.classList.remove('is-ready');
+    started = false;
+  };
 
   // Läuft oben im Bild das Intro des Logos, wartet der Aufbau der Szene, bis es
   // fertig ist: Beides zugleich ließ das Intro auf schwachen Rechnern ruckeln.
@@ -54,7 +68,7 @@ const { route } = Astro.props;
     });
 
   const start = async (): Promise<void> => {
-    if (started || !root || !wide.matches || calm.matches) return;
+    if (started || !root || !wide.matches || calm.matches || isOff()) return;
     started = true;
     const [{ mountWinterRoad }, { planRoute }, { WINTER_ROAD }] = await Promise.all([
       import('../scripts/winterdienst/winter-road'),
@@ -75,29 +89,44 @@ const { route } = Astro.props;
           document.querySelector<HTMLElement>('[data-wd-shade]'),
         )
       : null;
-    const road = await mountWinterRoad(root, WINTER_ROAD, {
+    const mounted = await mountWinterRoad(root, WINTER_ROAD, {
       layout: (size) => planRoute(root, size),
       debug: params.has('wd-debug'),
       onBuild: canopy ? (path, width) => void canopy(path, width).catch(() => undefined) : undefined,
     });
+    road = mounted;
+    // Während des Aufbaus abgeschaltet: gleich wieder weg.
+    if (isOff()) return unmount();
     const fixed = params.get('wd-p');
-    if (fixed) road.setProgress(Number(fixed));
+    if (fixed) mounted.setProgress(Number(fixed));
     // Nur Safari: Mausrad-Rasten weich ausrollen, sonst springt die Seite samt
     // Fahrzeug je Raste (siehe smooth-wheel.ts). `?wd-wheel=off` zum Vergleich.
+    // Nur einmal einhängen; ohne Straße (is-ready fehlt) gibt es von selbst nach.
     const safari = /^((?!chrome|chromium|crios|fxios|android).)*safari/i.test(navigator.userAgent);
-    if (safari && params.get('wd-wheel') !== 'off') {
+    if (safari && !wheel && params.get('wd-wheel') !== 'off') {
+      wheel = true;
       const { smoothWheel } = await import('../scripts/winterdienst/smooth-wheel');
       smoothWheel(() => wide.matches && root.classList.contains('is-ready'));
     }
     // Nachgeladene Schriften verschieben Textkanten, ohne dass sich die Höhe
     // der Seite ändern muss.
-    document.fonts.ready.then(() => void road.rebuild());
+    document.fonts.ready.then(() => void (road === mounted && mounted.rebuild()));
   };
 
+  // Aufbau und Abbau laufen nacheinander, nie gleichzeitig: Wer schnell aus-
+  // und wieder einschaltet, bekommt sonst zwei Straßen übereinander.
   // Ohne Straße bleibt die Seite vollständig, ein Fehler hier darf nichts stören.
-  const run = (): void => void start().catch(() => root?.classList.remove('is-ready'));
+  let queue = Promise.resolve();
+  const enqueue = (job: () => void | Promise<void>): void => {
+    queue = queue.then(job).catch(() => root?.classList.remove('is-ready'));
+  };
+  const run = (): void => enqueue(start);
   run();
   wide.addEventListener('change', run);
+  document.addEventListener('sg:fx', (e) => {
+    const { name, on } = (e as CustomEvent<{ name: string; on: boolean }>).detail;
+    if (name === 'road') enqueue(on ? start : unmount);
+  });
 </script>
 
 <style is:global>
@@ -129,6 +158,13 @@ const { route } = Astro.props;
     .wd-road {
       display: none;
     }
+  }
+
+  /* Per Schalter in der Kopfzeile abgeschaltet. Bäume über der Straße gehören
+     zum Waldbild und fallen mit ihm weg. */
+  .fx-off-road .wd-road,
+  .fx-off-forest .wd-canopy-canvas {
+    display: none;
   }
 
   /* Ebene 1: die Straße in voller Länge. Liegt fest in der Seite und scrollt

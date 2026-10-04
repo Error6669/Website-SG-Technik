@@ -13,6 +13,38 @@ const isCurrent = (href: string): boolean => {
   const path = href.replace(/\/+$/, '') || '/';
   return path === pathname;
 };
+
+// Schalter für die Zierde der Seite, gelten nur bis zum nächsten Seitenaufruf
+// (bewusst ohne Speicherung, die Rechtstexte sagen: kein localStorage o. Ä.).
+// `target` ist das, worauf der Schalter wirkt; fehlt es auf der Seite, bleibt
+// der Schalter verborgen. `motion`: wirkungslos bei „Bewegung reduzieren“.
+// `wide`: Die Straße gibt es erst ab 85rem Breite, darunter fehlt der Schalter.
+const fxToggles = [
+  {
+    name: 'logo',
+    label: 'Logo-Animation',
+    target: '.sgt-logo',
+    motion: true,
+    wide: false,
+    icon: 'M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0M8.5 7v6.5l3.5 3l3.5 -3',
+  },
+  {
+    name: 'road',
+    label: 'Straße mit Räumfahrzeug',
+    target: '[data-winter-road]',
+    motion: true,
+    wide: true,
+    icon: 'M8 3L4 21M16 3l4 18M12 4v2.5M12 10.5v3M12 17.5v3',
+  },
+  {
+    name: 'forest',
+    label: 'Waldbild bei „Über uns“',
+    target: '[data-wd-forest]',
+    motion: false,
+    wide: false,
+    icon: 'M12 3l-6 8h3l-4 6h14l-4 -6h3zM12 17v4',
+  },
+];
 ---
 
 <header class="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-navy-900">
@@ -69,13 +101,38 @@ const isCurrent = (href: string): boolean => {
       }
     </nav>
 
-    <a
-      href={primaryCta.href}
-      data-press
-      class="sg-press-cta hidden rounded-sm border border-copper-500 px-4 py-2 font-body text-sm font-semibold text-fog-50 transition-colors hover:bg-copper-600 hover:border-copper-600 lg:inline-block"
-    >
-      {primaryCta.label}
-    </a>
+    <div class="hidden items-center gap-5 lg:flex">
+      <a
+        href={primaryCta.href}
+        data-press
+        class="sg-press-cta rounded-sm border border-copper-500 px-4 py-2 font-body text-sm font-semibold text-fog-50 transition-colors hover:bg-copper-600 hover:border-copper-600"
+      >
+        {primaryCta.label}
+      </a>
+      {
+        fxToggles.map((fx) => (
+          <button
+            type="button"
+            hidden
+            data-fx-toggle={fx.name}
+            data-fx-target={fx.target}
+            data-fx-motion={fx.motion ? '' : undefined}
+            data-fx-wide={fx.wide ? '' : undefined}
+            data-press
+            aria-pressed="true"
+            aria-label={fx.label}
+            title={`${fx.label} ausschalten`}
+            class="sg-press-icon sg-fx inline-flex text-slate-300 hover:text-fog-50"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d={fx.icon} stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+              <path class="sg-fx-gap" d="M4 4l16 16" stroke-width="4.5" stroke-linecap="round" />
+              <path class="sg-fx-slash" d="M4 4l16 16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+            </svg>
+          </button>
+        ))
+      }
+    </div>
 
     <button
       type="button"
@@ -111,6 +168,26 @@ const isCurrent = (href: string): boolean => {
         </a>
       ))
     }
+    {/* Ohne die Straße: Die gibt es erst weit über der Breite des Menüs. */}
+    <div hidden data-fx-group class="mt-2 flex flex-col gap-1 border-t border-white/10 pt-3">
+      {
+        fxToggles.filter((fx) => !fx.wide).map((fx) => (
+          <button
+            type="button"
+            hidden
+            data-fx-toggle={fx.name}
+            data-fx-target={fx.target}
+            data-fx-motion={fx.motion ? '' : undefined}
+            data-press
+            aria-pressed="true"
+            class="sg-fx flex items-center justify-between py-2 text-left font-body text-base text-slate-300 hover:text-fog-50"
+          >
+            {fx.label}
+            <span class="sg-fx-state font-body text-sm" aria-hidden="true" />
+          </button>
+        ))
+      }
+    </div>
   </nav>
 </header>
 
@@ -192,6 +269,38 @@ const isCurrent = (href: string): boolean => {
     const target = event.target as Node;
     if (menu?.contains(target) || toggle?.contains(target)) return;
     closeMenu();
+  });
+
+  // -----------------------------------------------------------------------
+  // Schalter für Logo-Animation, Straße und Waldbild. Gilt nur für diesen
+  // Seitenaufruf: Klasse fx-off-<name> am <html> (für CSS) und Ereignis sg:fx
+  // (für die Skripte von Logo und Straße). Desktop-Knopf und Menü-Eintrag
+  // gehören zusammen und zeigen denselben Stand.
+  // -----------------------------------------------------------------------
+  const fxButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-fx-toggle]'));
+  const calmMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const showFx = (btn: HTMLButtonElement, on: boolean): void => {
+    btn.setAttribute('aria-pressed', String(on));
+    const state = btn.querySelector('.sg-fx-state');
+    if (state) state.textContent = on ? 'An' : 'Aus';
+    if (btn.title) btn.title = `${btn.getAttribute('aria-label')} ${on ? 'ausschalten' : 'einschalten'}`;
+  };
+
+  fxButtons.forEach((btn) => {
+    const target = btn.dataset.fxTarget;
+    if (!target || !document.querySelector(target)) return;
+    if (calmMotion && btn.hasAttribute('data-fx-motion')) return;
+    btn.hidden = false;
+    showFx(btn, true);
+    btn.closest<HTMLElement>('[data-fx-group]')?.removeAttribute('hidden');
+    btn.addEventListener('click', () => {
+      const name = btn.dataset.fxToggle!;
+      const on = btn.getAttribute('aria-pressed') !== 'true';
+      document.documentElement.classList.toggle(`fx-off-${name}`, !on);
+      fxButtons.filter((b) => b.dataset.fxToggle === name).forEach((b) => showFx(b, on));
+      document.dispatchEvent(new CustomEvent('sg:fx', { detail: { name, on } }));
+    });
   });
 
   // -----------------------------------------------------------------------
@@ -286,6 +395,31 @@ const isCurrent = (href: string): boolean => {
      einen kupfernen Strich zwischen Kopfzeile und Menü). */
   [data-mobile-menu]:focus,
   [data-mobile-menu]:focus-visible {
+    outline: none;
+  }
+
+  /* Schalter: Ist die Zierde aus, ist das Symbol durchgestrichen. Unter dem
+     Strich liegt ein Streifen in Kopfzeilenfarbe, der das Symbol sauber trennt. */
+  .sg-fx-gap {
+    stroke: var(--color-navy-900);
+  }
+  .sg-fx[aria-pressed='true'] .sg-fx-gap,
+  .sg-fx[aria-pressed='true'] .sg-fx-slash {
+    display: none;
+  }
+  .sg-fx[aria-pressed='false'] .sg-fx-state {
+    color: var(--color-slate-500);
+  }
+  /* Die Straße gibt es erst ab 85rem Breite. */
+  @media (max-width: 84.999rem) {
+    .sg-fx[data-fx-wide] {
+      display: none !important;
+    }
+  }
+  .sg-fx {
+    -webkit-tap-highlight-color: transparent;
+  }
+  .sg-fx:focus:not(:focus-visible) {
     outline: none;
   }
 
