@@ -22,7 +22,14 @@ const { class: className = '' } = Astro.props;
 ---
 
 <div class:list={['logomark', className]}>
-  <div class="sgt-logo"></div>
+  {/* Ohne JavaScript bleibt das Script aus, das das SVG aufbaut → statisches Endbild
+      (gleiche Pfade, erzeugt aus den Daten in sg-technik-logo.js). Mit JS ersetzt das
+      Script den Inhalt ohnehin per innerHTML. */}
+  <div class="sgt-logo">
+    <noscript>
+      <img src="/logo/sg-technik-mark-static.svg" alt="SG Technik – Silo- und Soleanlagenbau" width="410" height="410" style="display:block;width:100%;height:auto" />
+    </noscript>
+  </div>
 </div>
 
 <script>

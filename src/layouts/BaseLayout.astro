@@ -20,6 +20,21 @@ const { title, description } = Astro.props;
     <link rel="icon" type="image/svg+xml" href="/logo/sg-technik-logo.svg" />
     <meta name="description" content={description} />
     <title>{title}</title>
+    {/*
+      Ohne JavaScript: Mobilmenü dauerhaft offen statt Knopf ohne Funktion, und die
+      Produkt-Umschalter weg — deren Inhalt steht dann vollständig in einem
+      <noscript>-Block der ProductsTechSection. Bricht 64rem = Tailwind-lg.
+      Die Kopfzeile scrollt dann mit, sonst verdeckt das offene Menü den Inhalt.
+    */}
+    <noscript>
+      <style is:inline>
+        @media (max-width: 63.999rem) {
+          body > header { position: relative !important; }
+          [data-mobile-menu] { display: flex !important; }
+        }
+        [data-menu-toggle], .pt-mbar, .pt-mstage, .pt-desk { display: none !important; }
+      </style>
+    </noscript>
   </head>
   {/*
     min-h-screen + flex-col: Der Rumpf ist mindestens bildschirmhoch, <main>

@@ -59,7 +59,7 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
     </div>
 
     {/* DESKTOP: zweispaltig — links Umschalter, rechts der aktive Text (Stepped-Scrolling) */}
-    <div class="hidden lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-10 xl:gap-16">
+    <div class="pt-desk hidden lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-10 xl:gap-16">
       {/* RECHTS (order-2): nur der aktive Kategorie-Text */}
       <div class="pt-stream lg:order-2">
         {
@@ -115,6 +115,40 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
         </div>
       </aside>
     </div>
+
+    {/* OHNE JAVASCRIPT: Umschalter funktionieren nicht → alle Produkte untereinander.
+        Die interaktiven Ansichten blendet die <noscript>-Regel in BaseLayout aus. */}
+    <noscript>
+      <div class="divide-y divide-line border-t border-line pb-16">
+        {
+          productCategories.map((c, i) => (
+            <div class="py-10 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-10 xl:gap-16">
+              <div>
+                <p class="font-mono text-xs tabular-nums text-slate-600">{String(i + 1).padStart(2, '0')}</p>
+                <h2 class="mt-1 font-display text-xl font-semibold text-navy-900">{c.name}</h2>
+                <p class="mt-2 text-sm leading-relaxed text-slate-600">{c.tagline}</p>
+                {c.specs.length > 0 && (
+                  <dl class="mt-3 divide-y divide-line border-t border-line">
+                    {c.specs.map((s) => (
+                      <div class="py-2.5">
+                        <dt class={dtClass}>{s.label}</dt>
+                        <dd class="mt-1 break-words text-sm leading-relaxed text-navy-900">{s.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+              </div>
+              <div class="mt-6 space-y-4 text-base leading-relaxed text-slate-600 text-justify hyphens-auto lg:mt-0">
+                <p>{c.intro}</p>
+                {c.paragraphs.map((t) => (
+                  <p>{t}</p>
+                ))}
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </noscript>
   </div>
 </section>
 
