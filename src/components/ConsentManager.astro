@@ -59,25 +59,35 @@
     const MAX_AGE_MS = cfg.maxAgeMonths * 30.4 * 24 * 60 * 60 * 1000;
 
     // --- Speicherung (mit Ablauf) -----------------------------------------
+    // Zusätzlich zum localStorage hält `memory` die letzte Auswahl im Arbeitsspeicher.
+    // Blockiert der Browser den Speicher (Privatmodus, Einstellungen), gilt die
+    // Auswahl so wenigstens bis zum Neuladen — und ein Widerruf wird erkannt, statt
+    // dass read() schon nach dem Akzeptieren wieder „keine Einwilligung" meldet.
+    let memory: StoredConsent | null = null;
+
+    const valid = (data: StoredConsent | null): StoredConsent | null => {
+      if (!data || data.v !== cfg.version) return null; // Version veraltet
+      if (data.ts && Date.now() - Date.parse(data.ts) > MAX_AGE_MS) return null; // abgelaufen
+      return data;
+    };
+
     const read = (): StoredConsent | null => {
       try {
         const raw = localStorage.getItem(cfg.storageKey);
-        if (!raw) return null;
-        const data = JSON.parse(raw) as StoredConsent;
-        if (!data || data.v !== cfg.version) return null; // Version veraltet
-        if (data.ts && Date.now() - Date.parse(data.ts) > MAX_AGE_MS) return null; // abgelaufen
-        return data;
+        if (raw) return valid(JSON.parse(raw) as StoredConsent);
       } catch {
-        return null;
+        /* Speicher blockiert oder Eintrag kaputt → Arbeitsspeicher */
       }
+      return valid(memory);
     };
 
     const write = (payload: Partial<StoredConsent>): StoredConsent => {
       const data: StoredConsent = { v: cfg.version, ts: new Date().toISOString(), ...payload };
+      memory = data;
       try {
         localStorage.setItem(cfg.storageKey, JSON.stringify(data));
       } catch {
-        /* localStorage nicht verfügbar (z. B. Privatmodus) — gilt für die Sitzung. */
+        /* localStorage nicht verfügbar — `memory` trägt die Auswahl bis zum Neuladen. */
       }
       return data;
     };
