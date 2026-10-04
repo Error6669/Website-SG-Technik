@@ -1,54 +1,76 @@
 ---
+import { Image } from 'astro:assets';
+import forest from '../assets/wald/winterwald.webp';
 import { about, customers, values } from '../content/site';
+
+// Hintergrund: verschneiter Wald von oben, aus Animationen/EFF597F8-….jpeg
+// mit herausgerechneter Straße, unter einem dunkelblauen Schleier für die
+// helle Schrift. Die Winterdienst-Straße führt rechts durch diesen Wald und
+// liegt über dem Schleier; ihre überhängenden Bäume zeichnet canopy.ts aus
+// demselben Bild (data-wd-forest) und dunkelt sie wie den Wald ab
+// (data-wd-shade). Bei 1600 px Breite ist die Straße im Foto so breit wie die
+// gezeichnete, das Verhältnis von Bäumen zu Fahrbahn stimmt also. Unter dem
+// dichten Schleier fällt stärkere Kompression nicht auf (2400 px: rund 0,5 MB).
 ---
 
-<section id="ueber-uns" class="scroll-mt-24 bg-band py-20 sm:py-28">
+<section id="ueber-uns" class="relative isolate scroll-mt-24 overflow-hidden bg-navy-900 py-20 sm:py-28">
+  <Image
+    src={forest}
+    alt=""
+    widths={[960, 1600, 2400]}
+    sizes="100vw"
+    quality={50}
+    class="about-forest"
+    data-wd-forest
+  />
+  <div class="about-shade" data-wd-shade></div>
+
   <div class="mx-auto max-w-6xl px-6">
-    <p class="flex items-center gap-3 font-mono text-xs uppercase tracking-[0.14em] text-slate-600">
+    <p class="flex items-center gap-3 font-mono text-xs uppercase tracking-[0.14em] text-slate-300">
       <span class="inline-block h-px w-6 bg-copper-500"></span>
       {about.eyebrow}
     </p>
 
     <div class="mt-10 grid gap-12 sm:grid-cols-2 lg:gap-x-20 lg:gap-y-16">
       <div>
-        <h2 class="font-mono text-xs uppercase tracking-[0.14em] text-slate-600">
+        <h2 class="font-mono text-xs uppercase tracking-[0.14em] text-slate-300">
           {about.headline}
         </h2>
-        <p class="mt-5 text-justify text-base leading-relaxed text-slate-600">
+        <p class="mt-5 text-justify text-base leading-relaxed text-fog-50">
           {about.lead}
         </p>
       </div>
 
       <div>
-        <h3 class="font-mono text-xs uppercase tracking-[0.14em] text-slate-600">
+        <h3 class="font-mono text-xs uppercase tracking-[0.14em] text-slate-300">
           {about.whatWeDo.headline}
         </h3>
-        <p class="mt-5 text-justify text-base leading-relaxed text-slate-600">
+        <p class="mt-5 text-justify text-base leading-relaxed text-fog-50">
           {about.whatWeDo.text}
         </p>
       </div>
 
       <div>
-        <h3 class="font-mono text-xs uppercase tracking-[0.14em] text-slate-600">
+        <h3 class="font-mono text-xs uppercase tracking-[0.14em] text-slate-300">
           {customers.headline}
         </h3>
         <ul class="mt-5 space-y-3">
           {
             customers.items.map((item) => (
-              <li class="text-base font-semibold text-navy-800">{item}</li>
+              <li class="text-base font-semibold text-white">{item}</li>
             ))
           }
         </ul>
       </div>
 
       <div data-wd-anchor="values">
-        <h3 class="font-mono text-xs uppercase tracking-[0.14em] text-slate-600">
+        <h3 class="font-mono text-xs uppercase tracking-[0.14em] text-slate-300">
           {values.headline}
         </h3>
         <ul class="mt-5 space-y-3">
           {
             values.items.map((item) => (
-              <li class="text-base font-semibold text-navy-800">{item}</li>
+              <li class="text-base font-semibold text-white">{item}</li>
             ))
           }
         </ul>
@@ -56,3 +78,30 @@ import { about, customers, values } from '../content/site';
     </div>
   </div>
 </section>
+
+<style>
+  /* Foto und Schleier füllen den Abschnitt. bg-navy-900 steht darunter, bis
+     das Foto geladen ist. <Image> bekommt das Merkmal für bereichsgebundene
+     Stile nicht, daher :global. */
+  :global(.about-forest),
+  .about-shade {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  :global(.about-forest) {
+    object-fit: cover;
+    z-index: -2;
+  }
+
+  /* Dunkelblauer Schleier über dem ganzen Wald, damit die helle Schrift auch
+     auf verschneiten Stellen lesbar bleibt. canopy.ts liest Farbe und Deckung
+     von hier, deshalb Farbe und opacity getrennt. */
+  .about-shade {
+    z-index: -1;
+    background: var(--color-navy-900);
+    opacity: 0.72;
+  }
+</style>

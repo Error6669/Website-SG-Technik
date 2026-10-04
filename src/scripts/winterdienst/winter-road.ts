@@ -72,6 +72,9 @@ export interface WinterRoadOptions {
   debug?: boolean;
   /** Wird nach jedem gezeichneten Bild mit dem dargestellten Fortschritt (0…1) aufgerufen. */
   onProgress?: (progress: number) => void;
+  /** Wird nach jedem Aufbau mit dem neuen Verlauf und der Fahrbahnbreite in
+   *  CSS-Pixeln aufgerufen, `null`, wenn keine Straße gezeichnet wird. */
+  onBuild?: (path: RoadPath | null, road: number) => void;
 }
 
 export interface WinterRoad {
@@ -111,6 +114,10 @@ const FOLLOW_TIME = 0.16;
 const MAX_SPEED = 14;
 /** Rand des Fahrzeugschattens um das Bild herum (Anteil der Bildgröße). */
 const SHADOW_PAD = 0.25;
+/** Ist der Straßenanfang am Seitenanfang schon im Bild, steht das Fahrzeug
+ *  dort bereits ein Stück auf der Straße: So viel geräumte Fahrbahn liegt
+ *  dann zwischen Bildschirmrand und Heck, in Fahrzeuglängen. */
+const HEAD_START = 0.6;
 
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -245,6 +252,8 @@ export async function mountWinterRoad(
   /** Oberkante der Spalte in der Seite. Ändert sich beim Scrollen nicht und
    *  wird deshalb nicht in jedem Bild neu gemessen. */
   let rootDocTop = 0;
+  /** Fahrweg, auf dem das Fahrzeug ganz oben auf der Seite schon steht (siehe HEAD_START). */
+  let headStart = 0;
   // Bis wohin die Straße aktuell geräumt bzw. gestreut gezeichnet ist.
   let paintedPlow = NaN;
   let paintedSalt = NaN;
@@ -291,6 +300,16 @@ export async function mountWinterRoad(
     lineStart = startDoc < window.innerHeight ? startDoc : window.innerHeight * cfg.anchor + lead;
     lineEnd = Math.max(lineStart, startDoc + total - limit);
 
+    // Vorsprung: die Stelle, an der der Straßenanfang den Bildschirmrand
+    // kreuzt, plus halbe Fahrzeuglänge bis zur Mitte und HEAD_START dahinter.
+    headStart = 0;
+    if (startDoc < window.innerHeight) {
+      let edge = 0;
+      while (edge < path.length && path.at(edge).x > width) edge += WAY_STEP;
+      const ahead = Math.min(path.length, edge + vehLen * (0.5 + HEAD_START));
+      headStart = Math.min(total, way[Math.round(ahead / WAY_STEP)] ?? total);
+    }
+
     // Die Zeichenfläche für fliegenden Schnee und Salz ist nur so groß wie die
     // Umgebung des Fahrzeugs und wird ihm in jedem Bild nachgeschoben. So muss
     // pro Bild nur ein kleines Stück geleert und neu gezeichnet werden.
@@ -304,7 +323,11 @@ export async function mountWinterRoad(
     if (!path) return 0;
     const limit = maxScroll();
     const line = scroll + lineStart + (lineEnd - lineStart) * (limit > 0 ? scroll / limit : 0);
-    return distanceForWay(line - (rootDocTop + path.at(0).y));
+    const u = line - (rootDocTop + path.at(0).y);
+    if (!headStart) return distanceForWay(u);
+    // Der Vorsprung schrumpft gleichmäßig bis zum Ziel, wo alles wie ohne ihn endet.
+    const total = way[way.length - 1];
+    return distanceForWay(headStart + Math.max(0, u) * (1 - headStart / total));
   };
 
   /** Zählt die Aufbauten: Ein älterer, der noch läuft, wird verworfen. */
@@ -322,6 +345,7 @@ export async function mountWinterRoad(
       world = null;
       path = null;
       root.classList.remove('is-ready');
+      options.onBuild?.(null, 0);
       return;
     }
     // Gleicher Verlauf auf gleicher Fläche: Die Szene stimmt noch, nur die
@@ -396,6 +420,7 @@ export async function mountWinterRoad(
     paintedPlow = paintedSalt = NaN;
     snap();
     root.classList.add('is-ready');
+    options.onBuild?.(path, road);
   };
 
   /** Beschreibt das Band der Fahrspur (samt Pflugwällen) zwischen zwei

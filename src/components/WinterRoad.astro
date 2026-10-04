@@ -65,9 +65,20 @@ const { route } = Astro.props;
       afterLogoIntro(),
     ]);
     const params = new URLSearchParams(location.search);
+    // Führt die Straße durch ein Waldfoto (data-wd-forest), ragen dort Bäume
+    // über die Fahrbahn (siehe canopy.ts).
+    const forest = document.querySelector<HTMLImageElement>('img[data-wd-forest]');
+    const canopy = forest
+      ? (await import('../scripts/winterdienst/canopy')).mountCanopy(
+          root,
+          forest,
+          document.querySelector<HTMLElement>('[data-wd-shade]'),
+        )
+      : null;
     const road = await mountWinterRoad(root, WINTER_ROAD, {
       layout: (size) => planRoute(root, size),
       debug: params.has('wd-debug'),
+      onBuild: canopy ? (path, width) => void canopy(path, width).catch(() => undefined) : undefined,
     });
     const fixed = params.get('wd-p');
     if (fixed) road.setProgress(Number(fixed));
@@ -162,16 +173,28 @@ const { route } = Astro.props;
     will-change: transform;
   }
 
+  /* Ebene 3: überhängende Baumkronen, über Straße und Fahrzeug. Nur so hoch
+     wie das Waldfoto; Lage setzt das Skript. */
+  .wd-canopy-canvas {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    display: block;
+    z-index: 1;
+  }
+
   .wd-road-canvas,
   .wd-sprites,
-  .wd-rig-canvas {
+  .wd-rig-canvas,
+  .wd-canopy-canvas {
     opacity: 0;
     transition: opacity 0.4s ease;
   }
 
   .wd-road.is-ready .wd-road-canvas,
   .wd-road.is-ready .wd-sprites,
-  .wd-road.is-ready .wd-rig-canvas {
+  .wd-road.is-ready .wd-rig-canvas,
+  .wd-road.is-ready .wd-canopy-canvas {
     opacity: 1;
   }
 </style>
