@@ -380,18 +380,19 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
   document.querySelectorAll<HTMLElement>('.pt-mcat').forEach((b) => mCats.set(b.dataset.mcat!, b));
   const nav = document.querySelector<HTMLElement>('.pt-mnav');
 
-  // Aktiven Namen in der mobilen Leiste exakt mittig fahren (auf Desktop No-Op,
-  // da versteckt). Zweiter Lauf nach dem Größer-Werden (font-size-Übergang des
-  // aktiven Reiters), damit die Breite final gemessen und sauber zentriert wird.
-  const centerNav = (slug: string) => {
+  // Aktiven Namen in der mobilen Leiste exakt mittig stellen (auf Desktop No-Op,
+  // da versteckt). Animiert nur nach einem Antippen (`smooth`); dann ein zweiter
+  // Lauf nach dem Größer-Werden (font-size-Übergang des aktiven Reiters), damit die
+  // Endbreite zählt. Sonst (Laden, Drehen) sofort und ohne Bewegung.
+  const centerNav = (slug: string, smooth: boolean) => {
     const li = navItems.get(slug);
     if (!li || !nav || nav.offsetParent === null) return;
     const doCenter = () => {
       const left = li.offsetLeft - (nav.clientWidth - li.clientWidth) / 2;
-      nav.scrollTo({ left, behavior: reduceMotion ? 'auto' : 'smooth' });
+      nav.scrollTo({ left, behavior: smooth && !reduceMotion ? 'smooth' : 'auto' });
     };
     doCenter();
-    window.setTimeout(doCenter, 240);
+    if (smooth) window.setTimeout(doCenter, 240);
   };
 
   // Aktive (vergrößerte) Breite eines Reiters messen — Transition kurz aus, damit
@@ -404,6 +405,9 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
     if (!was) li.classList.add('is-active');
     const w = li.getBoundingClientRect().width;
     if (!was) li.classList.remove('is-active');
+    // Rückweg erst übernehmen lassen, DANN die Transition zurück — sonst animiert
+    // der Browser die Schrift von groß auf klein und alle Reiter rutschen kurz.
+    void li.offsetWidth;
     if (label) label.style.transition = prevT;
     return w;
   };
@@ -419,28 +423,38 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
     if (spacers[0]) spacers[0].style.flexBasis = `${Math.max(0, (navW - activeWidth(items[0])) / 2)}px`;
     if (spacers[1])
       spacers[1].style.flexBasis = `${Math.max(0, (navW - activeWidth(items[items.length - 1])) / 2)}px`;
-    if (lastActive) centerNav(lastActive);
+    if (lastActive) centerNav(lastActive, false);
   };
   if (nav) {
     requestAnimationFrame(sizeSpacers);
-    window.addEventListener('resize', sizeSpacers);
+    // Nur bei geänderter BREITE der Leiste neu vermessen: Mobile Browser feuern
+    // beim vertikalen Scrollen `resize`, sobald die Adressleiste ein-/ausfährt —
+    // die Leiste darf dabei nicht springen. ResizeObserver meldet sich erst nach
+    // dem neuen Layout, ein Fenster-`resize` käme zu früh (Chrome verschiebt die
+    // Leiste danach noch selbst).
+    let lastWidth = nav.clientWidth;
+    new ResizeObserver(() => {
+      if (nav.clientWidth === lastWidth) return;
+      lastWidth = nav.clientWidth;
+      sizeSpacers();
+    }).observe(nav);
     document.fonts?.ready.then(sizeSpacers);
   }
 
   let lastActive = '';
-  const setActive = (slug: string) => {
+  const setActive = (slug: string, smooth = true) => {
     if (slug === lastActive) return;
     lastActive = slug;
     switchItems.forEach((li, s) => li.classList.toggle('is-active', s === slug));
     navItems.forEach((li, s) => li.classList.toggle('is-active', s === slug));
     catBlocks.forEach((b, s) => b.classList.toggle('is-shown', s === slug));
     mCats.forEach((b, s) => b.classList.toggle('is-shown', s === slug));
-    centerNav(slug);
+    centerNav(slug, smooth);
   };
 
   const firstSlug = document.querySelector<HTMLElement>('.pt-cat')?.dataset.cat;
   if (firstSlug) {
-    setActive(firstSlug);
+    setActive(firstSlug, false);
 
     const stream = document.querySelector<HTMLElement>('.pt-stream');
     const section = document.getElementById('produkte-technik');
