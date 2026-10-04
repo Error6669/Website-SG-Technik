@@ -51,9 +51,9 @@ externe Fremddokumente, keine Projektquellen.
 
 | Verweis | Fundstelle | Datei |
 |---|---|---|
-| Art. 30 DSGVO (Verarbeitungsverzeichnis) | `PRIVACY-CHECKLIST.md`, `PROJECT_STATUS.md` | `EU/DSGVO_VO_EU_2016-679.html` |
+| Art. 30 DSGVO (Verarbeitungsverzeichnis) | `docs/datenschutz/PRIVACY-CHECKLIST.md`, `PROJECT_STATUS.md` | `EU/DSGVO_VO_EU_2016-679.html` |
 | Art. 13 Abs. 2 lit. a DSGVO (Informationspflicht Speicherdauer) | `PROJECT_STATUS.md` | dito |
-| § 39 GewO (gewerberechtlicher Geschäftsführer) | `PRIVACY-CHECKLIST.md` | `Einzelnormen/GewO_1994_§39_Gewerblicher_Geschaeftsfuehrer.html` |
+| § 39 GewO (gewerberechtlicher Geschäftsführer) | `docs/datenschutz/PRIVACY-CHECKLIST.md` | `Einzelnormen/GewO_1994_§39_Gewerblicher_Geschaeftsfuehrer.html` |
 
 ---
 

@@ -1,5 +1,5 @@
 // Pfad- und Fahrplandaten der Serpentinen-Animation.
-// Übernommen aus dem Prototyp Animationen/waldstrasse-serpentine.html — die Punkte
+// Übernommen aus dem früheren Prototyp (siehe docs/animationen/README.md) — die Punkte
 // sind von Hand am Foto digitalisiert und liegen im Pixelraum des Originalbilds
 // (3141×1764). Sie NICHT skalieren: die Fahrzeuge werden prozentual zur Bühne
 // positioniert, die immer im Seitenverhältnis des Bilds bleibt.

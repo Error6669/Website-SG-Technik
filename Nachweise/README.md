@@ -84,7 +84,7 @@ Speicherorten" weisen **Exchange Online** und **Exchange Online Protection** je
 Mandant sei berechtigt, das Advanced-Data-Residency-Add-On (ADR) **zu erwerben**.
 Es ist also nicht erworben, und eine lokale Geografie (Österreich) ist damit nicht
 zugesichert. Deshalb nennt die Website die EU bzw. den EWR und nicht Österreich —
-siehe `PRIVACY-CHECKLIST.md`, A5, Befund 8.
+siehe `docs/datenschutz/PRIVACY-CHECKLIST.md`, A5, Befund 8.
 
 Neu ziehen bei jeder Wiedervorlage (C6) oder wenn ADR gebucht wird.
 

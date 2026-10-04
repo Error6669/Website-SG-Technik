@@ -1,7 +1,7 @@
 // Winterdienst-Scroll-Animation: koppelt Fahrzeug, Räumspur und Salzstreuung
 // an den Scroll-Fortschritt.
 //
-// Herkunft: winterdienst-scroll-demo/src/winter-road.ts. Abweichungen von der
+// Herkunft: früherer eigenständiger Prototyp. Abweichungen von der
 // Demo: Der Verlauf kommt nicht aus einem festen Pfad in der Konfiguration,
 // sondern aus `options.layout` (siehe route.ts), die Straße lässt sich ab
 // einer Höhe abdunkeln (dunkler Kontaktbereich), und das Fahrzeug besteht aus

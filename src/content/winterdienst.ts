@@ -1,5 +1,5 @@
 // Stellwerte der Winterdienst-Scroll-Animation auf der Startseite.
-// Herkunft: winterdienst-scroll-demo/src/config.ts (eigenständige Demo).
+// Doku (Stellwerte, Fahrzeugbild tauschen, Texturen): docs/animationen/winterdienst-strasse.md
 //
 // Unterschied zur Demo: Der Verlauf der Straße steht nicht mehr als fester
 // SVG-Pfad hier, sondern wird in src/scripts/winterdienst/route.ts aus der
@@ -108,7 +108,7 @@ export const WINTER_ROAD: WinterRoadConfig = {
 
   // Das Fahrzeug ist noch ein gezeichneter Platzhalter. Austausch: zwei Bilder
   // nach src/assets/winterdienst/vehicle/ legen und hier eintragen (Details in
-  // winterdienst-scroll-demo/README.md, Abschnitt „Fahrzeug-Asset austauschen“).
+  // docs/animationen/winterdienst-strasse.md, Abschnitt „Fahrzeugbild austauschen“).
   vehicle: {
     src: url(new URL('../assets/winterdienst/vehicle/multihog-fahrzeug-PLATZHALTER.webp', import.meta.url)),
     imageRotation: 0,

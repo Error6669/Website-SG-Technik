@@ -12,6 +12,8 @@ README ist versioniert — damit nachvollziehbar bleibt, was hier liegt.
 | `Verarbeitungsverzeichnis_SG_Technik_GmbH.xlsx` | Verzeichnis nach Art. 30 DSGVO, **gehört in die Firmenablage** |
 | `Datenschutz-Pruefbericht_2026-10-01.pdf` | Prüfbericht Datenschutz & Cookies vom 01.10.2026, nennt offene Lücken und Nachweise |
 | `securitybericht.md` | Securitybericht vom 02.10.2026 zum lokalen Projektstand, nennt verwundbare Abhängigkeiten |
+| `Securitybericht_2026-10-02.pdf` | Lesefassung des Securityberichts als PDF |
+| `Anlagensimulation/` | Referenzmaterial der Anlagensimulation: SalzManager-Screens, Schemata der Automatisierungs-Systeme, Foto des Multihog-Sprühfahrzeugs (Vorbild für das Fahrzeug). Die Anlagenfotos dazu liegen in `Fotos/`. |
 
 ## Zum Verarbeitungsverzeichnis
 
@@ -22,4 +24,4 @@ die Firmenablage. Stand und Version stehen auf Blatt 1.
 **Vor dem Bearbeiten in Excel schließen.** Eine geöffnete Datei überschreibt
 beim nächsten Speichern alle extern vorgenommenen Änderungen.
 
-Was zu prüfen ist und wann: `PRIVACY-CHECKLIST.md`, Abschnitt C8.
+Was zu prüfen ist und wann: `docs/datenschutz/PRIVACY-CHECKLIST.md`, Abschnitt C8.

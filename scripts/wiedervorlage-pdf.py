@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Erzeugt aus Abschnitt C der PRIVACY-CHECKLIST.md eine druckfertige
+Erzeugt aus Abschnitt C der docs/datenschutz/PRIVACY-CHECKLIST.md eine druckfertige
 Arbeitsvorlage als PDF.
 
 Die Markdown-Datei bleibt die einzige Quelle. Dieses Skript extrahiert nur,
@@ -24,8 +24,8 @@ import tempfile
 from datetime import date
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-QUELLE = os.path.join(ROOT, 'PRIVACY-CHECKLIST.md')
-ZIEL = os.path.join(ROOT, 'Datenschutz-Wiedervorlage.pdf')
+QUELLE = os.path.join(ROOT, 'docs/datenschutz/PRIVACY-CHECKLIST.md')
+ZIEL = os.path.join(ROOT, 'docs/datenschutz/Datenschutz-Wiedervorlage.pdf')
 CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 
 # Designsystem der Website (DESIGN.md), damit der Ausdruck zur Seite passt.
@@ -248,7 +248,7 @@ def html_bauen(inhalt_html):
 </div>
 
 <p class="einleitung">
-  Diese Vorlage wird aus <strong>PRIVACY-CHECKLIST.md</strong> erzeugt; dort steht
+  Diese Vorlage wird aus <strong>docs/datenschutz/PRIVACY-CHECKLIST.md</strong> erzeugt; dort steht
   der verbindliche Stand. Jeder Punkt nennt, <strong>wo</strong> nachzusehen ist,
   welcher <strong>Soll-Stand</strong> gilt und was bei einer <strong>Abweichung</strong>
   konkret zu ändern ist. Aufwand erfahrungsgemäß 30–45 Minuten.
@@ -265,7 +265,7 @@ def html_bauen(inhalt_html):
 %(inhalt)s
 
 <footer>
-  Erzeugt am %(heute)s aus PRIVACY-CHECKLIST.md ·
+  Erzeugt am %(heute)s aus docs/datenschutz/PRIVACY-CHECKLIST.md ·
   Neu erzeugen mit <code>python3 scripts/wiedervorlage-pdf.py</code> ·
   Weicht dieser Ausdruck von der Datei ab, gilt die Datei.
 </footer>

@@ -3,7 +3,7 @@
 Grundlage: `Unterlagen/Aufbau Website 2.0.docx`, `Unterlagen/Website-Struktur_SG_Technik_GmbH.csv`, `Logo/` (siehe diese Dateien für Originalinhalte).
 
 ## Deployment (Stand aktuell)
-- **GitHub-Repo:** https://github.com/Error6669/Website-SG-Technik. **Branches: `develop` (aktueller Stand, alles Neue) und `main` (alt — das ist der Live-Stand).** Ausgeschlossen (siehe `.gitignore`): der Ordner `Unterlagen/` (Original-Briefing, Seitenstruktur, Verarbeitungsverzeichnis), lokale Claude-Code-Einstellungen. `.claude/skills/` (Tooling) ist bewusst mit eingecheckt.
+- **GitHub-Repo:** https://github.com/Error6669/Website-SG-Technik. **Branches: `develop` (aktueller Stand, alles Neue) und `main` (alt — das ist der Live-Stand).** `bilddesign` wurde am 04.10.2026 nach `develop` gemergt (`3a73f6b`) und danach lokal und remote gelöscht. Ausgeschlossen (siehe `.gitignore`): der Ordner `Unterlagen/` (Original-Briefing, Seitenstruktur, Verarbeitungsverzeichnis), lokale Claude-Code-Einstellungen. `.claude/skills/` (Tooling) ist bewusst mit eingecheckt.
 - **Hosting:** Netlify, verbunden mit dem GitHub-Repo → **jeder Push auf `main` löst automatisch einen neuen Build + Deploy aus**, kein manueller Schritt nötig. Live-URL: **https://sg-technik.netlify.app**
 - **Kontaktformular:** Netlify Forms ist bestätigt aktiv — "kontakt" wird nach einem "Clear cache and deploy" korrekt erkannt (vorher musste unter Site settings → Build & deploy → Post processing → **"Form detection"** aktiviert werden, war zunächst aus). E-Mail-Benachrichtigung wird im Netlify-Dashboard unter Forms → kontakt → Settings and usage → Form notifications eingerichtet (nicht im Code).
 - **Noch offen:** eigene Domain (`sg-technik.at`, bereits in `astro.config.mjs` als `site` hinterlegt) noch nicht mit Netlify verbunden (DNS-Eintrag beim Domain-Anbieter nötig, sobald gewünscht).
@@ -28,7 +28,7 @@ Alles in dieser Session ist committet (Working Tree sauber; Commits u. a. „Vie
 - **Footer:** obere Menüleiste mit den Seiten-Überschriften entfernt — nur noch Copyright + Rechtstext-Links (`navigation`-Import raus).
 - **CtaBand-Button** „Melde dich bei uns" vertikal mittig (`sm:items-end` → `sm:items-center`).
 
-**Produkte & Technik — Desktop-Scrolling komplett neu (`ProductsTechSection.astro`, Transform-Modell):** Der aktive Text wird per `translateY` verschoben (statt Nativ-Scroll), damit auch kurze Texte sichtbar laufen.
+**[ÜBERHOLT seit 04.10.2026 — siehe Session 2026-10-04: Produktwechsel nur noch per Klick, kein Stepped-Scrolling mehr]** **Produkte & Technik — Desktop-Scrolling komplett neu (`ProductsTechSection.astro`, Transform-Modell):** Der aktive Text wird per `translateY` verschoben (statt Nativ-Scroll), damit auch kurze Texte sichtbar laufen.
 - **Runter:** Text schiebt sich hoch, bis die **erste Zeile an der Kopfzeile** ankommt → nächstes Produkt, steigt oben ein.
 - **Rauf:** Text schiebt sich runter, bis die **letzte Zeile am unteren Rand** ankommt → voriges Produkt, steigt **mittig** ein (Mindestabstand zur Kopfzeile).
 - Eine Geste schaltet max. 1 Produkt (Cooldown). Grenz-Offsets dynamisch gemessen. Vom Nutzer abgenommen.
@@ -54,7 +54,7 @@ Schwerpunkt: Rechtstexte präzisieren und die dahinterliegenden Nachweise kläre
 
 **Impressum — Pflichtangabe war unvollständig (`legal.ts`):** Die GmbH hat **zwei** handelsrechtliche Geschäftsführer, eingetragen war nur einer. § 5 ECG / § 14 UGB verlangen alle vertretungsbefugten Organe. Jetzt: `'Gregor Hofer und DI Simon Paireder, EMBA'` („und" statt Komma, sonst liest sich der Titelzusatz wie ein dritter Name).
 
-**Neu: `PRIVACY-CHECKLIST.md`** (versioniert) — organisatorische Nachweise vor dem Live-Gang. Geklärt in dieser Session: DPA gilt bei Netlify automatisch über das Self-Serve Subscription Agreement; Vertretungsbefugnis liegt vor; E-Mail läuft laut MX/SPF über **Microsoft 365**, nicht über A1 (A1 vermutlich nur Reseller — Rolle noch zu klären); Löschturnus für Formulardaten auf **halbjährlich** festgelegt.
+**Neu: `docs/datenschutz/PRIVACY-CHECKLIST.md`** (versioniert) — organisatorische Nachweise vor dem Live-Gang. Geklärt in dieser Session: DPA gilt bei Netlify automatisch über das Self-Serve Subscription Agreement; Vertretungsbefugnis liegt vor; E-Mail läuft laut MX/SPF über **Microsoft 365**, nicht über A1 (A1 vermutlich nur Reseller — Rolle noch zu klären); Löschturnus für Formulardaten auf **halbjährlich** festgelegt.
 
 **Neu: `Unterlagen/Verarbeitungsverzeichnis_SG_Technik_GmbH.xlsx`** (Art. 30 DSGVO, **per `.gitignore` ausgenommen** — Geschäftsdokument, gehört in die Firmenablage). Drei Blätter, fünf Verarbeitungstätigkeiten: Website-Bereitstellung, Kontaktanfragen, Geschäftspartnerverwaltung, Buchhaltung, Personalverwaltung. Offene Felder mit `[AUSFÜLLEN]` markiert; Blatt 3 führt 9 offene Punkte.
 
@@ -73,7 +73,7 @@ Ausgangspunkt war eine Durchsicht aller Datenschutz-/Cookie-Dateien. Vier Funde,
   - Weg über eine eigene Komponente statt `is:inline` bewusst gewählt: `is:inline` würde den Block **unkompiliert** ausliefern, er ist TypeScript. So bleiben Typprüfung und Minifizierung erhalten. Steht als Kopfkommentar in `ConsentManager.astro`, damit die Datei niemand „aufräumt".
   - Rest, bewusst nicht optimiert: ~1,95 kB CSS der Dialog-Regeln bleiben im gemeinsamen Stylesheet (1.954 von 47.555 Bytes), weil der `<style>`-Block bei seinem Markup bleiben muss — sonst passen Astros Scope-Hashes nicht mehr.
 
-**3. `COOKIE_CONSENT.md` widersprach dem Code an sechs Stellen — neu geschrieben.** Die Datei ist versioniert und das erste, was ein Jurist aufschlägt; sie sagte teils das Gegenteil der Website. Korrigiert: `sg-consent` war als **aktiv gesetzter** localStorage-Eintrag geführt (die Datenschutzerklärung sagt ausdrücklich, dass kein localStorage verwendet wird); Kategorie „Notwendig" listete den Dienst „Cookie-Einwilligung", in `consent.ts` ist `services: []`; der entfernte `notice`-Modus („Verstanden"-Hinweis, Commit 80dd0d9) war noch als aktueller Zustand beschrieben; „✅ dauerhafter Link Cookie-Einstellungen im Footer" — der Button ist hinter `hasOptionalServices` gegated und existiert derzeit nicht; Verweis auf Datenschutz-Abschnitt „3" statt 4; Annahme „Impressum/Datenschutz enthalten weiterhin Platzhalter" war überholt.
+**3. `docs/datenschutz/COOKIE_CONSENT.md` widersprach dem Code an sechs Stellen — neu geschrieben.** Die Datei ist versioniert und das erste, was ein Jurist aufschlägt; sie sagte teils das Gegenteil der Website. Korrigiert: `sg-consent` war als **aktiv gesetzter** localStorage-Eintrag geführt (die Datenschutzerklärung sagt ausdrücklich, dass kein localStorage verwendet wird); Kategorie „Notwendig" listete den Dienst „Cookie-Einwilligung", in `consent.ts` ist `services: []`; der entfernte `notice`-Modus („Verstanden"-Hinweis, Commit 80dd0d9) war noch als aktueller Zustand beschrieben; „✅ dauerhafter Link Cookie-Einstellungen im Footer" — der Button ist hinter `hasOptionalServices` gegated und existiert derzeit nicht; Verweis auf Datenschutz-Abschnitt „3" statt 4; Annahme „Impressum/Datenschutz enthalten weiterhin Platzhalter" war überholt.
   - Neu darin: Zwei-Zustände-Tabelle mit den Build-Messwerten, Abschnitt zum `ConsentManager`-Umbau, und eine ergänzte Kurzanleitung „Neuen Dienst hinzufügen", die **explizit benennt, welche Prosa sich nicht automatisch nachzieht** (Datenschutz Abschnitt 4, Cookie-Richtlinie „Aktueller Stand") — dort entstehen dieselben Widersprüche sonst wieder.
 
 **4. `.gitignore` verwies auf eine ignorierte Datei.** Der Kommentar nannte `Rechtstexte/README.md` als Zuordnung Code → Gesetzesfundstelle, `Rechtstexte/` war aber komplett ignoriert. Jetzt `Rechtstexte/*` + `!Rechtstexte/README.md`. Verifiziert: README sichtbar, `AT/`, `EU/`, `Einzelnormen/`, `.DS_Store` bleiben ignoriert.
@@ -86,7 +86,7 @@ Ausgangspunkt war eine Durchsicht aller Datenschutz-/Cookie-Dateien. Vier Funde,
 
 ## Letzte Änderungen (Session 2026-09-29 bis 10-01) — committet auf `develop`
 
-Die Freigabe-Checkliste **`PRIVACY-CHECKLIST.md`** wurde Punkt für Punkt abgearbeitet. Dort stehen die Details samt Begründungen; hier nur, was sich daraus für Code und Projekt ergeben hat. Die Checkliste ist von 199 auf 462 Zeilen gewachsen.
+Die Freigabe-Checkliste **`docs/datenschutz/PRIVACY-CHECKLIST.md`** wurde Punkt für Punkt abgearbeitet. Dort stehen die Details samt Begründungen; hier nur, was sich daraus für Code und Projekt ergeben hat. Die Checkliste ist von 199 auf 462 Zeilen gewachsen.
 
 ### Was an der Website geändert wurde
 
@@ -128,7 +128,7 @@ Aussagen hängen an Werten statt im Fließtext zu stehen — ändert sich die La
 
 ### Neue Dateien und Werkzeuge
 
-- **`Datenschutz-Wiedervorlage.pdf`** (4 Seiten A4) + **`scripts/wiedervorlage-pdf.py`**, `npm run wiedervorlage:pdf`. Wird **aus Abschnitt C erzeugt**, nicht getrennt gepflegt — sonst laufen Datei und Ausdruck auseinander. Ankreuzfeld und Notizzeile je Punkt, Kopf für „geprüft am / durch / nächster Termin". Gerendert mit Chrome headless (`--print-to-pdf`); wkhtmltopdf, pandoc, weasyprint und python-markdown sind auf dem Rechner **nicht** vorhanden, das Skript bringt deshalb einen kleinen Markdown-Konverter mit.
+- **`docs/datenschutz/Datenschutz-Wiedervorlage.pdf`** (4 Seiten A4) + **`scripts/wiedervorlage-pdf.py`**, `npm run wiedervorlage:pdf`. Wird **aus Abschnitt C erzeugt**, nicht getrennt gepflegt — sonst laufen Datei und Ausdruck auseinander. Ankreuzfeld und Notizzeile je Punkt, Kopf für „geprüft am / durch / nächster Termin". Gerendert mit Chrome headless (`--print-to-pdf`); wkhtmltopdf, pandoc, weasyprint und python-markdown sind auf dem Rechner **nicht** vorhanden, das Skript bringt deshalb einen kleinen Markdown-Konverter mit.
 - **`Nachweise/`** — Durchgangsordner für heruntergeladene Nachweisdokumente auf dem Weg in die Firmenablage. Per `.gitignore` ausgenommen, **nur die README ist versioniert** (hält Quelle, Fassung und Abrufdatum jedes Dokuments fest).
 - `.gitignore` erweitert: `Nachweise/*` mit `!Nachweise/README.md`, und das Muster für das Verarbeitungsverzeichnis korrigiert (es griff nur auf den exakten Namen — eine Sicherungskopie wäre beim nächsten `git add .` im Repo gelandet, samt Namen der Zugriffsberechtigten und Angaben zu Dienstnehmern). **Seit dem Aufräumen am 01.10.2026** liegen die lokalen Firmendokumente gebündelt in **`Unterlagen/`**, der Ordner ist als Ganzes ausgenommen (nur die README ist versioniert).
 
@@ -140,6 +140,78 @@ Aussagen hängen an Werten statt im Fließtext zu stehen — ändert sich die La
 - Verbleibend: **`develop`** (aktuell) und **`main`** (alt, Live-Stand).
 
 **Verifiziert:** `npm run build` nach jedem Schritt sauber (8 Seiten). Gerendertes HTML per `curl` gegengeprüft — Abschnitt 6 vorhanden, Animation auf `/danke`, Startseite ohne Header-Streifen. **Nicht visuell geprüft** (kein Screenshot-Vergleich).
+
+## Letzte Änderungen (Session 2026-10-04/05) — Anlagensimulation und Aufräumen
+
+**Anlagensimulation** (neu, `/anlagensimulation`): interaktive Silo- und Soleanlage im Schnitt — Salzsilo 600 t, Dosierschnecke, Soleaufbereiter, Pumpen- und Ventilkasten (P1/P2/P3, alle Ventile), Soletank, Zapfstelle, RFID-Leser, Steuerung, SalzManager-Bildschirm. Sechs Abläufe per Knopf (Sole herstellen/umwälzen, Tank entleeren, Sole entnehmen mit Multihog-Sprühfahrzeug, Salz entnehmen, Salz anliefern). Knopf **„Unsere Anlagen“** am Ende jedes Produkttexts auf `/produkte-technik` (Desktop, Mobil, noscript). Handy: Bereichs-Reiter, Zeichnung zoomt per viewBox, schwenkt beim Start eines Ablaufs mit. Details: `docs/animationen/anlagensimulation.md`. **Annahmen fachlich prüfen** (Tank 50 m³, Aufbereiter 7 m³, Leistungen; Obernberg-Screenshot zeigt eher 1,14 kg/l). **Ungetestet:** Safari, echtes iPhone.
+
+**Projektordner aufgeräumt (05.10.2026):**
+- Gelöscht: alle Animations-Prototypen (`Animationen/`, `winterdienst-scroll-demo/`, Demo `Anlagensimulation/`, `Logo/sg-technik-logo-animiert.html`) — alles ist in `src/` übernommen. Noch gültige Anleitungen und Bildherkunft stehen jetzt in **`docs/animationen/`**.
+- `docs/datenschutz/`: `PRIVACY-CHECKLIST.md`, `DATENSCHUTZ-ARBEITSPLAN.md`, `COOKIE_CONSENT.md`, `Datenschutz-Wiedervorlage.pdf` (vorher im Hauptordner; Verweise und `scripts/wiedervorlage-pdf.py` angepasst).
+- `scripts/winterdienst-texturen.py` (vorher `winterdienst-scroll-demo/tools/generate-assets.py`) schreibt direkt nach `src/assets/winterdienst/`.
+- Duplikate entfernt: Demo-Kopien der Winterdienst-Texturen, Anlagenfotos (liegen in `Fotos/`), `netlify-subprocessors.pdf` im Hauptordner (liegt in `Nachweise/`), doppelter Screenshot in `Nachweise/`.
+- Referenzmaterial der Anlagensimulation: `Unterlagen/Anlagensimulation/` (lokal).
+- Neu: `README.md` im Hauptordner als Wegweiser.
+
+## Letzte Änderungen (Session 2026-10-04) — committet und gepusht auf `develop`
+
+Zwei Schwerpunkte: **Securitybericht abarbeiten** und **Bedienung Produkte & Technik / Kopfzeile**. Alles ist committet und auf `origin/develop` gepusht (`729617b` … `135a770`). Nichts davon ist auf `main` — die Live-Seite zeigt es erst nach einem Merge `develop → main`.
+
+### Securitybericht
+
+Bericht: `Unterlagen/securitybericht.md` (Stand 02.10.2026, geprüft wurde damals Branch `scrollanimation`). Lesefassung als PDF: **`Unterlagen/Securitybericht_2026-10-02.pdf`** (9 Seiten, mit Befund-Übersicht; erzeugt per Chrome headless). Beide liegen in `Unterlagen/` und sind damit nicht im Repo. *(Seit 05.10.2026 in `Unterlagen/README.md` eingetragen.)*
+
+| Befund | Stand | Umsetzung |
+|---|---|---|
+| **H1** Astro/Sharp (libheif) | ✅ erledigt | über M1 (sharp 0.35.5) |
+| **M1** verwundbare Abhängigkeiten | ✅ erledigt (`729617b`) | `astro ^7.3.5`, Tailwind `^4.3.3`; transitiv sharp 0.35.5, devalue 5.9.4, js-yaml 4.3.2, smol-toml 1.9.0, svgo 4.1.0, http-cache-semantics 4.3.0, postcss 8.5.28, nanoid 3.3.19. `npm audit`: **0** (vorher 9, davon 1 critical). `allowScripts` auf `esbuild@0.28.2` nachgezogen (versionsgenau — bei esbuild-Updates mitziehen). Build mit geleertem Bild-Cache geprüft (289 Bilder neu), Nutzer hat im Browser abgenommen. |
+| **M2** Sicherheitsheader | ✅ einfache Stufe (`bbf3cb4`) | neu `public/_headers`: `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` (Kamera, Mikrofon, Standort, Zahlung, USB, Topics aus). **CSP bewusst noch nicht** (erst Report-Only testen, sonst brechen Inline-Skripte). Wirkt nur auf Netlify — **nach Deploy prüfen:** `curl -sI https://sg-technik.netlify.app \| grep -iE 'frame\|nosniff\|referrer\|permissions'` |
+| **M3** Kontaktformular | ✅ einfache Stufe (`440854a`) | `maxlength`: Name 30, E-Mail 50, Telefon 30, Nachricht 2000 (Nutzerwerte). Astro-Kommentar (nicht im Build): nur Bedienhilfe, Spamschutz liegt bei Netlify Forms. **Nutzer-To-do:** im Netlify-Dashboard (Forms → Settings) prüfen, dass der Spamfilter aktiv ist. Zusätzliche Anfragebegrenzung (Netlify Rate Limiting/`netlify.toml`, Cloudflare) besprochen und **vom Nutzer abgelehnt** — bleibt wie es ist. |
+| **M4** Inhalte ohne JavaScript | ✅ einfache Stufe (`1e2ba53`) | `<noscript>`-Stil in `BaseLayout.astro`: Mobilmenü offen (Kopfzeile scrollt dann mit), Menü-Button + Produkt-Umschalter aus. `ProductsTechSection.astro`: `<noscript>`-Liste aller Produkte. `LogoMark.astro`: statisches Logo `public/logo/sg-technik-mark-static.svg` (aus den Pfaddaten in `sg-technik-logo.js` erzeugt). Grenze: hilft nur bei *abgeschaltetem* JS, nicht bei Skriptfehlern. Referenzen-Akkordeon ohne JS weiterhin zu (nicht Teil von M4). |
+| **M5** Scrollen/Tastatur/Zoom Produkte | ✅ im Kern erledigt | durch den Scroll-Umbau unten (`4389df3`): Textbereich wieder nativ scrollbar, Strg-Zoom/seitliche Gesten frei, `deltaMode` umgerechnet |
+| **M6** Consent bei blockiertem localStorage | ✅ einfache Stufe (`41e99c7`) | `ConsentManager.astro`: Auswahl zusätzlich im Arbeitsspeicher (`memory`), `read()` fällt darauf zurück. Mit Originalskript im simulierten DOM getestet (alt: Fehler reproduziert, neu: korrekt). Satz in `cookie-richtlinie.astro` (Abschnitt nur sichtbar, wenn optionale Dienste existieren — derzeit nicht). |
+| **M7** Build-/Veröffentlichungsregeln | 🔶 teilweise | `.nvmrc` = `24`, `engines.node >=22.12.0`. **Offen:** Check-/Audit-Skript, CI, `netlify.toml`. `npx astro check` geht nicht — `@astrojs/check` ist nicht installiert (nicht ungefragt installieren). |
+| **L1–L8** | offen | siehe Bericht; laut Empfehlung M6/L1 vor Aktivierung optionaler Dienste, L7/L8 beim Abschluss der Winterdienst-Integration |
+
+### Produkte & Technik — neues Scroll-Verhalten (`ProductsTechSection.astro`)
+
+Ersetzt das frühere Stepped-Scrolling (Transform-Modell, siehe Session Juli — **überholt**). Nutzerwunsch:
+- **Produktwechsel nur per Klick/Antippen**, nie durch Scrollen.
+- **Desktop** (Wheel-Handler auf der Section, egal wo der Zeiger steht): runter → zuerst Text in `.pt-stream` bis zu seinem Ende, dann Seite bis zur Fußzeile; rauf → zuerst Seite zurück bis zum Bereichsanfang, dann Text. Passt der Text, scrollt sofort die Seite. Klick links: Text von vorn, Seite nur nach oben zurück, falls schon darunter (`scrollToSectionTop`).
+- **Mobil:** kein eigener bildschirmhoher Scrollbereich mehr — das aktive Produkt steht normal in der Seite, Wischen führt bis zur Fußzeile. Namensleiste `.pt-mbar` klebt weiter oben.
+- **Namensleiste ruhig** (`b70f508`): Sie wanderte beim vertikalen Scrollen. Drei Ursachen: (1) ein-/ausfahrende Adressleiste → `resize` → animiertes Neu-Zentrieren; jetzt nur bei geänderter Leistenbreite per `ResizeObserver`, ohne Animation; (2) `activeWidth()` ließ beim Vermessen die Schriftgröße zurückanimieren (alle Reiter rutschten 0,2 s) — Rückweg jetzt per Reflow ohne Transition; (3) Zentrieren beim Laden war animiert, jetzt sofort. Animiert nur nach Antippen.
+- **Zurück zum aktiven Produkt** (`59b179c`): Wurde die Leiste nur seitlich weggeschoben, fährt sie beim nächsten vertikalen Scrollen zurück — nicht, solange der Finger auf der Leiste liegt oder sie <0,4 s zuvor bedient wurde.
+
+### Kopfzeile (`Header.astro`)
+
+- **Klick-Rückmeldung nur per Farbe** (Nutzerwunsch, `80234ec`): Home, Menü-Button, Menüreiter, Desktop-Links werden beim Drücken kupfern (`:active`); Links auf andere Seiten behalten das per `is-pressed`, bis die neue Seite lädt — das **Mobilmenü bleibt dafür offen** (schließt nur bei Sprüngen auf derselben Seite, z. B. `#kontakt` auf `/`). Menü-Button kupfern, solange das Menü offen ist. „Ihr Draht zu uns“ füllt sich kupfern. **Keine** Fläche, kein Rahmen, keine Skalierung (eine erste Variante mit Hinterlegung/Eindrücken wurde verworfen). Kein Fokusrahmen nach Maus-/Fingerklick, Tastatur behält ihn. iOS-`:active` per leerem `touchstart`-Listener; bfcache (`pageshow`) löst Zustände.
+- **Oranger Strich zwischen Kopfzeile und Menü** (auf `/leistungen`, `/produkte-technik`): in Chrome nicht nachstellbar; vermutete Ursache Safari-Fokusrahmen am fokussierten Menü-Container → `[data-mobile-menu]` hat jetzt nie `outline`. **In Safari/iPhone noch ungeprüft.**
+- **Größere Symbole:** Home mobil 30 px (Tippfläche 46), Desktop 24 px (40); Menü-Symbol 26 px (Tippfläche 44, per Negativrand). **Kopfzeilenhöhe bewusst unverändert 77 px** — viele Abstände (`pt-[4.75rem]`, `top: 4.75rem`, `scroll-mt-24`) hängen daran.
+
+### Offen / zu prüfen
+
+- **Auf echtem iPhone/Safari testen:** Strich am Menü, Klick-Rückmeldung, Namensleiste Produkte & Technik. Alle Tests dieser Session liefen im gesteuerten Chrome.
+- ~~`netlify-subprocessors.pdf` im Hauptordner gelöscht~~ — **erledigt 05.10.2026:** Die Datei liegt byte-gleich in `Nachweise/` (dort gehören heruntergeladene Nachweise hin, nicht versioniert); die Kopie im Hauptordner war ein Duplikat und ist bewusst gelöscht. Verweise zeigen auf `Nachweise/netlify-subprocessors.pdf`.
+- **Fünf Commit-Nachrichten** (`729617b` … `41e99c7`, „Security M1–M6“) haben keine Leerzeile nach dem Titel → GitHub zeigt sie als eine lange Titelzeile. Korrektur nur per Rebase + Force-Push auf `develop`; bisher nicht gemacht.
+- Nach dem nächsten Deploy auf `main`: Header (M2) live prüfen.
+- Klick-Rückmeldung gibt es nur in der Kopfzeile; Produkt-Umschalter, Referenzen, Buttons im Inhalt noch nicht angeglichen (angeboten, nicht beauftragt).
+- Detector meldet 1 Altfund: Bounce-Easing `cubic-bezier(.3, 1.4, .5, 1)` in `src/scripts/sg-technik-logo.js:74` (nicht angefasst).
+
+### Nachtrag 04.10.2026 abends: Waldbild gemergt, Schalter für die Zierde
+
+- **`bilddesign` → `develop`** (`3a73f6b`, ohne Konflikte): „Über uns“ hat jetzt den verschneiten Wald (`src/assets/wald/winterwald.webp`) unter dunkelblauem Schleier mit heller Schrift; die Winterdienst-Straße läuft durch den Wald, `canopy.ts` zeichnet den Schatten der Baumreihe am Schneewall (Kronen über der Straße derzeit aus, `CROWN_SHARE = 0`). CtaBand ohne eigenen Button, zentriert. Branch danach gelöscht.
+- **Schalter in der Kopfzeile** (`3fa661f`, gepusht): drei Umschalter für Logo-Animation, Straße samt Räumfahrzeug und Waldbild. Desktop als Symbole rechts neben „Ihr Draht zu uns“ (aus = durchgestrichen, `title` als Hinweis), mobil im aufklappbaren Menü mit „An/Aus“ (ohne Straße, die gibt es erst ab 85rem).
+  - **Bewusst ohne Speicherung** (Nutzerentscheidung): gelten nur für den aktuellen Seitenaufruf; Datenschutzerklärung/Cookie-Richtlinie sagen „kein localStorage/sessionStorage“ und bleiben so wahr. Wer die Schalter seitenübergreifend will, muss sessionStorage einführen **und** die Rechtstexte (`datenschutz.astro`, `cookie-richtlinie.astro`, `consent.ts`) anpassen.
+  - Mechanik: Klasse `fx-off-<logo|road|forest>` am `<html>` (CSS) + Ereignis `sg:fx` `{name, on}` (Skripte). Logo (`sg-technik-logo.js`): aus = fertiges Standbild, an = Salz-Loop wieder, Intro wird nicht wiederholt. Straße (`WinterRoad.astro`): aus = `destroy()` + Baumschatten weg, an = Neuaufbau; Auf-/Abbau laufen in einer Warteschlange (kein Doppelaufbau bei schnellem Klicken). Wald (`AboutSection.astro`): Schriftfarben hängen an `about-*`-Klassen, aus = `bg-band` mit `slate-600`/`navy-800` wie vor dem Waldbild.
+  - Ein Schalter erscheint nur, wenn sein Ziel auf der Seite existiert (Startseite: alle drei, Leistungen: Straße, sonst keiner); Logo/Straße fehlen bei „Bewegung reduzieren“.
+  - **Geprüft:** Build, `tsc`, Detector (nur Altfund Bounce-Easing); Chrome headless per CDP auf 1440 px und 390 px — Umschalten, Farben, Mehrfachklick, Sichtbarkeit je Seite. **Safari/iPhone ungeprüft.** Offen: Logo-Symbol (Ring mit Winkel) wirkt evtl. wie eine Uhr.
+
+### Werkzeuge / Testmethode (ohne Zusatzpakete)
+
+- **Browser-Tests:** Chrome headless mit `--remote-debugging-port`, per Node-24-eingebautem `WebSocket` über CDP steuern (`Input.dispatchMouseEvent` type `mouseWheel`, `Input.dispatchTouchEvent`, `Emulation.setDeviceMetricsOverride`, `Page.captureScreenshot`). Gebauten Stand dafür mit `python3 -m http.server` aus `dist/` ausliefern.
+- **Ohne-JS-Ansicht:** Chrome macht mit `--blink-settings=scriptEnabled=false` keine Screenshots → Kopie von `dist/` mit entfernten `<script>` und ausgepackten `<noscript>` ausliefern.
+- **Bild-Cache:** Nach Astro-/Sharp-Updates `node_modules/.astro` löschen, sonst prüft der Build die neue Bildverarbeitung nicht.
+- Astro 7.3 startet `npm run dev` als Hintergrunddienst (`npx astro dev stop` zum Beenden).
 
 ## Stack
 Astro + TypeScript + Tailwind v4 (CSS-first, `@theme` Tokens in `src/styles/global.css`). Selbst gehostete Fonts (IBM Plex Sans/Mono, Montserrat nur fürs Logo) unter `public/fonts/`. Kein CMS, kein Backend.
@@ -159,7 +231,7 @@ Astro + TypeScript + Tailwind v4 (CSS-first, `@theme` Tokens in `src/styles/glob
 
 ## Bereits gebaut
 - `src/layouts/BaseLayout.astro`, `Header.astro`, `Footer.astro`
-- `src/components/CookieConsent.astro` (Banner + Einstellungs-Dialog + Styles, Einstiegspunkt) und `src/components/ConsentManager.astro` (nur das Client-Skript, bewusst ausgelagert — siehe Session 2026-09-29). Beide rendern im Ist-Zustand nichts, weil `consent.ts` keine einwilligungspflichtigen Dienste führt. Dokumentation: `COOKIE_CONSENT.md`.
+- `src/components/CookieConsent.astro` (Banner + Einstellungs-Dialog + Styles, Einstiegspunkt) und `src/components/ConsentManager.astro` (nur das Client-Skript, bewusst ausgelagert — siehe Session 2026-09-29). Beide rendern im Ist-Zustand nichts, weil `consent.ts` keine einwilligungspflichtigen Dienste führt. Dokumentation: `docs/datenschutz/COOKIE_CONSENT.md`.
 - `src/components/Hero.astro`, `LogoMark.astro`
 - `src/components/AboutSection.astro` (Wer wir sind / Was wir tun / Kunden / Werte) — **neu gestaltet:** "Unser Leistungsspektrum umfasst" (redundant zu den Leistungen auf `/produkte-technik`) entfernt, `scope`-Feld auch aus `about` in `site.ts` gelöscht. **Update (Nutzerwunsch):** alle vier Kapitel jetzt einheitlich im Stil von "Wer sind unsere Kunden" — kleines Mono-Uppercase-Label (`font-mono text-xs uppercase tracking-[0.14em] text-slate-600`) als Überschrift, als 2×2-Raster (`sm:grid-cols-2`, kein `lg:grid-cols-4` mehr — bleibt bei 2 Spalten/2 Zeilen für mehr Breite pro Kapitel), das auf Mobile sauber untereinander stapelt. Fließtext (Wer wir sind/Was wir tun) auf Blocksatz (`text-justify`) umgestellt. Kunden-/Werte-Listen: "locker verstreuter" Versuch (`flex flex-wrap` mit zyklischen Versätzen) wieder verworfen — Nutzerentscheidung, zurück auf normale gestapelte Aufzählung (`space-y-3`). `about.headline`/`about.whatWeDo.headline` bleiben semantisch `h2`/`h3` (Heading-Hierarchie erhalten), nur die CSS-Klassen wurden an den Kunden/Werte-Stil angeglichen.
 - `src/components/ServicesSection.astro` (5 Leistungen aus `src/content/services.ts`)
@@ -208,7 +280,7 @@ Astro + TypeScript + Tailwind v4 (CSS-first, `@theme` Tokens in `src/styles/glob
      3. `behoerdeEcg` in `legal.ts` steht auf **Bezirkshauptmannschaft Linz-Land** — gegen den GISA-Auszug abgleichen lassen.
    - **Antworten abwarten:** Anfragen an A1 (`datenschutz@a1.at`) und Netlify (`privacy@netlify.com`) sind am 01.10.2026 raus. Der dokumentierte Versuch hilft bei der Bewertung eines Verstoßes (Art. 83 Abs. 2 DSGVO), **ersetzt aber keine erfüllte Pflicht**: Der AVV nach Art. 28 Abs. 3 DSGVO bleibt geschuldet, auch wenn A1 nicht antwortet. Bleibt die Antwort aus, ist entweder der Vertrag auf anderem Weg zu beschaffen oder sind die Administratorrechte zu entziehen.
    - **Kalendereintrag 07.01.2027 in Outlook auf „jährlich" stellen** — das Outlook-Tool konnte keine Serie anlegen, er erinnert sonst genau einmal.
-   - Organisatorische Nachweise insgesamt: siehe **`PRIVACY-CHECKLIST.md`**. A1–A5, B1 und C sind abgearbeitet.
+   - Organisatorische Nachweise insgesamt: siehe **`docs/datenschutz/PRIVACY-CHECKLIST.md`**. A1–A5, B1 und C sind abgearbeitet.
 5. ~~Call-to-Action-Band vor dem Footer~~ — erledigt (`CtaBand.astro`), zwischen Referenzen und Kontakt platziert.
 
 ### Phase 3 — Responsive- & Detail-Feinschliff (P2/P3, ursprünglich Schritt 6–7) — ✅ erledigt

@@ -1,8 +1,7 @@
 // Fahrzeug-Animation auf einem digitalisierten Straßenpfad.
 //
-// Gemeinsame Grundlage für alle Straßen-Hintergründe der Seite (Serpentine auf
-// der Danke-Seite, Flussstraße im mobilen Kopfzeilen-Streifen). Herkunft der
-// Logik: die lokalen Prototypen in Animationen/.
+// Grundlage des Straßen-Hintergrunds auf der Danke-Seite (Serpentine). Die
+// Logik stammt aus einem früheren Prototyp (siehe docs/animationen/README.md).
 //
 // Bühnen-Vertrag: Das Element, das hier übergeben wird, muss immer exakt das
 // Seitenverhältnis des Fotos behalten. Fahrzeuge werden prozentual darin

@@ -398,7 +398,7 @@ Belege (Abrufstand 01.10.2026):
 - Netlify Docs „Spam filters" (`docs.netlify.com/manage/forms/spam-filters/`):
   automatische Akismet-Prüfung, Honeypot als **zusätzliche** Maßnahme
 - Netlify Trust Center → Subprocessors: Zeile **„Automattic, Inc. (Akismet)"**,
-  Kategorie „Spam Filtering", Standort „US". Belegkopie `netlify-subprocessors.pdf`
+  Kategorie „Spam Filtering", Standort „US". Belegkopie `Nachweise/netlify-subprocessors.pdf`
   (26 Einträge, erzeugt 01.10.2026)
 
 - [x] Abschnitt 5 der Erklärung ergänzt (01.10.2026): neue Zeile **„Spam-Prüfung"**

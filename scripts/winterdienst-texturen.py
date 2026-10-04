@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Erzeugt die Assets der Winterdienst-Scroll-Demo.
+"""Erzeugt die Texturen der Winterdienst-Straße (src/assets/winterdienst/).
 
 Fahrbahn, Reif und Schneedecke sind Fototexturen (Poly Haven, CC0), die hier
 geladen und farblich angepasst werden. Schneewall, Rauschmasken und das
 Fahrzeug sind gerechnet bzw. gezeichnet — das Fahrzeug ist ein PLATZHALTER
-(siehe README.md, Abschnitt "Fehlende Assets").
+(siehe docs/animationen/winterdienst-strasse.md, Abschnitt "Fehlende Assets").
 
-Aufruf (aus dem Demo-Ordner):  python3 tools/generate-assets.py
+Achtung: Überschreibt die Dateien in src/assets/winterdienst/.
+Aufruf (aus dem Projektordner):  python3 scripts/winterdienst-texturen.py
 Benötigt: numpy, Pillow (mit WebP).
 """
 from pathlib import Path
@@ -14,7 +15,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
-ROOT = Path(__file__).resolve().parent.parent / "assets"
+ROOT = Path(__file__).resolve().parent.parent / "src" / "assets" / "winterdienst"
 N = 1024  # Kantenlänge der Kacheltexturen
 
 
@@ -97,7 +98,7 @@ def photo_textures():
     import io
     import subprocess
 
-    cache = Path(__file__).resolve().parent / ".cache"
+    cache = Path(__file__).resolve().parent / ".cache-texturen"
     cache.mkdir(exist_ok=True)
     for ident, rel in PHOTO_SOURCES.items():
         src = cache / f"{ident}.jpg"

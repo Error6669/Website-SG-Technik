@@ -23,7 +23,7 @@ node_modules/
 # und das Verarbeitungsverzeichnis nach Art. 30 DSGVO. Enthalten interne Angaben
 # zu Systemen, Zugriffsberechtigten und Dienstnehmern und gehoeren nicht ins
 # Repository. Die README bleibt versioniert, damit nachvollziehbar ist, was dort
-# liegt. (PRIVACY-CHECKLIST.md bleibt ebenfalls versioniert.)
+# liegt. (docs/datenschutz/PRIVACY-CHECKLIST.md bleibt ebenfalls versioniert.)
 Unterlagen/*
 !Unterlagen/README.md
 
@@ -39,9 +39,9 @@ Unterlagen/*
 # optimized web copies live in src/assets/referenzen/ and are committed
 Fotos/
 
-# Animations-Prototypen (lokale Spielwiese, ~10 MB — die HTML-Dateien tragen
-# ihre Bilder als Base64 im Rumpf). Nicht versionieren.
-Animationen/
+# Zwischenspeicher von scripts/winterdienst-texturen.py (heruntergeladene
+# Poly-Haven-Texturen).
+scripts/.cache-texturen/
 
 # Firmenbuchauszüge (FN 624545 z). Enthalten Geburtsdaten und Privatadressen
 # der Geschäftsführer sowie Gesellschafteranteile — personenbezogene Daten, die

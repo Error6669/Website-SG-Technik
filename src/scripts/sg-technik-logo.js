@@ -211,7 +211,7 @@
     }
     function onVisibility() { document.hidden ? stop() : (visible && start()); }
     document.addEventListener('visibilitychange', onVisibility);
-    // Abweichung vom Original (Animationen/sg-technik-logo.js): Während gescrollt
+    // Abweichung vom ursprünglichen Prototyp: Während gescrollt
     // wird, ruht der Loop. Er baut in jedem Bild Pfade und Körner des SVG neu auf;
     // das nimmt der scrollgekoppelten Winterdienst-Straße auf der Startseite die
     // Rechenzeit und ließ sie ruckeln, solange das Logo im Bild war.

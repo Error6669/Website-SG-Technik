@@ -84,7 +84,7 @@ export const privacy = {
     //
     // VORGESCHICHTE: Hier stand `logRetentionDays: null` mit der Begründung,
     // Netlify nenne keine verbindliche Frist — deshalb lief seit 30.07.2026 eine
-    // E-Mail-Anfrage (PRIVACY-CHECKLIST.md, B1). Die Frist stand die ganze Zeit
+    // E-Mail-Anfrage (docs/datenschutz/PRIVACY-CHECKLIST.md, B1). Die Frist stand die ganze Zeit
     // im Vertrag; gefunden am 02.10.2026 bei der Volltextsuche im DPA, ausgelöst
     // durch Befund 4 des Prüfberichts.
     //
@@ -118,7 +118,7 @@ export const privacy = {
     //   'scc' → nur noch die Klauseln (DPF wird nicht mehr erwähnt)
     //
     // ERNEUT PRÜFEN: DPF-Zertifizierungen müssen jährlich erneuert werden und
-    // können erlöschen. Status im Register gegenprüfen (PRIVACY-CHECKLIST.md,
+    // können erlöschen. Status im Register gegenprüfen (docs/datenschutz/PRIVACY-CHECKLIST.md,
     // C1); ist Netlify, Inc. dort nicht „Active", auf 'scc' umstellen — das
     // entspricht dem Rückfall, den § 14.2 selbst anordnet.
     transferBasis: 'dpf' as 'dpf' | 'scc',
@@ -144,7 +144,7 @@ export const privacy = {
   //    ZUSÄTZLICHE eigene Maßnahme, kein Ersatz.
   //  - Netlify Trust Center → Subprocessors, Stand 01.10.2026: „Automattic, Inc.
   //    (Akismet)", Kategorie „Spam Filtering", Standort „US". Belegkopie:
-  //    `netlify-subprocessors.pdf` (26 Einträge).
+  //    `Nachweise/netlify-subprocessors.pdf` (26 Einträge).
   //
   // EINORDNUNG: Akismet ist Unterauftragsverarbeiter des Hosting-Anbieters, nicht
   // unser eigener Auftragsverarbeiter. Art. 13 Abs. 1 lit. e verlangt keine
@@ -196,7 +196,7 @@ export const privacy = {
   // existiert nicht — die Nachweismappe enthält zum Speicherort kein einziges
   // Dokument. Deshalb steht hier nur, was tatsächlich abgelesen wurde.
   // Ein FALSCHER Speicherort ist damit nicht festgestellt, nur ein fehlender
-  // Nachweis (PRIVACY-CHECKLIST.md, A5).
+  // Nachweis (docs/datenschutz/PRIVACY-CHECKLIST.md, A5).
   //
   // ACHTUNG BEI DER FORMULIERUNG: Das betrifft ruhende Daten (data at rest).
   // Die EU-Datengrenze schränkt Zugriffe aus Drittländern stark ein, schließt
@@ -219,7 +219,7 @@ export const privacy = {
     //
     // Ein einzelnes Land gehört hier nur hinein, wenn ein mandantenbezogener
     // Nachweis in der Nachweismappe liegt. Jährlich gegenprüfen
-    // (PRIVACY-CHECKLIST.md, C6).
+    // (docs/datenschutz/PRIVACY-CHECKLIST.md, C6).
     dataResidency: 'der Europäischen Union bzw. dem EWR' as string | null,
     // Exchange Online ist im Admin Center als EU-Datengrenzendienst gelistet.
     euDataBoundary: true,
@@ -245,7 +245,7 @@ export const privacy = {
     //
     // ERNEUT PRÜFEN: Ist die Microsoft Corporation im Register nicht mehr
     // „Active", `dpfCertified` auf `false` — der Zusatzsatz entfällt dann, die
-    // Klauseln bleiben (PRIVACY-CHECKLIST.md, C1).
+    // Klauseln bleiben (docs/datenschutz/PRIVACY-CHECKLIST.md, C1).
     dpfCertified: true,
     // Übersicht aller DPA-Fassungen und Sprachen.
     dpaUrl: 'https://aka.ms/dpa',
@@ -291,12 +291,12 @@ export const privacy = {
     //
     // KORRIGIERT am 02.10.2026 (Befund 10 des Prüfberichts): Hier stand zuvor
     // „Es wird KEIN AVV bei A1 angefordert." Das war der Zwischenstand vor der
-    // zweigleisigen Entscheidung und widersprach PRIVACY-CHECKLIST.md A5,
+    // zweigleisigen Entscheidung und widersprach docs/datenschutz/PRIVACY-CHECKLIST.md A5,
     // PROJECT_STATUS.md und dem Verarbeitungsverzeichnis.
     //
     // ACHTUNG, das ersetzt den Vertrag NICHT: Art. 28 Abs. 3 DSGVO verlangt
     // den AVV unabhängig davon, was auf der Website steht. Der Punkt steht in
-    // PRIVACY-CHECKLIST.md unter A5 und ist bei der juristischen Endkontrolle
+    // docs/datenschutz/PRIVACY-CHECKLIST.md unter A5 und ist bei der juristischen Endkontrolle
     // (A6) vorzulegen.
     //
     // Erst auf `true` setzen, wenn ein Vertrag tatsächlich vorliegt und in der
@@ -317,7 +317,7 @@ export const privacy = {
   // Bedarf zulässig, längstens bis zum Ende desselben Kalenderhalbjahres.
   // Entfällt der Bedarf früher, ist entsprechend früher zu löschen. Berechtigte
   // Löschbegehren werden unabhängig von den regulären Durchgängen bearbeitet.
-  // Löschablauf, Orte und Begründung: PRIVACY-CHECKLIST.md, Abschnitt A3.
+  // Löschablauf, Orte und Begründung: docs/datenschutz/PRIVACY-CHECKLIST.md, Abschnitt A3.
   //
   // ACHTUNG BEI DER FORMULIERUNG: Die grundsätzlich siebenjährigen Fristen
   // (§ 132 BAO / § 212 UGB) gelten für aufbewahrungspflichtige Unterlagen;
