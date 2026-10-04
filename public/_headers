@@ -1,0 +1,10 @@
+# Sicherheitsheader für Netlify (Securitybericht M2, einfache Stufe).
+# Astro kopiert diese Datei unverändert nach dist/; Netlify wendet sie auf alle Pfade an.
+# Eine Content-Security-Policy fehlt bewusst noch: Sie muss erst im Report-Only-Modus
+# getestet werden, sonst blockiert sie die Inline-Skripte (Menü, Animationen).
+
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()
