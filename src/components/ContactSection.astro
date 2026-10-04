@@ -63,6 +63,9 @@ const labelClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-300'
       </div>
 
       <div class="max-w-md">
+        {/* maxlength und required sind nur Bedienhilfe im Browser, kein Schutz: Bots senden
+            direkt an Netlify. Den eigentlichen Spamschutz übernimmt Netlify Forms (Honeypot +
+            Spamfilter im Dashboard unter Forms → Settings) — dort aktiviert lassen. */}
         <form
           name="kontakt"
           method="POST"
@@ -80,17 +83,17 @@ const labelClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-300'
 
           <div>
             <label for="kontakt-name" class={labelClass}>Name</label>
-            <input id="kontakt-name" name="name" type="text" autocomplete="name" required placeholder="Vor- und Nachname" class:list={['mt-2', fieldClass]} />
+            <input id="kontakt-name" name="name" type="text" autocomplete="name" required maxlength="30" placeholder="Vor- und Nachname" class:list={['mt-2', fieldClass]} />
           </div>
 
           <div>
             <label for="kontakt-email" class={labelClass}>E-Mail</label>
-            <input id="kontakt-email" name="email" type="email" autocomplete="email" required placeholder="max@mustermann.at" class:list={['mt-2', fieldClass]} />
+            <input id="kontakt-email" name="email" type="email" autocomplete="email" required maxlength="50" placeholder="max@mustermann.at" class:list={['mt-2', fieldClass]} />
           </div>
 
           <div>
             <label for="kontakt-telefon" class={labelClass}>Telefon (optional)</label>
-            <input id="kontakt-telefon" name="telefon" type="tel" autocomplete="tel" placeholder="+43 664 1234567" class:list={['mt-2', fieldClass]} />
+            <input id="kontakt-telefon" name="telefon" type="tel" autocomplete="tel" maxlength="30" placeholder="+43 664 1234567" class:list={['mt-2', fieldClass]} />
           </div>
 
           <div>
@@ -101,6 +104,7 @@ const labelClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-300'
               name="nachricht"
               rows="4"
               required
+              maxlength="2000"
               placeholder="Was können wir für Sie tun?"
               class:list={['mt-2 resize-y', fieldClass]}
             ></textarea>
