@@ -20,7 +20,8 @@ const isCurrent = (href: string): boolean => {
     <a
       href={homeItem.href}
       aria-label={homeItem.label}
-      class="text-slate-300 transition-colors hover:text-fog-50 lg:hidden"
+      data-press
+      class="sg-press-icon inline-flex text-slate-300 hover:text-fog-50 lg:hidden"
     >
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path
@@ -37,7 +38,8 @@ const isCurrent = (href: string): boolean => {
       <a
         href={homeItem.href}
         aria-label={homeItem.label}
-        class="text-slate-300 transition-colors hover:text-fog-50"
+        data-press
+        class="sg-press-icon inline-flex text-slate-300 hover:text-fog-50"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path
@@ -54,9 +56,10 @@ const isCurrent = (href: string): boolean => {
           <a
             href={item.href}
             data-nav-link
+            data-press
             aria-current={isCurrent(item.href) ? 'page' : undefined}
             class:list={[
-              'font-body text-base text-slate-300 transition-colors hover:text-fog-50',
+              'sg-press-text font-body text-base text-slate-300 transition-colors hover:text-fog-50',
               isCurrent(item.href) && 'is-active',
             ]}
           >
@@ -68,14 +71,15 @@ const isCurrent = (href: string): boolean => {
 
     <a
       href={primaryCta.href}
-      class="hidden rounded-sm border border-copper-500 px-4 py-2 font-body text-sm font-semibold text-fog-50 transition-colors hover:bg-copper-600 hover:border-copper-600 lg:inline-block"
+      data-press
+      class="sg-press-cta hidden rounded-sm border border-copper-500 px-4 py-2 font-body text-sm font-semibold text-fog-50 transition-colors hover:bg-copper-600 hover:border-copper-600 lg:inline-block"
     >
       {primaryCta.label}
     </a>
 
     <button
       type="button"
-      class="inline-flex h-9 w-9 items-center justify-center text-fog-50 lg:hidden"
+      class="sg-press-icon sg-press-icon--box inline-flex h-9 w-9 items-center justify-center text-fog-50 lg:hidden"
       aria-label="Menü öffnen"
       aria-expanded="false"
       data-menu-toggle
@@ -96,9 +100,10 @@ const isCurrent = (href: string): boolean => {
         <a
           href={item.href}
           data-nav-link
+          data-press
           aria-current={isCurrent(item.href) ? 'page' : undefined}
           class:list={[
-            'py-2 font-body text-base text-slate-300 hover:text-fog-50',
+            'sg-press-row py-2 font-body text-base text-slate-300 hover:text-fog-50',
             isCurrent(item.href) && 'is-active',
           ]}
         >
@@ -110,6 +115,24 @@ const isCurrent = (href: string): boolean => {
 </header>
 
 <script>
+  // Klick-Rückmeldung in der Kopfzeile: :active greift sofort beim Drücken. Führt
+  // ein Link auf eine andere Seite, bleibt danach `is-pressed` stehen, bis die neue
+  // Seite da ist — man sieht, dass der Tipp angekommen ist und geladen wird. Bei
+  // Sprüngen auf derselben Seite (#kontakt) erlischt es kurz danach wieder.
+  // iOS Safari setzt :active nur, wenn irgendein touchstart-Listener hängt.
+  document.addEventListener('touchstart', () => {}, { passive: true });
+
+  const samePage = (a: HTMLAnchorElement): boolean =>
+    a.pathname.replace(/\/+$/, '') === location.pathname.replace(/\/+$/, '') && a.hash !== '';
+
+  document.querySelectorAll<HTMLAnchorElement>('a[data-press]').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return; // neuer Tab o. Ä.
+      link.classList.add('is-pressed');
+      if (samePage(link)) window.setTimeout(() => link.classList.remove('is-pressed'), 450);
+    });
+  });
+
   const toggle = document.querySelector('[data-menu-toggle]');
   const menu = document.querySelector('[data-mobile-menu]');
 
@@ -141,10 +164,20 @@ const isCurrent = (href: string): boolean => {
     }
   });
 
-  // Menü immer schließen, wenn ein Link darin angeklickt wird — auch wenn keine
-  // echte Navigation stattfindet (z. B. erneuter Klick auf denselben #kontakt-Anker).
-  menu?.querySelectorAll('a').forEach((link) => {
-    link.addEventListener('click', () => closeMenu());
+  // Sprung auf derselben Seite (z. B. #kontakt): Menü sofort schließen, der Sprung
+  // selbst ist die Rückmeldung. Führt der Link auf eine andere Seite, bleibt das
+  // Menü offen und zeigt den gedrückten Reiter, bis die neue Seite lädt.
+  menu?.querySelectorAll<HTMLAnchorElement>('a').forEach((link) => {
+    link.addEventListener('click', () => {
+      if (samePage(link)) closeMenu();
+    });
+  });
+
+  // Zurück-Taste (Seite aus dem bfcache): Menü zu, gedrückte Zustände lösen.
+  window.addEventListener('pageshow', (e) => {
+    if (!e.persisted) return;
+    closeMenu();
+    document.querySelectorAll('[data-press].is-pressed').forEach((el) => el.classList.remove('is-pressed'));
   });
 
   document.addEventListener('keydown', (event) => {
@@ -232,5 +265,78 @@ const isCurrent = (href: string): boolean => {
   [data-nav-link].is-active {
     color: var(--color-fog-50);
     font-weight: 600;
+  }
+
+  /* --- Klick-Rückmeldung (sofort beim Drücken, Kupfer als einziger Akzent) --- */
+  [data-press],
+  [data-menu-toggle] {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Symbole (Home, Menü): Fläche hinterlegt, leicht eingedrückt. Home bekommt
+     eine 36-px-Tippfläche per Innenabstand + Negativrand (Layout bleibt gleich). */
+  .sg-press-icon {
+    border-radius: 2px;
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease,
+      transform 0.12s ease-out;
+  }
+  .sg-press-icon:not(.sg-press-icon--box) {
+    padding: 0.5rem;
+    margin: -0.5rem;
+  }
+  .sg-press-icon:active,
+  .sg-press-icon.is-pressed {
+    color: var(--color-copper-500);
+    background-color: var(--color-navy-800);
+  }
+  .sg-press-icon:active {
+    transform: scale(0.9);
+  }
+
+  /* Textlinks Desktop: kupfern. */
+  [data-nav-link].sg-press-text:active,
+  [data-nav-link].sg-press-text.is-pressed {
+    color: var(--color-copper-500);
+  }
+
+  /* Reiter im Mobilmenü: ganze Zeile hinterlegt, Text kupfern. */
+  .sg-press-row {
+    margin-inline: -0.75rem;
+    padding-inline: 0.75rem;
+    border-radius: 2px;
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease;
+  }
+  [data-nav-link].sg-press-row:active,
+  [data-nav-link].sg-press-row.is-pressed {
+    color: var(--color-copper-500);
+    background-color: var(--color-navy-800);
+  }
+
+  /* „Ihr Draht zu uns": füllt sich wie beim Hover, leicht eingedrückt. */
+  .sg-press-cta {
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease,
+      border-color 0.15s ease,
+      transform 0.12s ease-out;
+  }
+  .sg-press-cta:active,
+  .sg-press-cta.is-pressed {
+    background-color: var(--color-copper-600);
+    border-color: var(--color-copper-600);
+  }
+  .sg-press-cta:active {
+    transform: scale(0.97);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sg-press-icon:active,
+    .sg-press-cta:active {
+      transform: none;
+    }
   }
 </style>
