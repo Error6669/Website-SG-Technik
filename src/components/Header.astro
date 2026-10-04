@@ -23,7 +23,7 @@ const isCurrent = (href: string): boolean => {
       data-press
       class="sg-press-icon inline-flex text-slate-300 hover:text-fog-50 lg:hidden"
     >
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path
           d="M3 11.5L12 4l9 7.5M5.5 9.5V20a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V9.5M9.5 21v-6h5v6"
           stroke="currentColor"
@@ -41,7 +41,7 @@ const isCurrent = (href: string): boolean => {
         data-press
         class="sg-press-icon inline-flex text-slate-300 hover:text-fog-50"
       >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path
             d="M3 11.5L12 4l9 7.5M5.5 9.5V20a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V9.5M9.5 21v-6h5v6"
             stroke="currentColor"
@@ -59,7 +59,7 @@ const isCurrent = (href: string): boolean => {
             data-press
             aria-current={isCurrent(item.href) ? 'page' : undefined}
             class:list={[
-              'sg-press-text font-body text-base text-slate-300 transition-colors hover:text-fog-50',
+              'font-body text-base text-slate-300 transition-colors hover:text-fog-50',
               isCurrent(item.href) && 'is-active',
             ]}
           >
@@ -79,12 +79,12 @@ const isCurrent = (href: string): boolean => {
 
     <button
       type="button"
-      class="sg-press-icon sg-press-icon--box inline-flex h-9 w-9 items-center justify-center text-fog-50 lg:hidden"
+      class="sg-press-icon sg-press-icon--box -my-1 -mr-1.5 inline-flex h-11 w-11 items-center justify-center text-fog-50 lg:hidden"
       aria-label="Menü öffnen"
       aria-expanded="false"
       data-menu-toggle
     >
-      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+      <svg width="26" height="26" viewBox="0 0 22 22" fill="none" aria-hidden="true">
         <path d="M2 5H20M2 11H20M2 17H20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
       </svg>
     </button>
@@ -103,7 +103,7 @@ const isCurrent = (href: string): boolean => {
           data-press
           aria-current={isCurrent(item.href) ? 'page' : undefined}
           class:list={[
-            'sg-press-row py-2 font-body text-base text-slate-300 hover:text-fog-50',
+            'py-2 font-body text-base text-slate-300 hover:text-fog-50',
             isCurrent(item.href) && 'is-active',
           ]}
         >
@@ -267,76 +267,53 @@ const isCurrent = (href: string): boolean => {
     font-weight: 600;
   }
 
-  /* --- Klick-Rückmeldung (sofort beim Drücken, Kupfer als einziger Akzent) --- */
+  /* --- Klick-Rückmeldung: NUR die Farbe wird Kupfer — kein Rahmen, keine
+     Fläche, keine Bewegung. Bei Links auf andere Seiten bleibt sie (is-pressed),
+     bis die neue Seite da ist. Der Menü-Button bleibt Kupfer, solange das Menü
+     offen ist. --- */
   [data-press],
   [data-menu-toggle] {
     -webkit-tap-highlight-color: transparent;
+    transition: color 0.15s ease;
+  }
+  /* Kein Fokusrahmen nach Maus-/Fingerklick; Tastatur (:focus-visible) behält ihn. */
+  [data-press]:focus:not(:focus-visible),
+  [data-menu-toggle]:focus:not(:focus-visible) {
+    outline: none;
+  }
+  /* Der Menü-Container bekommt beim Öffnen den Fokus (Tastatur/Screenreader),
+     ist selbst aber kein Bedienelement → nie ein Rahmen (Safari zeichnete sonst
+     einen kupfernen Strich zwischen Kopfzeile und Menü). */
+  [data-mobile-menu]:focus,
+  [data-mobile-menu]:focus-visible {
+    outline: none;
   }
 
-  /* Symbole (Home, Menü): Fläche hinterlegt, leicht eingedrückt. Home bekommt
-     eine 36-px-Tippfläche per Innenabstand + Negativrand (Layout bleibt gleich). */
-  .sg-press-icon {
-    border-radius: 2px;
-    transition:
-      color 0.15s ease,
-      background-color 0.15s ease,
-      transform 0.12s ease-out;
-  }
+  /* Home: 40-px-Tippfläche per Innenabstand + Negativrand, Layout bleibt gleich. */
   .sg-press-icon:not(.sg-press-icon--box) {
     padding: 0.5rem;
     margin: -0.5rem;
   }
-  .sg-press-icon:active,
-  .sg-press-icon.is-pressed {
-    color: var(--color-copper-500);
-    background-color: var(--color-navy-800);
-  }
-  .sg-press-icon:active {
-    transform: scale(0.9);
-  }
 
-  /* Textlinks Desktop: kupfern. */
-  [data-nav-link].sg-press-text:active,
-  [data-nav-link].sg-press-text.is-pressed {
+  [data-press]:active,
+  [data-press].is-pressed,
+  [data-nav-link][data-press]:active,
+  [data-nav-link][data-press].is-pressed,
+  [data-menu-toggle]:active,
+  [data-menu-toggle][aria-expanded='true'] {
     color: var(--color-copper-500);
   }
 
-  /* Reiter im Mobilmenü: ganze Zeile hinterlegt, Text kupfern. */
-  .sg-press-row {
-    margin-inline: -0.75rem;
-    padding-inline: 0.75rem;
-    border-radius: 2px;
-    transition:
-      color 0.15s ease,
-      background-color 0.15s ease;
-  }
-  [data-nav-link].sg-press-row:active,
-  [data-nav-link].sg-press-row.is-pressed {
-    color: var(--color-copper-500);
-    background-color: var(--color-navy-800);
-  }
-
-  /* „Ihr Draht zu uns": füllt sich wie beim Hover, leicht eingedrückt. */
+  /* „Ihr Draht zu uns": Schrift bleibt hell, nur der Rahmen-Button füllt sich kupfern. */
   .sg-press-cta {
     transition:
-      color 0.15s ease,
       background-color 0.15s ease,
-      border-color 0.15s ease,
-      transform 0.12s ease-out;
+      border-color 0.15s ease;
   }
   .sg-press-cta:active,
   .sg-press-cta.is-pressed {
+    color: var(--color-fog-50);
     background-color: var(--color-copper-600);
     border-color: var(--color-copper-600);
-  }
-  .sg-press-cta:active {
-    transform: scale(0.97);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .sg-press-icon:active,
-    .sg-press-cta:active {
-      transform: none;
-    }
   }
 </style>
