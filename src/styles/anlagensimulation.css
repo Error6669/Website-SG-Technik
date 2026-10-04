@@ -1,0 +1,820 @@
+/* Anlagensimulation (/anlagensimulation, Komponente PlantSimulation.astro).
+   Das Markup entsteht erst im Browser (src/scripts/anlagensimulation/) und
+   trägt kein Astro-Scoping-Attribut — deshalb globale Regeln mit engem
+   ps-Namensraum, wie .sg-car in global.css.
+
+   Die Farbwerte werden hier unter .ps noch einmal gesetzt: Tailwind gibt aus
+   @theme nur die Variablen aus, die irgendwo als Utility benutzt werden, und
+   die Simulation braucht auch sonst ungenutzte Töne (mist-100, slate-500 …).
+   Die Werte sind identisch mit @theme in global.css. */
+
+.ps {
+  --color-navy-900: #0d2436;
+  --color-navy-800: #183a59;
+  --color-slate-600: #526376;
+  --color-slate-500: #6b8299;
+  --color-slate-300: #a9b7c4;
+  --color-mist-100: #e4e9ed;
+  --color-fog-50: #f5f7f8;
+  --color-paper: #fbfcfc;
+  --color-band: #eef1f3;
+  --color-copper-500: #b15a2e;
+  --color-copper-600: #8f4523;
+  --color-line: rgba(24, 58, 89, 0.12);
+  --font-body: 'Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'Plex Mono', 'SFMono-Regular', Consolas, monospace;
+  /* Höhe von allem, was neben der Zeichnung auf den Bildschirm muss
+     (Legende, Bedienleiste, Statuszeile). Die Seite addiert die Kopfzeile. */
+  --ps-chrome: 12.5rem;
+}
+
+
+.ps {
+  /* Medien als Abstufungen von Navy — gleiche Werte wie C in scene.ts */
+  --ps-water: color-mix(in srgb, var(--color-navy-800) 45%, var(--color-paper));
+  --ps-brine: color-mix(in srgb, var(--color-navy-800) 75%, var(--color-paper));
+  --ps-brine-deep: color-mix(in srgb, var(--color-navy-800) 90%, var(--color-paper));
+  --ps-salt: color-mix(in srgb, var(--color-navy-800) 20%, var(--color-paper));
+  border-top: 1px solid var(--color-line);
+  border-bottom: 1px solid var(--color-line);
+  color: var(--color-navy-900);
+}
+
+.ps h3,
+.ps h4,
+.ps p {
+  margin: 0;
+}
+
+.ps-eyebrow,
+/* Kopfleiste: Legende, Anlagenzeit, Tempo */
+.ps-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 2rem;
+  padding: 0.875rem 0;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.ps-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--color-slate-600);
+  font: 500 0.75rem/1.2 var(--font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ps-legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ps-swatch {
+  width: 1.25rem;
+  height: 0.375rem;
+  border-radius: 2px;
+}
+.ps-swatch--water {
+  background: var(--ps-water);
+}
+.ps-swatch--brine {
+  background: var(--ps-brine);
+}
+.ps-swatch--salt {
+  background: var(--ps-salt);
+  outline: 1px solid var(--color-slate-300);
+  outline-offset: -1px;
+}
+.ps-swatch--active {
+  width: 0.625rem;
+  height: 0.625rem;
+  background: var(--color-copper-500);
+}
+
+/* Umschalter (Tempo, Tankwahl): eine Reihe hairline-getrennter Felder */
+/* Zeichnung */
+.ps-stage {
+  overflow-x: auto;
+  background: var(--color-paper);
+  border-bottom: 1px solid var(--color-line);
+  overscroll-behavior-x: contain;
+}
+
+.ps-svg {
+  display: block;
+  width: 100%;
+  min-width: 46rem;
+  height: auto;
+  /* Zeichnung samt SalzManager-Bildschirm und Bedienleiste passen zusammen in
+     ein Fenster: Ist es niedrig, wird die Zeichnung kleiner statt höher. */
+  max-height: calc(100svh - var(--ps-chrome));
+}
+
+/* Texte in der Zeichnung (viewBox-Einheiten) */
+.ps-svg text {
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+.ps-t-label {
+  fill: var(--color-slate-600);
+  font-size: 11px; /* impeccable-disable-line design-system-font-size -- viewBox-Maß der Zeichnung, skaliert mit der Grafik */
+  letter-spacing: 0.12em;
+  paint-order: stroke;
+  stroke: var(--color-paper);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+.ps-t-value {
+  fill: var(--color-navy-800);
+  font-size: 21px; /* impeccable-disable-line design-system-font-size -- viewBox-Maß der Zeichnung, skaliert mit der Grafik */
+  font-variant-numeric: tabular-nums;
+  paint-order: stroke;
+  stroke: var(--color-paper);
+  stroke-width: 5px;
+  stroke-linejoin: round;
+}
+.ps-t-sub {
+  fill: var(--color-slate-600);
+  font-size: 11px; /* impeccable-disable-line design-system-font-size -- viewBox-Maß der Zeichnung, skaliert mit der Grafik */
+  paint-order: stroke;
+  stroke: var(--color-paper);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+.ps-t-tag {
+  fill: var(--color-slate-600);
+  font-size: 10.5px; /* impeccable-disable-line design-system-font-size -- viewBox-Maß der Zeichnung, skaliert mit der Grafik */
+  letter-spacing: 0.12em;
+}
+/* SalzManager-Bildschirm in der Zeichnung */
+.ps-t-screen-head {
+  fill: var(--color-fog-50);
+  font-size: 11px; /* impeccable-disable-line design-system-font-size -- viewBox-Maß der Zeichnung, skaliert mit der Grafik */
+  letter-spacing: 0.14em;
+}
+.ps-t-dim {
+  fill: var(--color-slate-300);
+}
+.ps-svg .ps-t-screen {
+  fill: var(--color-navy-900);
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 11.5px; /* impeccable-disable-line design-system-font-size -- viewBox-Maß der Zeichnung, skaliert mit der Grafik */
+}
+.ps-svg .ps-t-screen.ps-t-mono {
+  font-family: var(--font-mono);
+  fill: var(--color-slate-600);
+}
+.ps-svg .ps-t-screen.is-warn {
+  fill: var(--color-copper-600);
+}
+.ps-t-screen-value {
+  fill: var(--color-navy-800);
+  font-size: 18px; /* impeccable-disable-line design-system-font-size -- viewBox-Maß der Zeichnung, skaliert mit der Grafik */
+  font-variant-numeric: tabular-nums;
+}
+.ps-sm-ring {
+  transition: stroke-dasharray 0.2s linear;
+}
+
+/* RFID-Leser: bereit → liest → freigegeben */
+.ps-rfid-head {
+  fill: var(--color-paper);
+  stroke: var(--color-navy-800);
+  stroke-width: 1.2;
+  transition:
+    fill 0.2s ease,
+    stroke 0.2s ease;
+}
+.ps-rfid-led {
+  fill: var(--color-slate-300);
+}
+.ps-rfid-lines {
+  stroke: var(--color-slate-500);
+  stroke-width: 1;
+}
+.ps-rfid-waves {
+  stroke: var(--color-copper-500);
+  stroke-width: 2.2;
+  opacity: 0;
+}
+.ps-rfid.is-reading .ps-rfid-head {
+  stroke: var(--color-copper-500);
+  stroke-width: 2.6;
+}
+.ps-rfid.is-reading .ps-rfid-led {
+  fill: var(--color-copper-500);
+  animation: ps-rfid-blink 0.35s steps(1) infinite;
+}
+.ps-rfid.is-reading .ps-rfid-waves {
+  animation: ps-rfid 0.6s ease-out infinite;
+}
+.ps-rfid.is-ok .ps-rfid-head {
+  fill: var(--color-copper-500);
+  stroke: var(--color-copper-600);
+}
+.ps-rfid.is-ok .ps-rfid-led {
+  fill: var(--color-paper);
+}
+.ps-rfid.is-ok .ps-rfid-lines {
+  stroke: var(--color-paper);
+}
+.ps-svg .ps-rfid.is-reading .ps-rfid-label,
+.ps-svg .ps-rfid.is-ok .ps-rfid-label {
+  fill: var(--color-copper-600);
+}
+@keyframes ps-rfid {
+  0% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.15;
+  }
+}
+@keyframes ps-rfid-blink {
+  50% {
+    fill: var(--color-paper);
+  }
+}
+
+
+/* Beschriftung, die über Leitungen läuft: schneidet sich wie in einer
+   Zeichnung eine helle Lücke frei. */
+.ps-t-halo {
+  paint-order: stroke;
+  stroke: var(--color-paper);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+.ps-t-tiny {
+  fill: var(--color-slate-600);
+  font-size: 8.5px; /* impeccable-disable-line design-system-font-size -- viewBox-Maß der Zeichnung, skaliert mit der Grafik */
+  letter-spacing: 0.1em;
+}
+
+/* Beschriftung unter dem Flüssigkeitsspiegel: hell, ohne Umrandung */
+.ps-svg text.is-submerged {
+  fill: var(--color-fog-50);
+  stroke: none;
+}
+
+/* Positionsnummern wie in einer Werkzeichnung */
+.ps-marker line {
+  stroke: var(--color-slate-500);
+  stroke-width: 1;
+}
+.ps-marker circle {
+  fill: var(--color-paper);
+  stroke: var(--color-copper-500);
+  stroke-width: 1.3;
+}
+.ps-marker text {
+  fill: var(--color-copper-600);
+  font-size: 10px; /* impeccable-disable-line design-system-font-size -- viewBox-Maß der Zeichnung, skaliert mit der Grafik */
+}
+
+/* Strömung: gestrichelte Linie, die in Fließrichtung läuft */
+.ps-flow {
+  fill: none;
+  stroke-width: 3.2;
+  stroke-dasharray: 8 10;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.ps-flow.is-on {
+  opacity: 1;
+  animation: ps-flow 0.7s linear infinite;
+}
+.ps-flow.is-rev {
+  animation-direction: reverse;
+}
+.ps-flow--water {
+  stroke: var(--color-slate-500);
+}
+.ps-flow--brine {
+  stroke: var(--ps-brine-deep);
+}
+.ps-flow--salt {
+  stroke: var(--color-paper);
+}
+.ps-flow--hose {
+  stroke-width: 2.2;
+}
+@keyframes ps-flow {
+  to {
+    stroke-dashoffset: -18;
+  }
+}
+
+/* Ventile und Pumpen: Kupfer = offen bzw. in Betrieb */
+/* Ventile wie ein Kugelhahn: offen in Leitungsrichtung (Kupfer), gesperrt um
+   90° quer zur Leitung gedreht. */
+.ps-valve path {
+  fill: var(--color-paper);
+  stroke: var(--color-navy-800);
+  stroke-width: 1.3;
+  stroke-linejoin: round;
+  transform: rotate(90deg);
+  transform-box: fill-box;
+  transform-origin: center;
+  transition:
+    fill 0.2s ease,
+    stroke 0.2s ease,
+    transform 0.3s ease;
+}
+.ps-valve.is-open path {
+  fill: var(--color-copper-500);
+  stroke: var(--color-copper-500);
+  transform: none;
+}
+
+.ps-pump circle {
+  fill: var(--color-paper);
+  stroke: var(--color-navy-800);
+  stroke-width: 1.5;
+  transition: stroke 0.2s ease;
+}
+.ps-pump .ps-impeller {
+  fill: var(--color-navy-800);
+  transform-box: fill-box;
+  transform-origin: 40% 50%;
+}
+.ps-pump.is-on circle {
+  stroke: var(--color-copper-500);
+}
+.ps-pump.is-on .ps-impeller {
+  fill: var(--color-copper-500);
+  animation: ps-spin 0.9s linear infinite;
+}
+@keyframes ps-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Schieber, Salzstrom, Filter */
+.ps-gate {
+  fill: var(--color-paper);
+  transition:
+    transform 0.4s ease,
+    fill 0.2s ease;
+}
+.ps-gate.is-open {
+  fill: var(--color-copper-500);
+  transform: translateX(-14px);
+}
+
+.ps-fall {
+  opacity: 0;
+}
+.ps-fall circle {
+  fill: var(--color-slate-300);
+}
+.ps-fall.is-on {
+  opacity: 1;
+  animation: ps-fall 0.35s linear infinite;
+}
+@keyframes ps-fall {
+  to {
+    transform: translateY(21px);
+  }
+}
+
+/* Rüttler im Schieber: zittert, solange er läuft */
+.ps-shake.is-on {
+  animation: ps-shake 0.09s linear infinite alternate;
+}
+@keyframes ps-shake {
+  from {
+    transform: translate(-0.8px, 0.4px);
+  }
+  to {
+    transform: translate(0.8px, -0.4px);
+  }
+}
+
+/* Dosierschnecke und Rührwerk */
+.ps-screw-salt {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.ps-screw.is-on {
+  animation: ps-screw 0.45s linear infinite;
+}
+.ps-screw.is-on .ps-screw-salt {
+  opacity: 1;
+}
+@keyframes ps-screw {
+  to {
+    transform: translateX(12px);
+  }
+}
+
+.ps-blade {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.ps-blade.is-on {
+  animation: ps-blade 0.32s linear infinite alternate;
+}
+@keyframes ps-blade {
+  to {
+    transform: scaleX(0.12);
+  }
+}
+
+/* Rundumleuchte der Fahrzeuge */
+.ps-vehicle [data-beacon].is-on {
+  animation: ps-beacon 0.9s steps(1) infinite;
+}
+@keyframes ps-beacon {
+  50% {
+    fill: var(--color-paper);
+  }
+}
+
+/* Bedienung und SalzManager */
+.ps-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 0 3rem;
+  padding-top: 1.5rem;
+}
+
+.ps-controls {
+  padding-bottom: 2rem;
+}
+
+.ps-list .ps-row:first-child {
+  padding-top: 0.25rem;
+}
+
+.ps-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.ps-row {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: 0.25rem 1rem;
+  align-items: start;
+  padding: 1rem 0;
+  border-top: 1px solid var(--color-line);
+}
+
+.ps-row-idx {
+  padding-top: 0.2rem;
+  color: var(--color-copper-500);
+  font: 500 0.75rem/1.4 var(--font-mono);
+  letter-spacing: 0.08em;
+}
+
+.ps-row-title {
+  color: var(--color-navy-800);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.ps-row-tank {
+  color: var(--color-slate-600);
+  font-weight: 400;
+}
+
+.ps-row-text {
+  margin-top: 0.25rem !important;
+  color: var(--color-slate-600);
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+.ps-row-state {
+  margin-top: 0.5rem !important;
+  color: var(--color-slate-500);
+  font: 500 0.75rem/1.4 var(--font-mono);
+  letter-spacing: 0.04em;
+}
+
+.ps-row.is-running .ps-row-state {
+  color: var(--color-copper-600);
+}
+
+.ps-row.is-running .ps-row-state::before {
+  content: '';
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-right: 0.5rem;
+  background: var(--color-copper-500);
+  vertical-align: 0.05em;
+}
+
+/* Bedienleiste direkt unter der Zeichnung: echte Schaltflächen, damit Knopf
+   und Wirkung zugleich im Bild sind. Ein laufender Ablauf füllt seinen Knopf
+   in Kupfer — dieselbe Farbe, die in der Zeichnung offene Ventile und
+   laufende Pumpen markiert. */
+.ps-console {
+  border-bottom: 1px solid var(--color-line);
+}
+
+.ps-actions {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+}
+
+.ps-act {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.125rem 0.5rem;
+  align-content: center;
+  min-height: 3.5rem;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--color-slate-300);
+  border-radius: 8px; /* impeccable-disable-line design-system-radius -- runde Knöpfe auf Wunsch des Auftraggebers (04.10.2026) */
+  background: var(--color-paper);
+  color: var(--color-navy-800);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.12s ease;
+}
+
+.ps-act:hover {
+  border-color: var(--color-navy-800);
+}
+
+.ps-act:active {
+  transform: scale(0.97);
+}
+
+.ps-act-idx {
+  grid-row: span 2;
+  padding-top: 0.15rem;
+  color: var(--color-copper-500);
+  font: 500 0.75rem/1.4 var(--font-mono);
+}
+
+.ps-act-label {
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.ps-act-state {
+  color: var(--color-slate-500);
+  font: 500 0.6875rem/1.4 var(--font-mono);
+  letter-spacing: 0.06em;
+}
+
+.ps-act.is-running {
+  border-color: var(--color-copper-500);
+  background: var(--color-copper-500);
+  color: var(--color-paper);
+}
+
+.ps-act.is-running:hover {
+  border-color: var(--color-copper-600);
+  background: var(--color-copper-600);
+}
+
+.ps-act.is-running .ps-act-idx,
+.ps-act.is-running .ps-act-state {
+  color: var(--color-paper);
+}
+
+.ps-act[aria-disabled='true']:not(.is-running) {
+  border-color: var(--color-line);
+  background: var(--color-fog-50);
+  cursor: not-allowed;
+}
+
+.ps-act[aria-disabled='true']:not(.is-running) .ps-act-label {
+  color: var(--color-slate-500);
+}
+
+.ps-act[aria-disabled='true']:not(.is-running):active {
+  transform: none;
+}
+
+.ps-console-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 2rem;
+  padding: 0.75rem 0;
+}
+
+.ps-status {
+  flex: 1 1 24rem;
+  min-height: 1.4em;
+  color: var(--color-slate-600);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.ps-status.is-hint {
+  color: var(--color-copper-600);
+}
+
+.ps-console-tools {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.ps-reset {
+  padding: 0.4375rem 0.875rem;
+  border: 1px solid var(--color-slate-300);
+  border-radius: 8px; /* impeccable-disable-line design-system-radius -- runde Knöpfe auf Wunsch des Auftraggebers (04.10.2026) */
+  background: transparent;
+  color: var(--color-navy-800);
+  font: 600 0.875rem/1 var(--font-body);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.ps-reset:hover {
+  border-color: var(--color-navy-800);
+}
+
+.ps-reset:active,
+.ps-subhead {
+  margin: 1.5rem 0 0.625rem !important;
+  color: var(--color-slate-600);
+  font: 500 0.75rem/1 var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Positionsliste */
+.ps-parts {
+  padding-bottom: 2rem;
+}
+
+.ps-parts ol {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ps-parts li {
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr);
+  gap: 0.5rem;
+  padding: 0.625rem 0;
+  border-top: 1px solid var(--color-line);
+  color: var(--color-slate-600);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.ps-parts strong {
+  color: var(--color-navy-800);
+  font-weight: 600;
+}
+
+.ps-part-n {
+  color: var(--color-copper-500);
+  font: 500 0.75rem/1.6 var(--font-mono);
+}
+
+@media (max-width: 64rem) {
+  .ps-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .ps-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 40rem) {
+  .ps-row {
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+  }
+  .ps-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ps *,
+  .ps *::before {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ── Schmale Bildschirme ──────────────────────────────────────────────────
+   Bereichs-Reiter über der Zeichnung und SalzManager-Werte als lesbares Feld.
+   Ab 48 rem zeigt die Zeichnung immer die ganze Anlage, beides entfällt. */
+.ps-areas,
+.ps-smm {
+  display: none;
+}
+
+@media (max-width: 47.99rem) {
+  .ps-areas {
+    display: flex;
+    gap: 0.375rem;
+    overflow-x: auto;
+    padding: 0.625rem 0;
+    scrollbar-width: none;
+  }
+  .ps-areas::-webkit-scrollbar {
+    display: none;
+  }
+  .ps-areas button {
+    flex: none;
+    padding: 0.5rem 0.875rem;
+    border: 1px solid var(--color-slate-300);
+    border-radius: 999px; /* impeccable-disable-line design-system-radius -- Bereichs-Reiter als Pillen, passend zu den runden Knöpfen der Simulation */
+    background: var(--color-paper);
+    color: var(--color-navy-800);
+    font: 600 0.875rem/1 var(--font-body);
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+  }
+  .ps-areas button[aria-pressed='true'] {
+    border-color: var(--color-navy-800);
+    background: var(--color-navy-800);
+    color: var(--color-fog-50);
+  }
+
+  /* Die Zeichnung zeigt hier einen Ausschnitt in voller Breite, ohne seitliches
+     Verschieben und ohne Höhenbegrenzung. */
+  .ps-stage {
+    overflow: hidden;
+  }
+  .ps-svg {
+    min-width: 0;
+    max-height: none;
+  }
+
+  .ps-smm {
+    display: block;
+    padding: 0.5rem 0 1.25rem;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .ps-smm .ps-subhead {
+    margin-top: 0.75rem !important;
+  }
+  .ps-smm dl {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    margin: 0;
+    background: var(--color-line);
+    border: 1px solid var(--color-line);
+  }
+  .ps-smm dl > div {
+    padding: 0.625rem 0.75rem;
+    background: var(--color-paper);
+  }
+  .ps-smm dt {
+    color: var(--color-slate-600);
+    font: 500 0.75rem/1 var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .ps-smm dd {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    margin: 0.375rem 0 0;
+    color: var(--color-navy-800);
+    font: 500 1rem/1.2 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+  .ps-smm dd small {
+    color: var(--color-slate-600);
+    font: 400 0.75rem/1.3 var(--font-body);
+  }
+  .ps-smm-msg {
+    margin-top: 0.625rem !important;
+    color: var(--color-slate-600);
+    font-size: 0.875rem;
+  }
+}

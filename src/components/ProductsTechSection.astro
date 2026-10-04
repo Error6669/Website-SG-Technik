@@ -1,7 +1,14 @@
 ---
 import { productCategories } from '../content/produkteTechnik';
+import { PRODUCT_AREA } from '../content/anlagensimulation';
 
 const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
+
+// Knopf „Unsere Anlagen“ am Ende jedes Produkttexts: öffnet die
+// Anlagensimulation, auf dem Handy gleich im passenden Bereich.
+const simHref = (slug: string) => `/anlagensimulation?bereich=${PRODUCT_AREA[slug] ?? 'gesamt'}`;
+const simClass =
+  'mt-8 inline-flex items-center gap-2 rounded-sm border border-slate-300 px-5 py-3 font-body text-sm font-semibold text-navy-800 transition-colors hover:border-navy-800';
 ---
 
 <section id="produkte-technik" class="scroll-mt-24 bg-fog-50 pt-[4.75rem] lg:pt-24">
@@ -53,6 +60,9 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
                 <p>{t}</p>
               ))}
             </div>
+            <a href={simHref(c.slug)} class={simClass}>
+              Unsere Anlagen <span aria-hidden="true">→</span>
+            </a>
           </div>
         ))
       }
@@ -72,6 +82,9 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
                     <p>{t}</p>
                   ))}
                 </div>
+                <a href={simHref(c.slug)} class={simClass}>
+                  Unsere Anlagen <span aria-hidden="true">→</span>
+                </a>
               </div>
             </div>
           ))
@@ -143,6 +156,9 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
                 {c.paragraphs.map((t) => (
                   <p>{t}</p>
                 ))}
+                <a href={simHref(c.slug)} class={simClass}>
+                  Unsere Anlagen <span aria-hidden="true">→</span>
+                </a>
               </div>
             </div>
           ))
