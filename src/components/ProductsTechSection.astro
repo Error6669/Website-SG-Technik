@@ -439,6 +439,44 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
       sizeSpacers();
     }).observe(nav);
     document.fonts?.ready.then(sizeSpacers);
+
+    // Hat jemand die Leiste nur seitlich weggeschoben (ohne Antippen), fährt sie
+    // beim nächsten vertikalen Scrollen der Seite zurück zum aktiven Produkt.
+    // Nicht, solange der Finger noch auf der Leiste liegt oder sie gerade bedient
+    // wurde — sonst würde sie beim schrägen Wischen zurückgerissen.
+    let navTouching = false;
+    let navUsedAt = 0;
+    let recenterUntil = 0;
+    const markNavUse = () => (navUsedAt = performance.now());
+    nav.addEventListener('touchstart', () => ((navTouching = true), markNavUse()), { passive: true });
+    nav.addEventListener('touchmove', markNavUse, { passive: true });
+    nav.addEventListener('wheel', markNavUse, { passive: true });
+    const touchEnd = () => ((navTouching = false), markNavUse());
+    nav.addEventListener('touchend', touchEnd, { passive: true });
+    nav.addEventListener('touchcancel', touchEnd, { passive: true });
+
+    const offCenter = (): boolean => {
+      const li = navItems.get(lastActive);
+      if (!li) return false;
+      const max = nav.scrollWidth - nav.clientWidth;
+      const target = Math.max(0, Math.min(max, li.offsetLeft - (nav.clientWidth - li.clientWidth) / 2));
+      return Math.abs(nav.scrollLeft - target) > 2;
+    };
+
+    let lastPageY = window.scrollY;
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (window.scrollY === lastPageY) return;
+        lastPageY = window.scrollY;
+        const now = performance.now();
+        if (nav.offsetParent === null || navTouching || now - navUsedAt < 400 || now < recenterUntil) return;
+        if (!offCenter()) return;
+        recenterUntil = now + 400; // Rückfahrt nicht bei jedem Scroll-Ereignis neu starten
+        centerNav(lastActive, true);
+      },
+      { passive: true },
+    );
   }
 
   let lastActive = '';
