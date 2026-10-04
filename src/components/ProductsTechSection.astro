@@ -31,7 +31,7 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
   </div>
 
   <div class="mx-auto max-w-6xl px-6">
-    {/* MOBILE: bildschirmhoher Bereich, nur das aktive Produkt (Specs → Text) */}
+    {/* MOBILE: nur das aktive Produkt (Specs → Text), normal in der Seite */}
     <div class="pt-mstage lg:hidden">
       {
         productCategories.map((c, i) => (
@@ -58,7 +58,7 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
       }
     </div>
 
-    {/* DESKTOP: zweispaltig — links Umschalter, rechts der aktive Text (Stepped-Scrolling) */}
+    {/* DESKTOP: zweispaltig — links Umschalter, rechts der aktive Text (eigener Scrollbereich) */}
     <div class="pt-desk hidden lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-10 xl:gap-16">
       {/* RECHTS (order-2): nur der aktive Kategorie-Text */}
       <div class="pt-stream lg:order-2">
@@ -158,8 +158,7 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
   }
 
   /* Höhe der mobilen Namensleiste — ein Ort zum Feintunen. */
-  .pt-mbar,
-  .pt-mstage {
+  .pt-mbar {
     --pt-bar-h: 4.25rem;
   }
 
@@ -244,17 +243,7 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
     outline-offset: 2px;
   }
 
-  /* --- Mobile: bildschirmhoher Scrollbereich, nur das aktive Produkt --- */
-  .pt-mstage {
-    height: calc(100dvh - 4.75rem - var(--pt-bar-h));
-    overflow-y: auto;
-    overscroll-behavior-y: contain; /* verhindert Durchrutschen auf die Seite */
-    touch-action: pan-y;
-    scrollbar-width: none;
-  }
-  .pt-mstage::-webkit-scrollbar {
-    display: none;
-  }
+  /* --- Mobile: nur das aktive Produkt, steht normal in der Seite --- */
   .pt-mcat {
     display: none;
   }
@@ -368,12 +357,11 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
 
 <script>
   // -------------------------------------------------------------------------
-  // Desktop: rechts (aktiver) Kategorie-Text, links Umschalter mit gesteuertem
-  //          „Stepped Scrolling" (wheel).
-  // Mobile:  oben schlanke Namensleiste, darunter ein bildschirmhoher Bereich,
-  //          in dem nur das aktive Produkt steht (Specs → Text). Innerhalb frei
-  //          scrollen; am Text-Ende/-Anfang springt es HART auf den Textanfang
-  //          des nächsten/vorigen Produkts — kein durchgehendes Scrollen.
+  // Desktop: rechts der aktive Kategorie-Text in einem eigenen Scrollbereich,
+  //          links der Umschalter. Scrollen läuft durch Text und Seite, das
+  //          Produkt wechselt nur per Klick.
+  // Mobile:  oben schlanke, klebende Namensleiste, darunter das aktive Produkt
+  //          (Specs → Text) normal in der Seite. Wechsel nur per Antippen.
   // -------------------------------------------------------------------------
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -391,7 +379,6 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
   const mCats = new Map<string, HTMLElement>();
   document.querySelectorAll<HTMLElement>('.pt-mcat').forEach((b) => mCats.set(b.dataset.mcat!, b));
   const nav = document.querySelector<HTMLElement>('.pt-mnav');
-  const mStage = document.querySelector<HTMLElement>('.pt-mstage');
 
   // Aktiven Namen in der mobilen Leiste exakt mittig fahren (auf Desktop No-Op,
   // da versteckt). Zweiter Lauf nach dem Größer-Werden (font-size-Übergang des
@@ -457,7 +444,6 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
 
     const stream = document.querySelector<HTMLElement>('.pt-stream');
     const section = document.getElementById('produkte-technik');
-    const slugs = Array.from(catBlocks.keys());
     const isDesktop = () => window.matchMedia('(min-width: 1024px)').matches;
 
     // Gemeinsame Slide-Animation: aktueller Block fährt raus, danach neuer rein.
@@ -502,281 +488,78 @@ const dtClass = 'font-mono text-xs uppercase tracking-[0.1em] text-slate-600';
       );
     };
 
+    // Seite so weit scrollen, dass der Produktbereich oben unter der Kopfzeile
+    // beginnt — nur zurück nach oben, falls man schon darunter ist (nie nach unten
+    // ziehen, wenn man noch über dem Bereich steht).
+    const scrollToSectionTop = () => {
+      if (!section) return;
+      if (section.getBoundingClientRect().top < 0) {
+        section.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+      }
+    };
+
     // ---------------------------------------------------------------------
-    // Desktop: gesteuertes „Stepped Scrolling" (wheel).
+    // Desktop: Umschalten NUR per Klick. Scrollen (Mausrad/Touchpad) bewegt
+    //   • runter: zuerst den Text bis zu seinem Ende, dann die Seite (Fußzeile);
+    //   • rauf:   zuerst die Seite zurück bis zum Bereichsanfang, dann den Text.
+    // Egal, ob der Zeiger über dem Text oder über der Übersicht steht. Passt der
+    // Text in den Bereich, scrollt sofort die Seite. Strg/Zoom-Gesten und
+    // seitliches Scrollen bleiben unberührt.
     // ---------------------------------------------------------------------
     if (stream && section) {
-      const DUR = reduceMotion ? 0 : 240;
-      // Umschalt-Modell (Transform statt Nativ-Scroll): Der aktive Text wird per
-      // translateY verschoben — auch wenn er kürzer als der sichtbare Bereich ist.
-      //   • RUNTER scrollen: Text schiebt sich nach OBEN, bis die erste Zeile an der
-      //     Kopfzeile ankommt (offset === maxOffset) → nächstes Produkt, das oben
-      //     (offset 0) einsteigt.
-      //   • RAUF scrollen: Text schiebt sich nach UNTEN, bis die letzte Zeile am
-      //     unteren Bildschirmrand ankommt (offset === minOffset) → voriges Produkt,
-      //     das MITTIG (offset === centerOffset, mit Mindestabstand zur Kopfzeile)
-      //     einsteigt.
-      // Eine Geste schaltet höchstens EIN Produkt weiter (Cooldown).
-      stream.style.overflow = 'hidden'; // verschobener Text wird oben/unten abgeschnitten
-
-      const MIN_HEADER_GAP = 40; // Mindestabstand der ersten Zeile zur Kopfzeile (mittig)
-      let cooling = false;
-      let coolTimer = 0;
-      let offset = 0; // Verschiebung des aktiven Textes (px; >0 = nach oben)
-      let maxOffset = 0; // bis erste Zeile an der Kopfzeile (Runter-Umschaltpunkt)
-      let minOffset = 0; // bis letzte Zeile am unteren Rand (Rauf-Umschaltpunkt; i. d. R. < 0)
-      let centerOffset = 0; // mittige Einstiegsposition beim Hochscrollen
-      const holdCooling = () => {
-        clearTimeout(coolTimer);
-        coolTimer = window.setTimeout(() => (cooling = false), 240);
-      };
-
-      const header = document.querySelector('header');
-      // Alle Grenz-Offsets ohne aktuellen Transform messen (transform kurz auf none).
-      const measure = (el: HTMLElement) => {
-        const prev = el.style.transform;
-        el.style.transform = 'none';
-        const rect = el.getBoundingClientRect();
-        el.style.transform = prev;
-        const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
-        const streamBottom = stream.getBoundingClientRect().bottom;
-
-        // Runter: erste Zeile an die Kopfzeile (bei hohen Texten: bis Ende sichtbar).
-        const gap = rect.top - headerBottom;
-        const belowFold = rect.bottom - streamBottom;
-        maxOffset = Math.max(Math.round(Math.max(gap, belowFold)), 40);
-
-        // Rauf: letzte Zeile an den unteren Rand (nie über die Top-Position hinaus).
-        minOffset = Math.min(Math.round(rect.bottom - streamBottom), 0);
-
-        // Mittig, aber erste Zeile nie näher als MIN_HEADER_GAP an der Kopfzeile.
-        let center = (rect.top + rect.bottom) / 2 - (headerBottom + streamBottom) / 2;
-        center = Math.min(center, rect.top - headerBottom - MIN_HEADER_GAP);
-        centerOffset = Math.max(Math.min(Math.round(center), maxOffset), minOffset);
-      };
-      const applyOffset = () => {
-        const el = catBlocks.get(lastActive);
-        if (el) el.style.transform = `translateY(${-offset}px)`;
-      };
-      const recalc = () => {
-        const el = catBlocks.get(lastActive);
-        if (el) measure(el);
-      };
-
-      // Neues Produkt einblenden: runter (dir>0) am Textanfang (offset 0), rauf
-      // (dir<0) mittig (offset centerOffset), plus kleine Einblend-Bewegung.
-      const enter = (slug: string, dir: number) => {
-        setActive(slug);
-        recalc();
-        offset = dir > 0 ? 0 : centerOffset;
-        const el = catBlocks.get(slug);
-        if (!el) return;
-        if (reduceMotion) {
-          applyOffset();
-          return;
-        }
-        el.style.transition = 'none';
-        el.style.transform = `translateY(${-offset + (dir > 0 ? 26 : -26)}px)`;
-        el.style.opacity = '0';
-        requestAnimationFrame(() => {
-          el.style.transition = `transform ${DUR}ms ease, opacity ${DUR}ms ease`;
-          applyOffset();
-          el.style.opacity = '1';
-          window.setTimeout(() => (el.style.transition = ''), DUR + 30);
-        });
-      };
-
-      const step = (dir: number) => {
-        const idx = slugs.indexOf(lastActive);
-        const ni = idx + dir;
-        if (ni < 0 || ni >= slugs.length) return;
-        cooling = true;
-        holdCooling();
-        enter(slugs[ni], dir);
-      };
-
-      // Startzustand.
-      recalc();
-      applyOffset();
-      window.addEventListener('resize', () => {
-        recalc();
-        offset = Math.max(Math.min(offset, maxOffset), minOffset);
-        applyOffset();
-      });
+      // Mausrad im Zeilen-/Seitenmodus (Firefox) in Pixel umrechnen.
+      const pixels = (e: WheelEvent) =>
+        e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * stream.clientHeight : e.deltaY;
 
       section.addEventListener(
         'wheel',
         (e) => {
-          if (!isDesktop()) return;
-          if (cooling) {
-            e.preventDefault();
-            holdCooling();
-            return;
-          }
-          const pinned = Math.abs(section.getBoundingClientRect().top) < 4;
-          if (!pinned) {
-            e.preventDefault();
-            window.scrollBy(0, e.deltaY);
-            return;
-          }
-          const idx = slugs.indexOf(lastActive);
+          if (!isDesktop() || e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+          const dy = pixels(e);
+          const textLeft = stream.scrollHeight - stream.clientHeight - stream.scrollTop;
+          const pageAbove = section.getBoundingClientRect().top < -1; // Seite schon über den Bereich hinaus
 
-          if (e.deltaY > 0) {
-            // Text noch nicht ganz oben → weiter nach oben schieben.
-            if (offset < maxOffset) {
-              e.preventDefault();
-              offset = Math.min(maxOffset, offset + e.deltaY);
-              applyOffset();
-              return;
-            }
-            // Erste Zeile an der Kopfzeile → nächstes Produkt (sonst Seite weiter).
-            if (idx >= slugs.length - 1) return;
+          if (dy > 0 && textLeft > 1 && !pageAbove) {
             e.preventDefault();
-            step(1);
-          } else if (e.deltaY < 0) {
-            // Text noch nicht ganz unten → weiter nach unten schieben.
-            if (offset > minOffset) {
-              e.preventDefault();
-              offset = Math.max(minOffset, offset + e.deltaY); // deltaY negativ
-              applyOffset();
-              return;
-            }
-            // Letzte Zeile am unteren Rand → voriges Produkt (sonst Seite zurück).
-            if (idx <= 0) return;
+            stream.scrollTop += dy;
+          } else if (dy < 0 && pageAbove) {
+            // Erst die Seite zurück, auch wenn der Zeiger über dem Text steht.
             e.preventDefault();
-            step(-1);
+            window.scrollBy(0, Math.max(dy, section.getBoundingClientRect().top));
+          } else if (dy < 0 && stream.scrollTop > 0) {
+            e.preventDefault();
+            stream.scrollTop += dy;
           }
+          // sonst: Seite scrollt nativ (Text zu Ende bzw. ganz oben).
         },
         { passive: false },
       );
 
-      // Desktop-Umschalter (Klick in der Übersicht): direkt zum Text-Anfang.
+      // Klick in der Übersicht: Produkt wechseln, Text von vorn.
       document.querySelectorAll<HTMLElement>('[data-goto]').forEach((btn) => {
         btn.addEventListener('click', () => {
           setActive(btn.dataset.goto!);
-          recalc();
-          offset = 0;
-          applyOffset();
-          section?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+          stream.scrollTop = 0;
+          scrollToSectionTop();
         });
       });
     }
 
     // ---------------------------------------------------------------------
-    // Mobile: Stepped Scrolling per Touch im bildschirmhohen Bereich.
+    // Mobile: Der Text steht normal in der Seite, Wischen scrollt einfach weiter
+    // bis zur Fußzeile. Umschalten NUR durch Antippen eines Namens in der Leiste.
     // ---------------------------------------------------------------------
-    if (mStage && section && mCats.size) {
+    if (section && mCats.size) {
       const MDUR = reduceMotion ? 0 : 260;
       const mSlugs = Array.from(mCats.keys());
-      let mCooling = false;
-      let mCoolTimer = 0;
-      const holdM = () => {
-        clearTimeout(mCoolTimer);
-        mCoolTimer = window.setTimeout(() => (mCooling = false), 200);
-      };
-
-      // Immer am Textanfang des Zielprodukts landen (kein Zwischenzustand).
-      const mStep = (dir: number) => {
-        const idx = mSlugs.indexOf(lastActive);
-        const ni = idx + dir;
-        if (ni < 0 || ni >= mSlugs.length) return;
-        mCooling = true;
-        holdM();
-        animateSwap(mCats, lastActive, mSlugs[ni], dir, 32, MDUR, () => {
-          mStage.scrollTop = 0;
-        });
-      };
-
-      // Nach dem letzten Produkt eine Wisch-Geste → ganz ans Seitenende scrollen.
-      const releaseDown = () => {
-        mCooling = true;
-        holdM();
-        const bottom = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
-        window.scrollTo({ top: bottom, behavior: reduceMotion ? 'auto' : 'smooth' });
-      };
-
-      let prevY = 0;
-      mStage.addEventListener(
-        'touchstart',
-        (e) => {
-          prevY = e.touches[0].clientY;
-        },
-        { passive: true },
-      );
-      mStage.addEventListener(
-        'touchmove',
-        (e) => {
-          if (isDesktop()) return;
-          if (mCooling) {
-            e.preventDefault();
-            return;
-          }
-          const y = e.touches[0].clientY;
-          const dy = prevY - y; // > 0 = nach oben wischen (weiter/nächstes)
-          prevY = y;
-          const atTop = mStage.scrollTop <= 0;
-          const atBottom = mStage.scrollTop + mStage.clientHeight >= mStage.scrollHeight - 1;
-          const idx = mSlugs.indexOf(lastActive);
-          if (dy > 2 && atBottom) {
-            if (idx < mSlugs.length - 1) {
-              e.preventDefault();
-              mStep(1);
-            } else {
-              e.preventDefault();
-              releaseDown();
-            }
-          } else if (dy < -2 && atTop && idx > 0) {
-            e.preventDefault();
-            mStep(-1);
-          }
-          // sonst: normal im Produkt scrollen (nativ)
-        },
-        { passive: false },
-      );
-
-      // Gleiche Rand-Logik für Maus/Trackpad (z. B. DevTools-Mobilansicht),
-      // da dort wheel- statt touch-Events kommen.
-      mStage.addEventListener(
-        'wheel',
-        (e) => {
-          if (isDesktop()) return;
-          if (mCooling) {
-            e.preventDefault();
-            return;
-          }
-          const atTop = mStage.scrollTop <= 0;
-          const atBottom = mStage.scrollTop + mStage.clientHeight >= mStage.scrollHeight - 1;
-          const idx = mSlugs.indexOf(lastActive);
-          if (e.deltaY > 0 && atBottom) {
-            if (idx < mSlugs.length - 1) {
-              e.preventDefault();
-              mStep(1);
-            } else {
-              e.preventDefault();
-              releaseDown();
-            }
-          } else if (e.deltaY < 0 && atTop && idx > 0) {
-            e.preventDefault();
-            mStep(-1);
-          }
-          // sonst: normal im Produkt scrollen (nativ)
-        },
-        { passive: false },
-      );
-
-      // Namen antippen → hart auf den Textanfang dieses Produkts.
       navItems.forEach((li, slug) => {
         li.querySelector<HTMLElement>('[data-mgoto]')?.addEventListener('click', () => {
           if (slug === lastActive) {
-            mStage.scrollTop = 0;
+            scrollToSectionTop();
             return;
           }
           const dir = mSlugs.indexOf(slug) > mSlugs.indexOf(lastActive) ? 1 : -1;
-          mCooling = true;
-          holdM();
-          animateSwap(mCats, lastActive, slug, dir, 32, MDUR, () => {
-            mStage.scrollTop = 0;
-          });
+          animateSwap(mCats, lastActive, slug, dir, 32, MDUR, scrollToSectionTop);
         });
       });
     }
