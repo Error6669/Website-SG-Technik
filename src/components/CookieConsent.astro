@@ -6,7 +6,7 @@
 //
 //   • KEINE einwilligungspflichtigen Dienste (aktuell): Diese Komponente
 //     rendert kein Markup — kein Banner, kein Hinweis und vor allem kein
-//     <script type="application/json" id="sg-consent-config">. Die Seite
+//     Skript-Element vom Typ application/json (id „sg-consent-config“). Die Seite
 //     setzt dadurch weder Cookies noch localStorage-Einträge. Technisch
 //     notwendige Speicherung wäre zwar einwilligungsfrei zulässig
 //     (§ 165 Abs. 3 TKG 2021), es gibt hier aber schlicht keine: ohne
@@ -18,7 +18,7 @@
 //     aus nie gerenderten Komponenten nicht aus — im ruhenden Zustand
 //     enthält der Build also kein Byte Consent-JavaScript. Warum der
 //     Umweg über eine eigene Komponente nötig ist, steht dort im
-//     Kopfkommentar (Astro hoistet <script>-Blöcke sonst auf jede Seite).
+//     Kopfkommentar (Astro hoistet Skript-Blöcke sonst auf jede Seite).
 //
 //   • "consent" (automatisch, sobald ein Statistik-/Marketing-Dienst in
 //     consent.ts eingetragen wird): vollständiges Einwilligungs-Banner mit

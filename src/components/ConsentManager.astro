@@ -3,7 +3,7 @@
 // ConsentManager.astro — enthält AUSSCHLIESSLICH das Client-Skript des
 // Consent-Systems. Eigene Komponente aus einem einzigen Grund:
 //
-// Astro hoistet <script>-Blöcke und bündelt sie pro Seite. Lag das Skript
+// Astro hoistet Skript-Blöcke und bündelt sie pro Seite. Lag das Skript
 // direkt in CookieConsent.astro, wurde es auf JEDER Seite ausgeliefert — auch
 // im ruhenden Zustand, in dem CookieConsent.astro gar kein Markup rendert und
 // das Skript sich sofort selbst deaktiviert. Toter Code auf allen 8 Seiten.
