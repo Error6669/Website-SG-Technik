@@ -22,13 +22,19 @@ interface Props {
 const { chrome = '18rem' } = Astro.props;
 ---
 
-<div class="ps" data-plant-sim style={`--ps-chrome: ${chrome}`}>
-  <noscript>
-    <p class="py-10 text-base leading-relaxed text-slate-600">
-      Die Anlagensimulation braucht JavaScript. Bitte aktivieren Sie es in Ihrem Browser, um die Abläufe zu
-      starten.
-    </p>
-  </noscript>
+{/* Rahmen um Seitenkopf (Slot) und Simulation: auf breiten Bildschirmen genau
+    so breit wie Zeichnung plus Knopfspalte und mittig — so beginnen
+    Überschrift, Legende und Zeichnung an derselben linken Kante. */}
+<div class="ps-frame" data-ps-frame>
+  <slot />
+  <div class="ps" data-plant-sim style={`--ps-chrome: ${chrome}`}>
+    <noscript>
+      <p class="py-10 text-base leading-relaxed text-slate-600">
+        Die Anlagensimulation braucht JavaScript. Bitte aktivieren Sie es in Ihrem Browser, um die Abläufe zu
+        starten.
+      </p>
+    </noscript>
+  </div>
 </div>
 
 <script>
@@ -38,6 +44,10 @@ const { chrome = '18rem' } = Astro.props;
   const root = document.querySelector<HTMLElement>('[data-plant-sim]');
   if (root) {
     const wanted = new URLSearchParams(location.search).get('bereich');
-    mountPlantSimulation(root, { area: AREAS.find((a) => a.id === wanted)?.id });
+    mountPlantSimulation(root, {
+      area: AREAS.find((a) => a.id === wanted)?.id,
+      frame: document.querySelector<HTMLElement>('[data-ps-frame]') ?? undefined,
+      fillPage: true,
+    });
   }
 </script>

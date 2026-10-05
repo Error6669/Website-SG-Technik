@@ -7,26 +7,30 @@ import { density, fmt1, fmt2 } from './format';
 import { PROCESSES, type Controller, type ProcessId } from './processes';
 
 /** Positionsliste zur Zeichnung (Nummern wie in scene.ts → MARKERS). */
-const PARTS: Array<[string, string]> = [
-  ['Salzsilo 600 t', 'Edelstahl, hoch aufgeständert, auf Wägezellen (Dehnmessstreifen): misst Füllstand und jede Entnahme.'],
-  ['Befüllleitung', 'Auf der linken Silo-Seite: pneumatische Befüllung aus dem Silozug.'],
-  ['Schieber mit Rüttler', 'Öffnet den Auslauf; der eingebaute Rüttler hält das Salz in Bewegung, damit nichts verstopft. Darunter ein kurzes, fest montiertes Schlauchstück.'],
-  ['Ampeln und RFID-Leser', 'Fahrzeuge melden sich mit ihrem RFID-Chip an, die Ampel gibt Entnahme bzw. Befüllung frei.'],
-  ['Dosierschnecke', 'Setzt seitlich am Schieber an und fördert das Trockensalz mit leichtem Gefälle in den Aufbereiter.'],
-  ['Soleaufbereiter', 'Steht direkt am Boden. Zwangsmischer mit Rührwerk: löst das Salz im Wasser auf 22 %.'],
-  ['Wasserzulauf', 'Die Wasserpumpe P3 im Ventilkasten füllt das Lösewasser immer von oben in den Aufbereiter.'],
-  ['Pumpen- und Ventilkasten', 'P3 pumpt das Wasser in den Aufbereiter, P1 fördert vom Aufbereiter in den Tank, P2 vom Tank zur Zapfstelle, zurück in den Tank oder zum Ablass. Alle Ventile sitzen hier.'],
-  ['Soletank', `${PLANT.tank.capacity} m³, Füllstand und Konzentration werden laufend gemessen.`],
-  ['Zapfstelle und RFID-Leser', 'Abgabe an die Fahrzeuge, abgesichert mit Überfüllschutzstecker; derselbe RFID-Leser wie am Silo.'],
-  ['Steuerung', 'Touchscreen vor Ort, per Funk mit dem SalzManager verbunden.'],
-  ['SalzManager', 'Webbasierte Visualisierung: Bestände, Entnahmen und Meldungen – vom Büro oder unterwegs.'],
+const PARTS: string[] = [
+  'Salzsilo 600 t',
+  'Befüllleitung',
+  'Schieber mit Rüttler',
+  'Ampeln und RFID-Leser',
+  'Dosierschnecke',
+  'Soleaufbereiter',
+  'Wasserzulauf',
+  'Pumpen- und Ventilkasten',
+  'Soletank',
+  'Zapfstelle und RFID-Leser',
+  'Steuerung',
+  'SalzManager',
 ];
+
+/** Abläufe tragen Buchstaben (A–F), damit sie nicht mit den
+ *  Positionsnummern (1–12) in der Zeichnung verwechselt werden. */
+const stepLetter = (i: number): string => String.fromCharCode(65 + i);
 
 export function panelMarkup(stage: string): string {
   const actions = PROCESSES.map(
     (p, i) => `
     <button type="button" class="ps-act" data-action="${p.id}" aria-describedby="ps-status">
-      <span class="ps-act-idx">${String(i + 1).padStart(2, '0')}</span>
+      <span class="ps-act-idx">${stepLetter(i)}</span>
       <span class="ps-act-label">${p.title}</span>
       <span class="ps-act-state" data-act-state></span>
     </button>`,
@@ -35,7 +39,7 @@ export function panelMarkup(stage: string): string {
   const rows = PROCESSES.map(
     (p, i) => `
     <li class="ps-row" data-row="${p.id}">
-      <span class="ps-row-idx">${String(i + 1).padStart(2, '0')}</span>
+      <span class="ps-row-idx">${stepLetter(i)}</span>
       <div class="ps-row-main">
         <p class="ps-row-title">${p.title}</p>
         <p class="ps-row-text">${p.text}</p>
@@ -52,19 +56,33 @@ export function panelMarkup(stage: string): string {
       <li><span class="ps-swatch ps-swatch--salt"></span>Salz</li>
       <li><span class="ps-swatch ps-swatch--active"></span>Ventil offen · Pumpe läuft</li>
     </ul>
+    <div class="ps-tools">
+      <button type="button" class="ps-tool" data-dialog="info" aria-haspopup="dialog" aria-controls="ps-dlg-info">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="6.2" r="1.1" fill="currentColor"/><path d="M10 9v5.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        Info
+      </button>
+      <button type="button" class="ps-tool" data-dialog="parts" aria-haspopup="dialog" aria-controls="ps-dlg-parts">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5"/><text x="10" y="13.6" text-anchor="middle" font-size="10" font-family="var(--font-mono)" fill="currentColor">1</text></svg>
+        Positionen
+      </button>
+    </div>
   </div>
 
   <div class="ps-areas" role="group" aria-label="Bereich der Anlage">
     ${AREAS.map((a) => `<button type="button" data-area="${a.id}" aria-pressed="false">${a.label}</button>`).join('')}
   </div>
 
-  <div class="ps-stage">${stage}</div>
+  <!-- Zeichnung und Bedienung gehören zusammen ins Bild: auf breiten
+       Bildschirmen nebeneinander, sonst untereinander (styles: .ps-main). -->
+  <div class="ps-main">
+    <div class="ps-stage">${stage}</div>
 
-  <div class="ps-console">
-    <div class="ps-actions" role="group" aria-label="Abläufe starten und stoppen">${actions}</div>
-    <div class="ps-console-foot">
-      <p class="ps-status" id="ps-status" data-status aria-live="polite"></p>
-      <button type="button" class="ps-reset" data-reset>Zurücksetzen</button>
+    <div class="ps-console">
+      <div class="ps-actions" role="group" aria-label="Abläufe starten und stoppen">${actions}</div>
+      <div class="ps-console-foot">
+        <p class="ps-status" id="ps-status" data-status aria-live="polite"></p>
+        <button type="button" class="ps-reset" data-reset>Zurücksetzen</button>
+      </div>
     </div>
   </div>
 
@@ -81,20 +99,31 @@ export function panelMarkup(stage: string): string {
     <p class="ps-smm-msg" data-smm="msg"></p>
   </section>
 
-  <div class="ps-body">
-    <section class="ps-controls" aria-labelledby="ps-controls-h">
-      <h3 id="ps-controls-h" class="ps-subhead">So arbeitet die Anlage</h3>
-      <ul class="ps-list">${rows}</ul>
-    </section>
-    <section class="ps-parts" aria-labelledby="ps-parts-h">
-      <h3 id="ps-parts-h" class="ps-subhead">Positionen in der Zeichnung</h3>
-      <ol>
-        ${PARTS.map(
-          ([name, desc], i) => `<li><span class="ps-part-n">${i + 1}</span><span><strong>${name}</strong> ${desc}</span></li>`,
-        ).join('')}
+  <!-- Pop-ups zu den Knöpfen „Info“ und „Positionen“. Ihr Inhalt passt sich
+       dem Fenster an (fitDialog), damit nie gescrollt werden muss. -->
+  <dialog class="ps-dlg" id="ps-dlg-info" data-dlg="info" aria-labelledby="ps-dlg-info-h">
+    <div class="ps-dlg-head">
+      <h3 id="ps-dlg-info-h">So arbeitet die Anlage</h3>
+      <button type="button" class="ps-dlg-close" data-close aria-label="Schließen">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="ps-dlg-body"><ul class="ps-list">${rows}</ul></div>
+  </dialog>
+
+  <dialog class="ps-dlg" id="ps-dlg-parts" data-dlg="parts" aria-labelledby="ps-dlg-parts-h">
+    <div class="ps-dlg-head">
+      <h3 id="ps-dlg-parts-h">Positionen in der Zeichnung</h3>
+      <button type="button" class="ps-dlg-close" data-close aria-label="Schließen">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="ps-dlg-body">
+      <ol class="ps-parts">
+        ${PARTS.map((name, i) => `<li><span class="ps-part-n">${i + 1}</span><span>${name}</span></li>`).join('')}
       </ol>
-    </section>
-  </div>`;
+    </div>
+  </dialog>`;
 }
 
 export interface Panel {
@@ -132,9 +161,109 @@ export function bindPanel(root: HTMLElement, ctrl: Controller): Panel {
     hintUntil = performance.now() + 4000;
   };
 
+  /** Inhalt eines Pop-ups ohne Scrollen einpassen: zuerst in voller
+   *  Schriftgröße; passt es nicht, wird die Schrift schrittweise kleiner
+   *  (alle Größen darin sind in em angegeben und schrumpfen mit). */
+  const fitDialog = (dlg: HTMLDialogElement): void => {
+    const body = dlg.querySelector<HTMLElement>('.ps-dlg-body')!;
+    let size = 16;
+    body.style.fontSize = `${size}px`;
+    while (body.scrollHeight > body.clientHeight + 1 && size > 10) {
+      size -= 0.5;
+      body.style.fontSize = `${size}px`;
+    }
+  };
+  const openDialogs = (): HTMLDialogElement[] =>
+    Array.from(root.querySelectorAll<HTMLDialogElement>('dialog[open]'));
+  // „Positionen“ auf breiten Bildschirmen: ein Feld genau über dem Bereich
+  // rechts der Zeichnung — oben bündig mit dem Info-Knopf, links/rechts über
+  // Info, Positionen und die Ablauf-Knöpfe, unten bis zur Straße (Unterkante
+  // der Zeichnung). Liefert false, wenn die Knöpfe nicht neben der Zeichnung
+  // stehen (Tablet, Handy) — dann öffnet es als Pop-up in der Mitte.
+  const partsDlg = root.querySelector<HTMLDialogElement>('[data-dlg="parts"]')!;
+  const placePanel = (): boolean => {
+    const main = root.querySelector<HTMLElement>('.ps-main')!;
+    const beside = getComputedStyle(main).display === 'grid';
+    partsDlg.classList.toggle('is-panel', beside);
+    if (!beside) {
+      partsDlg.removeAttribute('style');
+      return false;
+    }
+    const base = root.getBoundingClientRect();
+    const info = q('[data-dialog="info"]').getBoundingClientRect();
+    const parts = q('[data-dialog="parts"]').getBoundingClientRect();
+    const acts = q('.ps-actions').getBoundingClientRect();
+    const svg = q('.ps-svg').getBoundingClientRect();
+    // Absolut gesetzte Elemente beziehen sich auf die Innenkante des Rahmens,
+    // deshalb den Rand (border) der Simulation abziehen.
+    const x0 = base.left + root.clientLeft;
+    const y0 = base.top + root.clientTop;
+    const left = Math.min(info.left, acts.left) - x0;
+    const right = Math.max(parts.right, acts.right) - x0;
+    const top = info.top - y0;
+    const bottom = svg.bottom - y0;
+    Object.assign(partsDlg.style, {
+      left: `${left}px`,
+      top: `${top}px`,
+      width: `${right - left}px`,
+      height: `${bottom - top}px`,
+    });
+    return true;
+  };
+
+  const onResize = (): void => {
+    if (partsDlg.open && partsDlg.classList.contains('is-panel')) {
+      // Wechsel auf schmal, während das Feld offen ist: einfach schließen.
+      if (!placePanel()) partsDlg.close();
+    }
+    openDialogs().forEach(fitDialog);
+  };
+  window.addEventListener('resize', onResize);
+  // Das nicht-modale Feld schließt bei Esc und bei einem Klick daneben (der
+  // Knopf „Positionen“ selbst schaltet es über onClick um).
+  const onKey = (e: KeyboardEvent): void => {
+    if (e.key === 'Escape' && partsDlg.open && partsDlg.classList.contains('is-panel')) partsDlg.close();
+  };
+  const onPointer = (e: PointerEvent): void => {
+    if (!partsDlg.open || !partsDlg.classList.contains('is-panel')) return;
+    const t = e.target as Node;
+    if (partsDlg.contains(t) || q('[data-dialog="parts"]').contains(t)) return;
+    partsDlg.close();
+  };
+  document.addEventListener('keydown', onKey);
+  document.addEventListener('pointerdown', onPointer);
+  // Klick auf den abgedunkelten Hintergrund schließt (das Ziel ist dann der
+  // <dialog> selbst, nicht sein Inhalt). Esc schließt von Haus aus.
+  root.querySelectorAll<HTMLDialogElement>('dialog').forEach((dlg) =>
+    dlg.addEventListener('click', (e) => {
+      if (e.target === dlg) dlg.close();
+    }),
+  );
+
   const onClick = (e: MouseEvent): void => {
     const target = (e.target as HTMLElement).closest('button');
     if (!target || !root.contains(target)) return;
+    if (target.dataset.dialog) {
+      const dlg = root.querySelector<HTMLDialogElement>(`[data-dlg="${target.dataset.dialog}"]`)!;
+      if (dlg.open) {
+        dlg.close();
+        return;
+      }
+      if (dlg === partsDlg && placePanel()) {
+        // Als Feld über der Knopfspalte, nicht modal: Die Zeichnung bleibt
+        // sichtbar, die Nummern lassen sich dort nachsehen.
+        dlg.show();
+        dlg.querySelector<HTMLElement>('[data-close]')?.focus();
+      } else {
+        dlg.showModal();
+      }
+      fitDialog(dlg);
+      return;
+    }
+    if (target.hasAttribute('data-close')) {
+      target.closest('dialog')?.close();
+      return;
+    }
     const action = target.dataset.action as ProcessId | undefined;
     if (action) {
       const def = ctrl.def(action);
@@ -188,6 +317,13 @@ export function bindPanel(root: HTMLElement, ctrl: Controller): Panel {
       }
     }
 
+    // Ein offenes Pop-up zeigt die Zustände live; wird ein Text länger und
+    // passt nicht mehr, neu einpassen.
+    for (const dlg of openDialogs()) {
+      const body = dlg.querySelector<HTMLElement>('.ps-dlg-body')!;
+      if (body.scrollHeight > body.clientHeight + 1) fitDialog(dlg);
+    }
+
     if (hint && performance.now() > hintUntil) hint = '';
     status.classList.toggle('is-hint', !!hint);
     text(
@@ -201,7 +337,12 @@ export function bindPanel(root: HTMLElement, ctrl: Controller): Panel {
 
   return {
     update,
-    destroy: () => root.removeEventListener('click', onClick),
+    destroy: () => {
+      root.removeEventListener('click', onClick);
+      window.removeEventListener('resize', onResize);
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('pointerdown', onPointer);
+    },
   };
 }
 

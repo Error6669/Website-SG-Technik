@@ -15,14 +15,16 @@ gescrollt werden muss.
 
 ## Abläufe
 
-| Nr. | Ablauf             | Was passiert                                                                 | Belegt               |
+Abläufe tragen Buchstaben (A–F), Positionen in der Zeichnung Zahlen (1–12) — so lassen sie sich nicht verwechseln.
+
+| Abl.| Ablauf             | Was passiert                                                                 | Belegt               |
 | --- | ------------------ | ---------------------------------------------------------------------------- | -------------------- |
-| 01  | Sole herstellen    | P3 pumpt Wasser von oben in den Aufbereiter, Salz über die Schnecke, lösen auf 22 %, P1 fördert in den Tank | P1, P3 (nur hier genutzt) |
-| 02  | Sole umwälzen      | P2 saugt am Tankboden an und gibt über die Füllleitung zurück, die Schichtung verschwindet | P2                   |
-| 03  | Soletank entleeren | P2 pumpt den Tank über den Ablass leer                                        | P2                   |
-| 04  | Sole entnehmen     | Sprühfahrzeug fährt vor, RFID-Chip wird gelesen, Stecker, P2 füllt, Protokolleintrag | Zufahrt, P2          |
-| 05  | Salz entnehmen     | Streu-LKW fährt unter das Silo, RFID-Chip wird gelesen, Ampel, Schieber mit Rüttler, Schlauchstück, Verwiegung | Zufahrt, Siloauslauf |
-| 06  | Salz anliefern     | Silozug kommt von links, kuppelt an der Befüllleitung an, bläst pneumatisch ein, Überfüllsicherung | Zufahrt, Befüllleitung |
+| A   | Sole herstellen    | P3 pumpt Wasser von oben in den Aufbereiter, Salz über die Schnecke, lösen auf 22 %, P1 fördert in den Tank | P1, P3 (nur hier genutzt) |
+| B   | Sole umwälzen      | P2 saugt am Tankboden an und gibt über die Füllleitung zurück, die Schichtung verschwindet | P2                   |
+| C   | Soletank entleeren | P2 pumpt den Tank über den Ablass leer                                        | P2                   |
+| D   | Sole entnehmen     | Sprühfahrzeug fährt vor, RFID-Chip wird gelesen, Stecker, P2 füllt, Protokolleintrag | Zufahrt, P2          |
+| E   | Salz entnehmen     | Streu-LKW fährt unter das Silo, RFID-Chip wird gelesen, Ampel, Schieber mit Rüttler, Schlauchstück, Verwiegung | Zufahrt, Siloauslauf |
+| F   | Salz anliefern     | Silozug kommt von links, kuppelt an der Befüllleitung an, bläst pneumatisch ein, Überfüllsicherung | Zufahrt, Befüllleitung |
 
 **Pumpen- und Ventilkasten:** P1, P2, P3 und alle Ventile sitzen in einem
 Kasten. P3 pumpt das Lösewasser von oben in den Aufbereiter (Ventil vW). P1
@@ -35,7 +37,7 @@ Lesen zeigt er Funkwellen, nach der Freigabe leuchtet er kupferfarben.
 Abläufe ohne gemeinsames Betriebsmittel laufen parallel, z. B. Sole herstellen
 und gleichzeitig Salz entnehmen. Ein gesperrter Knopf bleibt anklickbar und
 nennt in der Statuszeile den Grund („Pumpe P2 belegt: Sole entnehmen“).
-Die Abläufe 01–03 lassen sich stoppen. Fahrzeugabläufe laufen bis zum Ende,
+Die Abläufe A–C lassen sich stoppen. Fahrzeugabläufe laufen bis zum Ende,
 „Zurücksetzen“ bricht alles ab.
 
 ## Zahlen und Zeitraffer
@@ -101,10 +103,19 @@ deshalb kommen sie in derselben Machart von der Seite.
 werden ohne Animation als farbige Leitungen gezeigt. Alle Abläufe funktionieren
 weiterhin.
 
-**Fensterhöhe:** Die Zeichnung ist auf `100svh − --ps-chrome` begrenzt
-(`.ps-svg` in `src/styles/anlagensimulation.css`; 18 rem wegen der
-Kopfzeile, gesetzt in `PlantSimulation.astro`). So bleiben Anlage, SalzManager und Bedienleiste
-gemeinsam im Bild.
+**Anlage und Knöpfe immer gemeinsam im Bild:** Nach dem Laden misst
+`plant-sim.ts`, wie viel Platz unter dem Seitenkopf bleibt, und setzt
+`--ps-fit` als Höchsthöhe der Zeichnung (neu gemessen nur bei geänderter
+Breite, damit die Handy-Adressleiste nichts springen lässt). Ab 64 rem stehen
+die Knöpfe als Spalte rechts neben der Zeichnung. Ein Rahmen
+(`.ps-frame` in `PlantSimulation.astro`) ist genau so breit wie Zeichnung plus
+Knopfspalte und steht mittig; Zurück-Link (als Slot; die
+Überschrift ist nur für Screenreader da), Legende und Zeichnung beginnen darin an derselben linken Kante. Die Zeichnung hat keine
+eigene Fläche, sie steht auf dem Seitenhintergrund. Unter 64 rem stehen die
+Knöpfe in Reihen zu drei Knöpfen, auf dem
+Handy kompakt ohne Zustandszeile (läuft = Kupfer, gesperrt = grau). Geprüft
+auf 13 Fenstergrößen von 1920 × 1080 bis 360 × 740, darunter 390 × 664
+(iPhone mit eingeblendeten Safari-Leisten).
 
 **Schmale Bildschirme (< 48 rem):** Bereichs-Reiter Gesamt · Silo ·
 Aufbereiter · Soletank · Zapfstelle über der Zeichnung; sie zoomt per viewBox
@@ -112,6 +123,32 @@ auf den gewählten Ausschnitt (hochformatig, scharf, weil Vektor). Startet ein
 Ablauf, schwenkt die Ansicht selbst dorthin. Die SalzManager-Werte stehen als
 Feld unter den Knöpfen. Startbereich per `?bereich=…`; die Zuordnung Produkt →
 Bereich steht in `PRODUCT_AREA`.
+
+**Info und Positionen:** zwei Knöpfe rechts in der Legendenzeile. „Info“
+öffnet ein Pop-up (modales `<dialog>`) mit „So arbeitet die Anlage“ (Abläufe
+mit aktuellem Zustand). „Positionen“ öffnet auf breiten Bildschirmen ein
+nicht modales Feld genau über der Knopfspalte (oben bündig mit dem
+Info-Knopf, unten bis zur Straße; `placePanel()` in `panel.ts`), damit die
+Zeichnung sichtbar bleibt; es zeigt nur Nummer und Name, schließt mit ×, Esc,
+erneutem Knopfdruck oder Klick daneben. Ohne Knopfspalte (Tablet, Handy)
+öffnet es als Pop-up in der Mitte. Gescrollt werden muss nie: Spalten je nach
+Breite, und passt es trotzdem nicht, verkleinert `fitDialog` in `panel.ts` die
+Schrift (alle Größen im Pop-up in em). Geprüft auf 12 Größen; auf gängigen
+Handys 12–16 px, auf 320 × 568 px 10 px. Das Info-Pop-up hat Glas-Optik
+(halbtransparent, weichgezeichnet).
+
+**Bewusste Abweichungen von DESIGN.md (auf Wunsch, im CSS markiert):** runde
+Knöpfe (8 px statt 2 px), Kupfer-Füllung laufender Abläufe, Glas-Optik des
+Info-Pop-ups, Ampeln in Rot/Grün.
+
+**Texte in der Zeichnung:** Größen in viewBox-Einheiten (CSS `.ps-t-*`);
+wechselnde Texte im SalzManager-Bildschirm tragen `data-max` und werden in
+`view.ts` per Messung mit „…“ gekürzt. Nach jeder Änderung an Texten oder
+Positionen `scripts/sim-pruefung/textcheck.mjs` laufen lassen (0 Funde) und
+vergrößerte Bildschirmfotos ansehen — die Prüfung erkennt keine Texte, die an
+Bauteilen kleben.
+
+**Prüfskripte:** `scripts/sim-pruefung/` (README dort).
 
 ## Herkunft
 

@@ -20,8 +20,22 @@ function attr(el: Element, name: string, value: string): void {
   el.setAttribute(name, value);
 }
 
+const fullText = new WeakMap<Element, string>();
+
+/** Setzt einen Text. Trägt das Element `data-max` (Höchstbreite in
+ *  viewBox-Einheiten, siehe scene.ts), wird ein zu langer Text gemessen und
+ *  mit „…“ gekürzt — er läuft dann nicht in die Nachbarspalte. */
 function text(el: Element, value: string): void {
-  if (el.textContent !== value) el.textContent = value;
+  if (fullText.get(el) === value) return;
+  fullText.set(el, value);
+  el.textContent = value;
+  const max = Number((el as SVGElement).dataset?.max);
+  if (!max || !(el instanceof SVGTextContentElement)) return;
+  let cut = value;
+  while (cut.length > 1 && el.getComputedTextLength() > max) {
+    cut = cut.slice(0, -1).trimEnd();
+    el.textContent = `${cut}…`;
+  }
 }
 
 /** Steht die Sole über einer Beschriftung, wird sie hell gesetzt — dunkle
@@ -30,9 +44,6 @@ function submerge(el: Element, liquidTop: number): void {
   const y = Number(el.getAttribute('y'));
   el.classList.toggle('is-submerged', liquidTop < y - 12);
 }
-
-/** Kürzt Text für feste Spalten im SalzManager-Bildschirm. */
-const clip = (s: string, n: number): string => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
 
 /** Mischt zwei Hex-Töne, t = 0 … 1. */
 function mix(a: string, b: string, t: number): string {
@@ -117,6 +128,7 @@ export function createView(svg: SVGSVGElement, sim: Sim): View {
     smPct: [0, 1, 2].map((i) => ref(`smPct${i}`)),
     smVal: [0, 1, 2, 3].map((i) => ref(`smVal${i}`)),
     smSub: [0, 1, 2, 3].map((i) => ref(`smSub${i}`)),
+    smNote: [0, 1, 2, 3].map((i) => ref(`smNote${i}`)),
     smLog: [0, 1, 2, 3].map((i) => ['t', 'v', 'w', 'a'].map((c) => ref(`smLog${i}${c}`))),
     smMsg: [0, 1, 2, 3].map((i) => ['t', 'x'].map((c) => ref(`smMsg${i}${c}`))),
   };
@@ -190,10 +202,11 @@ export function createView(svg: SVGSVGElement, sim: Sim): View {
     const sprayer = s.vehicles.find((v) => v.kind === 'sprayer');
     if (eq.hose > 0 && sprayer) {
       const sx = zx + zw + 10;
-      const sy = 488;
+      const sy = LAYOUT.zapfstelle.outletY;
       const ex = sprayer.x + COUPLING.sprayer.x;
       const ey = COUPLING.sprayer.y;
-      const d = `M${sx} ${sy} C${sx + 34} ${sy} ${ex} ${ey - 60} ${ex} ${ey}`;
+      // Vom Abgang unter dem RFID-Leser weich nach unten zum Stecker.
+      const d = `M${sx} ${sy} C${sx + 22} ${sy} ${ex} ${ey - 26} ${ex} ${ey}`;
       attr(r.zapfHose, 'd', d);
       attr(r.zapfHose, 'stroke-dasharray', `${eq.hose.toFixed(3)} 1`);
       attr(r.zapfHoseFlow, 'd', d);
@@ -370,32 +383,39 @@ export function createView(svg: SVGSVGElement, sim: Sim): View {
     fracs.forEach((f, i) => {
       const pct = Math.max(0, Math.min(100, f * 100));
       attr(r.smRing[i], 'stroke-dasharray', `${pct.toFixed(1)} 100`);
-      text(r.smPct[i], `${fmt0(pct)} %`);
+      text(r.smPct[i], `${fmt0(pct)}%`);
     });
+    // Je Zelle: Wert, darunter bis zu zwei kurze Zeilen.
     text(r.smVal[0], `${fmt1(s.silo)} t`);
     text(r.smSub[0], `von ${PLANT.silo.capacity} t`);
+    text(r.smNote[0], '');
     text(r.smVal[1], m.m3 > 0.05 ? `${fmt2(density(m.conc))} kg/l` : 'leer');
-    text(r.smSub[1], m.m3 > 0.05 ? `${fmt1(m.conc)} % · ${fmt1(m.m3)} m³` : `Soll ${fmt2(PLANT.brine.density)} kg/l`);
+    text(r.smSub[1], m.m3 > 0.05 ? `${fmt1(m.conc)} % Salz` : `Soll ${fmt2(PLANT.brine.density)} kg/l`);
+    text(r.smNote[1], m.m3 > 0.05 ? `${fmt1(m.m3)} m³` : '');
     text(r.smVal[2], `${fmt1(t.m3)} m³`);
-    text(r.smSub[2], t.m3 < 0.05 ? 'leer' : `${fmt1(t.conc)} % · ${t.strat > 0.25 ? 'geschichtet' : 'homogen'}`);
+    text(r.smSub[2], t.m3 < 0.05 ? 'leer' : `${fmt1(t.conc)} % Salz`);
+    text(r.smNote[2], t.m3 < 0.05 ? '' : t.strat > 0.25 ? 'geschichtet' : 'homogen');
     text(r.smVal[3], `${fmt1(s.totals.salt)} t Salz`);
     text(r.smSub[3], `${fmt1(s.totals.brine)} m³ Sole`);
+    text(r.smNote[3], '');
 
     r.smLog.forEach((cells, i) => {
       const e = s.log[i];
       if (!e) {
-        cells.forEach((c, k) => text(c, i === 0 && k === 1 ? 'Noch keine Entnahme' : ''));
+        // Leerzustand in der ersten Spalte: Sie hat keine Höchstbreite, und die
+        // übrigen Spalten der Zeile sind dann leer.
+        cells.forEach((c, k) => text(c, i === 0 && k === 0 ? 'Noch keine Entnahme' : ''));
         return;
       }
       text(cells[0], e.time);
-      text(cells[1], clip(e.vehicle, 22));
+      text(cells[1], e.vehicle);
       text(cells[2], e.what);
       text(cells[3], e.amount);
     });
     r.smMsg.forEach((cells, i) => {
       const msg = s.messages[i];
       text(cells[0], msg ? msg.time : '');
-      text(cells[1], msg ? clip(msg.text, 52) : '');
+      text(cells[1], msg ? msg.text : '');
       cells[1].classList.toggle('is-warn', !!msg?.warn);
     });
   }

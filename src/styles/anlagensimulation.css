@@ -30,13 +30,14 @@
 
 
 .ps {
+  /* Bezugsrahmen für das Positionen-Feld (absolut über der Knopfspalte). */
+  position: relative;
   /* Medien als Abstufungen von Navy — gleiche Werte wie C in scene.ts */
   --ps-water: color-mix(in srgb, var(--color-navy-800) 45%, var(--color-paper));
   --ps-brine: color-mix(in srgb, var(--color-navy-800) 75%, var(--color-paper));
   --ps-brine-deep: color-mix(in srgb, var(--color-navy-800) 90%, var(--color-paper));
   --ps-salt: color-mix(in srgb, var(--color-navy-800) 20%, var(--color-paper));
   border-top: 1px solid var(--color-line);
-  border-bottom: 1px solid var(--color-line);
   color: var(--color-navy-900);
 }
 
@@ -46,8 +47,7 @@
   margin: 0;
 }
 
-.ps-eyebrow,
-/* Kopfleiste: Legende, Anlagenzeit, Tempo */
+/* Kopfleiste: Legende */
 .ps-bar {
   display: flex;
   flex-wrap: wrap;
@@ -102,20 +102,21 @@
 /* Umschalter (Tempo, Tankwahl): eine Reihe hairline-getrennter Felder */
 /* Zeichnung */
 .ps-stage {
-  overflow-x: auto;
-  background: var(--color-paper);
+  overflow: hidden;
+  /* Gleiche Farbe wie die Seite: Die Zeichnung steht direkt auf dem
+     Seitenhintergrund, ohne eigene Fläche. */
+  background: transparent;
   border-bottom: 1px solid var(--color-line);
-  overscroll-behavior-x: contain;
 }
 
 .ps-svg {
   display: block;
   width: 100%;
-  min-width: 46rem;
   height: auto;
-  /* Zeichnung samt SalzManager-Bildschirm und Bedienleiste passen zusammen in
-     ein Fenster: Ist es niedrig, wird die Zeichnung kleiner statt höher. */
-  max-height: calc(100svh - var(--ps-chrome));
+  /* Zeichnung und Knöpfe müssen nach dem Laden zusammen im Fenster stehen:
+     plant-sim.ts misst den freien Platz unter dem Seitenkopf und setzt
+     --ps-fit. Bis dahin (und ohne Messung) gilt die grobe Schätzung. */
+  max-height: var(--ps-fit, calc(100svh - var(--ps-chrome)));
 }
 
 /* Texte in der Zeichnung (viewBox-Einheiten) */
@@ -125,7 +126,7 @@
 }
 .ps-t-label {
   fill: var(--color-slate-600);
-  font-size: 11px; /* impeccable-disable-line design-system-font-size -- viewBox-Maß der Zeichnung, skaliert mit der Grafik */
+  font-size: 13.5px; /* impeccable-disable-line design-system-font-size -- viewBox-Maß der Zeichnung, skaliert mit der Grafik */
   letter-spacing: 0.12em;
   paint-order: stroke;
   stroke: var(--color-paper);
@@ -134,7 +135,7 @@
 }
 .ps-t-value {
   fill: var(--color-navy-800);
-  font-size: 21px; /* impeccable-disable-line design-system-font-size -- viewBox-Maß der Zeichnung, skaliert mit der Grafik */
+  font-size: 24px; /* impeccable-disable-line design-system-font-size -- viewBox-Maß der Zeichnung, skaliert mit der Grafik */
   font-variant-numeric: tabular-nums;
   paint-order: stroke;
   stroke: var(--color-paper);
@@ -143,7 +144,7 @@
 }
 .ps-t-sub {
   fill: var(--color-slate-600);
-  font-size: 11px; /* impeccable-disable-line design-system-font-size -- viewBox-Maß der Zeichnung, skaliert mit der Grafik */
+  font-size: 13px; /* impeccable-disable-line design-system-font-size -- viewBox-Maß der Zeichnung, skaliert mit der Grafik */
   paint-order: stroke;
   stroke: var(--color-paper);
   stroke-width: 4px;
@@ -151,23 +152,20 @@
 }
 .ps-t-tag {
   fill: var(--color-slate-600);
-  font-size: 10.5px; /* impeccable-disable-line design-system-font-size -- viewBox-Maß der Zeichnung, skaliert mit der Grafik */
+  font-size: 12.5px; /* impeccable-disable-line design-system-font-size -- viewBox-Maß der Zeichnung, skaliert mit der Grafik */
   letter-spacing: 0.12em;
 }
 /* SalzManager-Bildschirm in der Zeichnung */
 .ps-t-screen-head {
   fill: var(--color-fog-50);
-  font-size: 11px; /* impeccable-disable-line design-system-font-size -- viewBox-Maß der Zeichnung, skaliert mit der Grafik */
+  font-size: 12.5px; /* impeccable-disable-line design-system-font-size -- viewBox-Maß der Zeichnung, skaliert mit der Grafik */
   letter-spacing: 0.14em;
-}
-.ps-t-dim {
-  fill: var(--color-slate-300);
 }
 .ps-svg .ps-t-screen {
   fill: var(--color-navy-900);
   font-family: var(--font-body);
   font-weight: 400;
-  font-size: 11.5px; /* impeccable-disable-line design-system-font-size -- viewBox-Maß der Zeichnung, skaliert mit der Grafik */
+  font-size: 13.5px; /* impeccable-disable-line design-system-font-size -- viewBox-Maß der Zeichnung, skaliert mit der Grafik */
 }
 .ps-svg .ps-t-screen.ps-t-mono {
   font-family: var(--font-mono);
@@ -178,7 +176,7 @@
 }
 .ps-t-screen-value {
   fill: var(--color-navy-800);
-  font-size: 18px; /* impeccable-disable-line design-system-font-size -- viewBox-Maß der Zeichnung, skaliert mit der Grafik */
+  font-size: 20px; /* impeccable-disable-line design-system-font-size -- viewBox-Maß der Zeichnung, skaliert mit der Grafik */
   font-variant-numeric: tabular-nums;
 }
 .ps-sm-ring {
@@ -259,8 +257,12 @@
 }
 .ps-t-tiny {
   fill: var(--color-slate-600);
-  font-size: 8.5px; /* impeccable-disable-line design-system-font-size -- viewBox-Maß der Zeichnung, skaliert mit der Grafik */
+  font-size: 10.5px; /* impeccable-disable-line design-system-font-size -- viewBox-Maß der Zeichnung, skaliert mit der Grafik */
   letter-spacing: 0.1em;
+}
+/* Prozentzahl im Ring: ohne Sperrung, damit „100%“ in den Ring passt. */
+.ps-t-pct {
+  letter-spacing: 0;
 }
 
 /* Beschriftung unter dem Flüssigkeitsspiegel: hell, ohne Umrandung */
@@ -281,7 +283,7 @@
 }
 .ps-marker text {
   fill: var(--color-copper-600);
-  font-size: 10px; /* impeccable-disable-line design-system-font-size -- viewBox-Maß der Zeichnung, skaliert mit der Grafik */
+  font-size: 12px; /* impeccable-disable-line design-system-font-size -- viewBox-Maß der Zeichnung, skaliert mit der Grafik */
 }
 
 /* Strömung: gestrichelte Linie, die in Fließrichtung läuft */
@@ -444,67 +446,197 @@
   }
 }
 
-/* Bedienung und SalzManager */
-.ps-body {
+/* Knöpfe „Info“ und „Positionen“ rechts in der Legendenzeile */
+.ps-tools {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.ps-tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--color-slate-300);
+  border-radius: 8px; /* impeccable-disable-line design-system-radius -- runde Knöpfe auf Wunsch des Auftraggebers (04.10.2026) */
+  background: transparent;
+  color: var(--color-navy-800);
+  font: 600 0.875rem/1 var(--font-body);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    transform 0.12s ease;
+}
+
+.ps-tool svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.ps-tool:hover {
+  border-color: var(--color-navy-800);
+}
+
+.ps-tool:active {
+  transform: scale(0.97);
+}
+
+/* Pop-ups: Inhalt passt ohne Scrollen hinein. Die Höhe ist auf das Fenster
+   begrenzt; reicht sie nicht, verkleinert fitDialog (panel.ts) die Schrift
+   im Inhalt — deshalb sind alle Größen darin in em angegeben. */
+.ps-dlg {
+  width: min(68rem, calc(100vw - 2rem));
+  max-height: calc(100svh - 2rem);
+  /* Mitte des Fensters. Die Grundstile der Website (Tailwind) setzen margin
+     überall auf 0 — ein modales <dialog> zentriert sich aber über auto. */
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--color-line);
+  border-radius: 8px; /* impeccable-disable-line design-system-radius -- runde Knöpfe auf Wunsch des Auftraggebers (04.10.2026) */
+  background: var(--color-paper);
+  color: var(--color-navy-900);
+}
+
+.ps-dlg[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+/* „Positionen“ auf breiten Bildschirmen: nicht modales Feld über der
+   Knopfspalte, Lage und Größe setzt placePanel() in panel.ts. */
+.ps-dlg.is-panel {
+  position: absolute;
+  inset: auto;
+  z-index: 10;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+}
+
+.ps-dlg.is-panel .ps-dlg-head {
+  padding: 0.625rem 0.75rem 0.625rem 1rem;
+}
+
+.ps-dlg.is-panel .ps-dlg-head h3 {
+  font-size: 1rem;
+}
+
+.ps-dlg.is-panel .ps-dlg-body {
+  padding: 0 1rem 0.5em;
+}
+
+.ps-dlg::backdrop {
+  background: rgba(13, 36, 54, 0.55);
+}
+
+/* Info-Pop-up mit Glas-Optik: halbtransparent und weichgezeichnet, die
+   Anlage scheint durch. Ausnahme von DESIGN.md („keine Glasoptik“) auf
+   ausdrücklichen Wunsch des Auftraggebers (05.10.2026), nur hier. */
+.ps-dlg[data-dlg='info'] {
+  border-color: rgba(251, 252, 252, 0.7);
+  background: rgba(251, 252, 252, 0.62);
+  -webkit-backdrop-filter: blur(12px) saturate(1.15); /* impeccable-disable-line glassmorphism -- Glas-Optik auf Wunsch des Auftraggebers, nur Info-Pop-up */
+  backdrop-filter: blur(12px) saturate(1.15); /* impeccable-disable-line glassmorphism -- Glas-Optik auf Wunsch des Auftraggebers, nur Info-Pop-up */
+}
+
+.ps-dlg[data-dlg='info']::backdrop {
+  background: rgba(13, 36, 54, 0.12);
+}
+
+.ps-dlg[data-dlg='info'] .ps-dlg-head {
+  border-bottom-color: rgba(24, 58, 89, 0.18);
+}
+
+.ps-dlg-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.ps-dlg-head h3 {
+  color: var(--color-navy-800);
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.ps-dlg-close {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-  gap: 0 3rem;
-  padding-top: 1.5rem;
+  flex: none;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--color-slate-300);
+  border-radius: 8px; /* impeccable-disable-line design-system-radius -- runde Knöpfe auf Wunsch des Auftraggebers (04.10.2026) */
+  background: transparent;
+  color: var(--color-navy-800);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
 }
 
-.ps-controls {
-  padding-bottom: 2rem;
+.ps-dlg-close:hover {
+  border-color: var(--color-navy-800);
 }
 
-.ps-list .ps-row:first-child {
-  padding-top: 0.25rem;
+.ps-dlg-close svg {
+  width: 1.125rem;
+  height: 1.125rem;
 }
 
+.ps-dlg-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0.25em 1.25rem 1em;
+}
+
+/* „So arbeitet die Anlage“: Abläufe mit aktuellem Zustand */
 .ps-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(18em, 1fr));
+  gap: 0 2em;
   margin: 0;
   padding: 0;
   list-style: none;
-  border-bottom: 1px solid var(--color-line);
 }
 
 .ps-row {
   display: grid;
-  grid-template-columns: 2rem minmax(0, 1fr);
-  gap: 0.25rem 1rem;
+  grid-template-columns: 2em minmax(0, 1fr);
+  gap: 0.25em 0.75em;
   align-items: start;
-  padding: 1rem 0;
-  border-top: 1px solid var(--color-line);
+  padding: 0.875em 0;
+  border-bottom: 1px solid var(--color-line);
 }
 
 .ps-row-idx {
-  padding-top: 0.2rem;
+  padding-top: 0.2em;
   color: var(--color-copper-500);
-  font: 500 0.75rem/1.4 var(--font-mono);
+  font: 500 0.75em/1.4 var(--font-mono);
   letter-spacing: 0.08em;
 }
 
-.ps-row-title {
+.ps-row .ps-row-title {
   color: var(--color-navy-800);
   font-weight: 600;
-  line-height: 1.4;
+  line-height: 1.35;
 }
 
-.ps-row-tank {
+.ps-row .ps-row-text {
+  margin-top: 0.25em;
   color: var(--color-slate-600);
-  font-weight: 400;
+  font-size: 0.875em;
+  line-height: 1.5;
 }
 
-.ps-row-text {
-  margin-top: 0.25rem !important;
-  color: var(--color-slate-600);
-  font-size: 0.875rem;
-  line-height: 1.55;
-}
-
-.ps-row-state {
-  margin-top: 0.5rem !important;
+.ps-row .ps-row-state {
+  margin-top: 0.4em;
   color: var(--color-slate-500);
-  font: 500 0.75rem/1.4 var(--font-mono);
+  font: 500 0.75em/1.4 var(--font-mono);
   letter-spacing: 0.04em;
 }
 
@@ -515,9 +647,9 @@
 .ps-row.is-running .ps-row-state::before {
   content: '';
   display: inline-block;
-  width: 0.5rem;
-  height: 0.5rem;
-  margin-right: 0.5rem;
+  width: 0.6em;
+  height: 0.6em;
+  margin-right: 0.5em;
   background: var(--color-copper-500);
   vertical-align: 0.05em;
 }
@@ -649,14 +781,19 @@
   color: var(--color-navy-800);
   font: 600 0.875rem/1 var(--font-body);
   cursor: pointer;
-  transition: border-color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    transform 0.12s ease;
 }
 
 .ps-reset:hover {
   border-color: var(--color-navy-800);
 }
 
-.ps-reset:active,
+.ps-reset:active {
+  transform: scale(0.97);
+}
+
 .ps-subhead {
   margin: 1.5rem 0 0.625rem !important;
   color: var(--color-slate-600);
@@ -665,14 +802,11 @@
   text-transform: uppercase;
 }
 
-/* Positionsliste */
+/* „Positionen in der Zeichnung“ */
 .ps-parts {
-  padding-bottom: 2rem;
-}
-
-.ps-parts ol {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 13em), 1fr));
+  gap: 0 2em;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -680,40 +814,152 @@
 
 .ps-parts li {
   display: grid;
-  grid-template-columns: 1.75rem minmax(0, 1fr);
-  gap: 0.5rem;
-  padding: 0.625rem 0;
-  border-top: 1px solid var(--color-line);
-  color: var(--color-slate-600);
-  font-size: 0.875rem;
-  line-height: 1.5;
+  grid-template-columns: 1.75em minmax(0, 1fr);
+  gap: 0.5em;
+  align-items: baseline;
+  padding: 0.4em 0;
+  border-bottom: 1px solid var(--color-line);
+  font-size: 0.9375em;
+  line-height: 1.3;
 }
 
-.ps-parts strong {
+.ps-parts li > span:last-child {
   color: var(--color-navy-800);
   font-weight: 600;
 }
 
 .ps-part-n {
   color: var(--color-copper-500);
-  font: 500 0.75rem/1.6 var(--font-mono);
+  font: 500 0.86em/1.75 var(--font-mono);
+}
+
+/* Breite Bildschirme: Der Rahmen (PlantSimulation.astro) ist genau so breit
+   wie Zeichnung + Abstand + Knopfspalte und steht mittig; Überschrift,
+   Legende und Zeichnung beginnen darin an derselben linken Kante. */
+@media (min-width: 64.01rem) {
+  .ps-frame {
+    width: min(100%, calc(var(--ps-fit, 38rem) * 1140 / 732 + 13.25rem));
+    margin-inline: auto;
+  }
+}
+
+/* Breite Bildschirme: Knöpfe als Spalte rechts neben der Zeichnung — so
+   stehen Anlage und Bedienung gleichzeitig im Bild, ohne dass die Knöpfe
+   unter den Seitenrand rutschen. */
+@media (min-width: 64.01rem) {
+  /* Die Spalte der Zeichnung ist genau so breit wie die Zeichnung bei der
+     gemessenen Höhe (Seitenverhältnis der viewBox 1140 : 732) — sonst bliebe
+     ein leerer Rand zwischen Anlage und Knöpfen. */
+  .ps-main {
+    display: grid;
+    grid-template-columns: minmax(0, calc(var(--ps-fit, 38rem) * 1140 / 732)) 12.5rem;
+    gap: 0 0.75rem;
+    align-items: start;
+  }
+  .ps-main .ps-stage {
+    border-bottom: 0;
+  }
+
+  .ps-main .ps-console {
+    padding-top: 0.5rem;
+    border-bottom: 0;
+  }
+  .ps-main .ps-actions {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.375rem;
+    padding-top: 0;
+  }
+  .ps-main .ps-act {
+    min-height: 2.5rem;
+    padding: 0.4375rem 0.75rem;
+  }
+  .ps-main .ps-act-label {
+    font-size: 0.875rem;
+  }
+  .ps-main .ps-console-foot {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  /* Höchstens drei Zeilen, damit die Spalte nie höher wird als die
+     Zeichnung und die Seite ins Fenster passt. */
+  .ps-main .ps-status {
+    display: -webkit-box;
+    flex: none;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+  .ps-main .ps-reset {
+    align-self: flex-start;
+  }
 }
 
 @media (max-width: 64rem) {
   .ps-actions {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-  .ps-body {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }
 
 @media (max-width: 40rem) {
-  .ps-row {
-    grid-template-columns: 1.5rem minmax(0, 1fr);
+  .ps-dlg {
+    width: calc(100vw - 1rem);
+    max-height: calc(100svh - 1rem);
   }
+  .ps-dlg-head {
+    padding: 0.5rem 0.875rem;
+  }
+  .ps-dlg-body {
+    padding: 0 0.75rem 0.5em;
+  }
+  /* Kompakter, damit mehr Text pro Zeile passt und die Schrift beim
+     Einpassen größer bleiben kann. Die Nummer der Abläufe steht hier nicht
+     als eigene Spalte (sie hat auf den Knöpfen auch keine). */
+  .ps-row {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0.55em 0;
+  }
+  .ps-row-idx {
+    display: none;
+  }
+  .ps-row .ps-row-text {
+    line-height: 1.4;
+  }
+  .ps-row .ps-row-state {
+    margin-top: 0.25em;
+  }
+  .ps-parts li {
+    grid-template-columns: 1.4em minmax(0, 1fr);
+    gap: 0.375em;
+    padding: 0.45em 0;
+    line-height: 1.4;
+  }
+  /* Handy: drei kompakte Knöpfe je Reihe, damit beide Reihen zusammen mit der
+     Zeichnung auf den Bildschirm passen. */
   .ps-actions {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.3125rem;
+    padding-top: 0.3125rem;
+  }
+  .ps-act {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 3rem;
+    padding: 0.375rem 0.5rem;
+  }
+  .ps-act-idx {
+    display: none;
+  }
+  .ps-act-label {
+    font-size: 0.875rem;
+    line-height: 1.2;
+  }
+  /* Zustand zeigt hier allein die Farbe: Kupfer = läuft, grau = gesperrt.
+     Der Grund für eine Sperre steht nach dem Antippen in der Statuszeile. */
+  .ps-act-state {
+    display: none;
+  }
+  .ps-act {
+    min-height: 2.5rem;
   }
 }
 
@@ -734,6 +980,15 @@
 }
 
 @media (max-width: 47.99rem) {
+  /* Legende entfällt auf dem Handy: Der Platz geht an Zeichnung und Knöpfe,
+     die nach dem Laden gemeinsam ins Bild passen müssen. Info und Positionen
+     bleiben. */
+  .ps-legend {
+    display: none;
+  }
+  .ps-bar {
+    padding: 0.5rem 0;
+  }
   .ps-areas {
     display: flex;
     gap: 0.375rem;
@@ -764,13 +1019,12 @@
   }
 
   /* Die Zeichnung zeigt hier einen Ausschnitt in voller Breite, ohne seitliches
-     Verschieben und ohne Höhenbegrenzung. */
+     Verschieben; die Höhe begrenzt --ps-fit wie auf breiten Bildschirmen. */
   .ps-stage {
     overflow: hidden;
   }
   .ps-svg {
     min-width: 0;
-    max-height: none;
   }
 
   .ps-smm {
@@ -817,4 +1071,25 @@
     color: var(--color-slate-600);
     font-size: 0.875rem;
   }
+}
+
+/* Flache Bildschirme (z. B. 1280 × 720): Knopfspalte etwas kompakter, damit
+   sie neben die Zeichnung passt und die Seite nicht scrollt. */
+@media (min-width: 64.01rem) and (max-height: 50rem) {
+  .ps-main .ps-act {
+    min-height: 2.25rem;
+    padding-block: 0.3125rem;
+  }
+  .ps-main .ps-status {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+}
+
+/* Seite der Simulation auf breiten Bildschirmen: Kopfzeile, Simulation und
+   Fußzeile füllen genau das Fenster, Scrollen ist gesperrt (Klasse setzt
+   plant-sim.ts nur, wenn alles hineinpasst). */
+html.ps-noscroll,
+html.ps-noscroll body {
+  overflow: hidden;
 }

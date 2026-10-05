@@ -80,8 +80,10 @@ export const PLANT = {
 /** Geometrie der Zeichnung (viewBox-Einheiten). Wer etwas verschiebt, muss
  *  meist auch die Rohrleitungen in scene.ts nachziehen. */
 export const LAYOUT = {
-  /** Sichtbarer Ausschnitt. Fahrzeuge fahren außerhalb davon ein und aus. */
-  view: { x: 60, y: -108, w: 1140, h: 744 },
+  /** Sichtbarer Ausschnitt; endet unten knapp unter der Straße. Fahrzeuge
+   *  fahren außerhalb davon ein und aus. Das Seitenverhältnis 1140 : 732
+   *  steht auch in anlagensimulation.css (.ps-frame, .ps-main). */
+  view: { x: 60, y: -102, w: 1140, h: 732 },
   width: 1200,
   /** Oberkante Gelände; darauf stehen Silo, Tank und Schränke. */
   ground: 560,
@@ -96,7 +98,8 @@ export const LAYOUT = {
   /** Pumpen- und Ventilkasten: P1, P2, P3 und alle Ventile. */
   box: { x: 518, y: 400, w: 170, h: 160 },
   tank: { x: 716, y: 230, w: 130, h: 300 },
-  zapfstelle: { x: 900, y: 420, w: 44 },
+  /** outletY: Höhe des Abgangs für den Zapfschlauch, unterhalb des RFID-Lesers. */
+  zapfstelle: { x: 900, y: 420, w: 44, outletY: 514 },
   cabinet: { x: 1110, y: 398, w: 70, h: 162 },
   /** SalzManager-Bildschirm in der Zeichnung. */
   screen: { x: 440, y: -100, w: 750, h: 270 },
@@ -115,15 +118,17 @@ export const LAYOUT = {
 
 /** Bereiche für schmale Bildschirme. Auf dem Handy wäre die ganze Anlage zu
  *  klein; dort zoomt die Zeichnung auf einen dieser Ausschnitte (viewBox),
- *  hochformatig (Breite : Höhe ≈ 0,8). `null` = ganze Anlage. */
+ *  fast quadratisch (Breite : Höhe ≈ 0,9) — so füllt die Zeichnung die
+ *  Bildschirmbreite und lässt darunter Platz für die Knöpfe. `null` = ganze
+ *  Anlage. */
 export type AreaId = 'gesamt' | 'silo' | 'aufbereiter' | 'soletank' | 'zapfstelle';
 
 export const AREAS: Array<{ id: AreaId; label: string; box: { x: number; y: number; w: number; h: number } | null }> = [
   { id: 'gesamt', label: 'Gesamt', box: null },
-  { id: 'silo', label: 'Silo', box: { x: 60, y: 120, w: 420, h: 525 } },
-  { id: 'aufbereiter', label: 'Aufbereiter', box: { x: 340, y: 150, w: 395, h: 494 } },
-  { id: 'soletank', label: 'Soletank', box: { x: 500, y: 150, w: 395, h: 494 } },
-  { id: 'zapfstelle', label: 'Zapfstelle', box: { x: 690, y: 150, w: 400, h: 494 } },
+  { id: 'silo', label: 'Silo', box: { x: 60, y: 180, w: 420, h: 450 } },
+  { id: 'aufbereiter', label: 'Aufbereiter', box: { x: 340, y: 175, w: 400, h: 455 } },
+  { id: 'soletank', label: 'Soletank', box: { x: 500, y: 175, w: 400, h: 455 } },
+  { id: 'zapfstelle', label: 'Zapfstelle', box: { x: 690, y: 175, w: 410, h: 455 } },
 ];
 
 /** Wohin die Ansicht auf dem Handy schwenkt, wenn ein Ablauf startet. */

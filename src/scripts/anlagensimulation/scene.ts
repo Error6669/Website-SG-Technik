@@ -87,7 +87,7 @@ export const FLOWS: Record<FlowId, string> = {
   tankIn: `M${T.x} ${TANK_PORT_Y} H${P2.x + 11}`,
   p2Down: `M${P2.x} ${P2.y + 11} V${N.y}`,
   ret: `M${N.x} ${N.y} H590 V440 H${FILL_X}`,
-  zapf: `M${N.x} ${N.y} H880 V488 H${Z.x}`,
+  zapf: `M${N.x} ${N.y} H880 V${Z.outletY} H${Z.x}`,
   drain: `M${N.x} ${N.y} V${G + 7}`,
   // Befüllleitung auf der linken Silo-Seite, mündet links ins Dach.
   fill: `M${FILL_PIPE_X} 505 V${S.roof - 28} H${S.cx - S.r + 26} V${S.roof - 5}`,
@@ -110,11 +110,11 @@ const MARKERS: Array<{ n: number; x: number; y: number; to?: [number, number] }>
   { n: 3, x: 166, y: 372, to: [196, 342] },
   { n: 4, x: 290, y: 452, to: [328, 470] },
   { n: 5, x: 372, y: 300, to: [372, 362] },
-  { n: 6, x: 352, y: 438, to: [372, 452] },
+  { n: 6, x: 350, y: 418, to: [371, 440] },
   { n: 7, x: 520, y: 356, to: [520, 377] },
   { n: 8, x: 702, y: 392, to: [688, 404] },
   { n: 9, x: 862, y: 250, to: [846, 262] },
-  { n: 10, x: 954, y: 424, to: [944, 430] },
+  { n: 10, x: 992, y: 414, to: [945, 428] },
   { n: 11, x: 1094, y: 384, to: [1110, 400] },
   { n: 12, x: 424, y: -84, to: [SC.x, -84] },
 ];
@@ -162,8 +162,8 @@ const pump = (id: string, x: number, y: number): string => `
 const marker = (m: (typeof MARKERS)[number]): string => `
   <g class="ps-marker">
     ${m.to ? `<line x1="${m.x}" y1="${m.y}" x2="${m.to[0]}" y2="${m.to[1]}"/>` : ''}
-    <circle cx="${m.x}" cy="${m.y}" r="9"/>
-    <text x="${m.x}" y="${m.y + 3.6}" text-anchor="middle">${m.n}</text>
+    <circle cx="${m.x}" cy="${m.y}" r="11"/>
+    <text x="${m.x}" y="${m.y + 4.3}" text-anchor="middle">${m.n}</text>
   </g>`;
 
 /** RFID-Leser auf einer Säule — an Silo und Zapfstelle baugleich. Drei
@@ -181,7 +181,7 @@ const rfidReader = (id: 'rfidSilo' | 'rfidZapf', x: number): string => `
     <rect class="ps-rfid-head" x="${x - 9}" y="462" width="18" height="32" rx="2"/>
     <circle class="ps-rfid-led" cx="${x}" cy="471" r="3"/>
     <path class="ps-rfid-lines" d="M${x - 5} 480 h10 M${x - 5} 484 h10 M${x - 5} 488 h10"/>
-    <text class="ps-t-tiny ps-rfid-label" data-ref="${id}Label" x="${x}" y="457" text-anchor="middle">RFID</text>
+    <text class="ps-t-tiny ps-t-halo ps-rfid-label" data-ref="${id}Label" x="${x}" y="456" text-anchor="middle">RFID</text>
   </g>`;
 
 function siloMarkup(): string {
@@ -226,8 +226,8 @@ function siloMarkup(): string {
     <path d="M${L + 18} ${roof - 4} V${roof - 16} M${cx} ${roof - 18} V${roof - 32} M${L + 18} ${roof - 14} L${cx} ${roof - 30}" stroke="${C.steel}" stroke-width="1.6" fill="none"/>
 
     ${label(cx, roof + 50, 'SALZSILO')}
-    <text class="ps-t-value" data-ref="siloValue" x="${cx}" y="${roof + 82}" text-anchor="middle">0 t</text>
-    <text class="ps-t-sub" data-ref="siloSub" x="${cx}" y="${roof + 102}" text-anchor="middle"></text>
+    <text class="ps-t-value" data-ref="siloValue" x="${cx}" y="${roof + 84}" text-anchor="middle">0 t</text>
+    <text class="ps-t-sub" data-ref="siloSub" x="${cx}" y="${roof + 104}" text-anchor="middle"></text>
 
     <!-- Salzstrom: aus dem Schlauchstück frei in den Streuaufbau -->
     <clipPath id="ps-stream-clip"><rect data-ref="streamClip" x="${cx - 9}" y="${coneBottom + GATE.h}" width="18" height="0"/></clipPath>
@@ -313,8 +313,8 @@ function mixerMarkup(): string {
     <rect data-ref="blade2" class="ps-blade" x="${sx - 26}" y="${bottom - 12}" width="52" height="5" fill="${C.ink}"/>
     <path d="${body}" fill="none" stroke="${C.ink}" stroke-width="1.6" stroke-linejoin="round"/>
     <rect x="${sx - 12}" y="${y - 22}" width="24" height="24" rx="2" fill="${C.steel}"/>
-    <text class="ps-t-tag ps-t-halo" data-ref="mixerLabel" x="${x + w / 2 - 8}" y="${y + 30}" text-anchor="middle">AUFBEREITER</text>
-    <text class="ps-t-sub" data-ref="mixerValue" x="${x + w / 2 - 8}" y="${y + 44}" text-anchor="middle"></text>
+    <text class="ps-t-tag ps-t-halo" data-ref="mixerLabel" x="${x + w / 2}" y="${y + 30}" text-anchor="middle">AUFBEREITER</text>
+    <text class="ps-t-sub" data-ref="mixerValue" x="${x + w / 2}" y="${y + 49}" text-anchor="middle"></text>
   </g>`;
 }
 
@@ -325,8 +325,8 @@ function boxMarkup(): string {
   <g class="ps-box">
     <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${C.band}" stroke="${C.ink}" stroke-width="1.5"/>
     <rect x="${x + 4}" y="${y + 4}" width="${w - 8}" height="${h - 8}" fill="none" stroke="${C.ink}" stroke-width=".8" opacity=".25"/>
-    <text class="ps-t-tag" x="${x + w - 8}" y="${y + 16}" text-anchor="end">PUMPEN- UND</text>
-    <text class="ps-t-tag" x="${x + w - 8}" y="${y + 28}" text-anchor="end">VENTILKASTEN</text>
+    <text class="ps-t-tag" x="${x + w - 8}" y="${y + 17}" text-anchor="end">PUMPEN- UND</text>
+    <text class="ps-t-tag" x="${x + w - 8}" y="${y + 34}" text-anchor="end">VENTILKASTEN</text>
     <rect x="${N.x - 12}" y="${G}" width="24" height="7" fill="${C.steel}"/>
   </g>`;
 }
@@ -359,9 +359,9 @@ function tankMarkup(): string {
     <path d="${ticks}" stroke="${C.ink}" stroke-width="1" opacity=".45"/>
     <path d="${body}" fill="none" stroke="${C.ink}" stroke-width="1.6"/>
     <text class="ps-t-label" data-ref="tankLabel" x="${cx}" y="${y + 50}" text-anchor="middle">SOLETANK</text>
-    <text class="ps-t-value" data-ref="tankValue" x="${cx}" y="${y + 78}" text-anchor="middle"></text>
-    <text class="ps-t-sub" data-ref="tankSub" x="${cx}" y="${y + 96}" text-anchor="middle"></text>
-    <text class="ps-t-sub" data-ref="tankNote" x="${cx}" y="${y + 111}" text-anchor="middle"></text>
+    <text class="ps-t-value" data-ref="tankValue" x="${cx}" y="${y + 81}" text-anchor="middle"></text>
+    <text class="ps-t-sub" data-ref="tankSub" x="${cx}" y="${y + 104}" text-anchor="middle"></text>
+    <text class="ps-t-sub" data-ref="tankNote" x="${cx}" y="${y + 121}" text-anchor="middle"></text>
   </g>`;
 }
 
@@ -370,8 +370,8 @@ function zapfstelleMarkup(): string {
   return `
   <g class="ps-zapf">
     <rect x="${x}" y="${y}" width="${w}" height="${G - y}" fill="${C.concrete}" stroke="${C.ink}" stroke-width="1.4"/>
-    <path d="M${x} 488 H${x + w + 4}" stroke="${C.steel}" stroke-width="6"/>
-    <rect x="${x + w + 2}" y="482" width="8" height="12" rx="2" fill="${C.ink}"/>
+    <path d="M${x} ${Z.outletY} H${x + w + 4}" stroke="${C.steel}" stroke-width="6"/>
+    <rect x="${x + w + 2}" y="${Z.outletY - 6}" width="8" height="12" rx="2" fill="${C.ink}"/>
     ${label(x + w / 2, y - 26, 'ZAPFSTELLE')}
   </g>`;
 }
@@ -392,8 +392,8 @@ function cabinetMarkup(): string {
     <line x1="${x}" y1="${y + 86}" x2="${x + w}" y2="${y + 86}" stroke="${C.ink}" stroke-width="1" opacity=".3"/>
     <rect x="${x + 7}" y="${y + 8}" width="${w - 14}" height="46" rx="2" fill="${C.night}"/>
     ${bars}
-    <circle data-ref="cabinetLed" cx="${x + 12}" cy="${y + 72}" r="3.5" fill="${C.mist}"/>
-    <text class="ps-t-tiny" x="${x + 20}" y="${y + 75}">BETRIEB</text>
+    <circle data-ref="cabinetLed" cx="${x + 10}" cy="${y + 72}" r="3.5" fill="${C.mist}"/>
+    <text class="ps-t-tiny" x="${x + 17}" y="${y + 75.5}">BETRIEB</text>
     <path d="M${ax} ${y} V${y - 26}" stroke="${C.ink}" stroke-width="1.6"/>
     <circle cx="${ax}" cy="${y - 28}" r="2.6" fill="${C.ink}"/>
     <path d="M${ax - 8} ${y - 36} q8 -8 16 0 M${ax - 13} ${y - 42} q13 -12 26 0" stroke="${C.ink}" stroke-width="1.2" fill="none"/>
@@ -406,57 +406,67 @@ function cabinetMarkup(): string {
  *  Steuerung verbunden, zeigt Bestände, Entnahmen und Meldungen. */
 function screenMarkup(): string {
   const { x, y, w, h } = SC;
-  const head = y + 28;
-  const gaugeBottom = head + 112;
+  const bar = 32;
+  const head = y + bar;
+  const gaugeBottom = head + 114;
   const cellW = w / 4;
+  // data-max: höchste Breite eines wechselnden Textes; view.ts kürzt längere
+  // Texte mit „…“, statt sie in die Nachbarspalte laufen zu lassen.
   const cells = ['SALZSILO', 'AUFBEREITER', 'SOLETANK', 'ENTNAHMEN']
     .map((name, i) => {
       const cx0 = x + i * cellW;
+      const rc = cx0 + 36;
       const ring =
         i < 3
-          ? `<circle cx="${cx0 + 42}" cy="${head + 62}" r="24" fill="none" stroke="${C.concrete}" stroke-width="7"/>
-             <circle data-ref="smRing${i}" class="ps-sm-ring" cx="${cx0 + 42}" cy="${head + 62}" r="24" fill="none" stroke="${C.ink}" stroke-width="7" pathLength="100" stroke-dasharray="0 100" transform="rotate(-90 ${cx0 + 42} ${head + 62})"/>
-             <text class="ps-t-tiny" data-ref="smPct${i}" x="${cx0 + 42}" y="${head + 65}" text-anchor="middle"></text>`
+          ? `<circle cx="${rc}" cy="${head + 64}" r="22" fill="none" stroke="${C.concrete}" stroke-width="7"/>
+             <circle data-ref="smRing${i}" class="ps-sm-ring" cx="${rc}" cy="${head + 64}" r="22" fill="none" stroke="${C.ink}" stroke-width="7" pathLength="100" stroke-dasharray="0 100" transform="rotate(-90 ${rc} ${head + 64})"/>
+             <text class="ps-t-tiny ps-t-pct" data-ref="smPct${i}" x="${rc}" y="${head + 68}" text-anchor="middle"></text>`
           : '';
-      const tx = i < 3 ? cx0 + 78 : cx0 + 16;
+      const tx = i < 3 ? cx0 + 68 : cx0 + 16;
+      const max = cx0 + cellW - 8 - tx;
       return `
         ${i > 0 ? `<line x1="${cx0}" y1="${head}" x2="${cx0}" y2="${gaugeBottom}" stroke="${C.ink}" stroke-opacity=".12"/>` : ''}
-        <text class="ps-t-tag" x="${cx0 + 16}" y="${head + 22}">${name}</text>
+        <text class="ps-t-tag" x="${cx0 + 16}" y="${head + 24}">${name}</text>
         ${ring}
-        <text class="ps-t-screen-value" data-ref="smVal${i}" x="${tx}" y="${head + 64}"></text>
-        <text class="ps-t-screen" data-ref="smSub${i}" x="${tx}" y="${head + 82}"></text>`;
+        <text class="ps-t-screen-value" data-ref="smVal${i}" data-max="${max}" x="${tx}" y="${head + 66}"></text>
+        <text class="ps-t-screen" data-ref="smSub${i}" data-max="${max}" x="${tx}" y="${head + 86}"></text>
+        <text class="ps-t-screen" data-ref="smNote${i}" data-max="${max}" x="${tx}" y="${head + 104}"></text>`;
     })
     .join('');
   const colSplit = x + w * 0.47;
-  const rowsY = [0, 1, 2, 3].map((r) => gaugeBottom + 44 + r * 20);
+  const rowsY = [0, 1, 2, 3].map((r) => gaugeBottom + 46 + r * 21);
+  const xt = x + 16;
+  const xv = x + 66;
+  const xw = x + 200;
+  const xa = colSplit - 16;
   const logRows = rowsY
     .map(
       (ry, r) => `
-      <text class="ps-t-screen ps-t-mono" data-ref="smLog${r}t" x="${x + 16}" y="${ry}"></text>
-      <text class="ps-t-screen" data-ref="smLog${r}v" x="${x + 62}" y="${ry}"></text>
-      <text class="ps-t-screen" data-ref="smLog${r}w" x="${x + 212}" y="${ry}"></text>
-      <text class="ps-t-screen ps-t-mono" data-ref="smLog${r}a" x="${colSplit - 16}" y="${ry}" text-anchor="end"></text>`,
+      <text class="ps-t-screen ps-t-mono" data-ref="smLog${r}t" x="${xt}" y="${ry}"></text>
+      <text class="ps-t-screen" data-ref="smLog${r}v" data-max="${xw - xv - 10}" x="${xv}" y="${ry}"></text>
+      <text class="ps-t-screen" data-ref="smLog${r}w" data-max="${xa - 66 - xw}" x="${xw}" y="${ry}"></text>
+      <text class="ps-t-screen ps-t-mono" data-ref="smLog${r}a" x="${xa}" y="${ry}" text-anchor="end"></text>`,
     )
     .join('');
+  const xm = colSplit + 66;
   const msgRows = rowsY
     .map(
       (ry, r) => `
       <text class="ps-t-screen ps-t-mono" data-ref="smMsg${r}t" x="${colSplit + 16}" y="${ry}"></text>
-      <text class="ps-t-screen" data-ref="smMsg${r}x" x="${colSplit + 62}" y="${ry}"></text>`,
+      <text class="ps-t-screen" data-ref="smMsg${r}x" data-max="${x + w - 14 - xm}" x="${xm}" y="${ry}"></text>`,
     )
     .join('');
   return `
   <g class="ps-screen">
     <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${C.paper}" stroke="${C.ink}" stroke-width="1.4"/>
-    <rect x="${x}" y="${y}" width="${w}" height="28" fill="${C.ink}"/>
-    <text class="ps-t-screen-head" x="${x + 16}" y="${y + 18}">SALZMANAGER</text>
-    <text class="ps-t-screen-head ps-t-dim" x="${x + 128}" y="${y + 18}">VISUALISIERUNG · ANLAGE</text>
-    <text class="ps-t-screen-head" data-ref="smClock" x="${x + w - 16}" y="${y + 18}" text-anchor="end"></text>
+    <rect x="${x}" y="${y}" width="${w}" height="${bar}" fill="${C.ink}"/>
+    <text class="ps-t-screen-head" x="${x + 16}" y="${y + 21}">SALZMANAGER</text>
+    <text class="ps-t-screen-head" data-ref="smClock" x="${x + w - 16}" y="${y + 21}" text-anchor="end"></text>
     ${cells}
     <line x1="${x}" y1="${gaugeBottom}" x2="${x + w}" y2="${gaugeBottom}" stroke="${C.ink}" stroke-opacity=".12"/>
     <line x1="${colSplit}" y1="${gaugeBottom}" x2="${colSplit}" y2="${y + h}" stroke="${C.ink}" stroke-opacity=".12"/>
-    <text class="ps-t-tag" x="${x + 16}" y="${gaugeBottom + 20}">ENTNAHMEN UND LIEFERUNGEN</text>
-    <text class="ps-t-tag" x="${colSplit + 16}" y="${gaugeBottom + 20}">MELDUNGEN</text>
+    <text class="ps-t-tag" x="${x + 16}" y="${gaugeBottom + 22}">ENTNAHMEN UND LIEFERUNGEN</text>
+    <text class="ps-t-tag" x="${colSplit + 16}" y="${gaugeBottom + 22}">MELDUNGEN</text>
     ${logRows}
     ${msgRows}
   </g>`;

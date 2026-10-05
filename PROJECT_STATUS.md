@@ -141,6 +141,45 @@ Aussagen hängen an Werten statt im Fließtext zu stehen — ändert sich die La
 
 **Verifiziert:** `npm run build` nach jedem Schritt sauber (8 Seiten). Gerendertes HTML per `curl` gegengeprüft — Abschnitt 6 vorhanden, Animation auf `/danke`, Startseite ohne Header-Streifen. **Nicht visuell geprüft** (kein Screenshot-Vergleich).
 
+## Letzte Änderungen (Session 2026-10-05) — Feinschliff Anlagensimulation · **committet, NICHT gepusht**
+
+Auf `develop` committet (zwei Commits nach `df55032`), auf Wunsch **nicht gepusht** — `origin/develop` steht noch auf `df55032`. Prüfstand am Ende: `tsc` 0, `astro build` 9 Seiten, Detector 0 in allen Sim-Dateien, alle Prüfskripte grün (siehe unten).
+
+**Seite `/anlagensimulation` (`src/pages/anlagensimulation.astro`, `src/components/PlantSimulation.astro`)**
+- Sichtbare Überschrift entfernt (`<h1 class="sr-only">` bleibt), Einleitungstext entfernt, Kontakt-Streifen (`CtaBand`) auf dieser Seite entfernt, keine Breitenbegrenzung mehr (`px-4 sm:px-6`).
+- Rahmen `.ps-frame` (Slot für Zurück-Link) ist genau so breit wie Zeichnung + Knopfspalte und **mittig**; Zurück-Link, Legende und Zeichnung beginnen an derselben linken Kante.
+- **Größe:** `plant-sim.ts` → `fit()` misst den freien Platz und setzt `--ps-fit` (Höchsthöhe der Zeichnung). Neu gemessen nur bei geänderter Breite (Handy-Adressleiste). Seitenverhältnis der Zeichnung jetzt **1140 : 732** (viewBox endet knapp unter der Straße) — steht in `src/content/anlagensimulation.ts` (`LAYOUT.view`) **und** zweimal in `anlagensimulation.css`.
+- **Kein Scrollen auf dem Desktop** (Option `fillPage`): Wenn die Knöpfe neben der Zeichnung stehen und alles passt, füllen Kopfzeile + Simulation + Fußzeile genau das Fenster, `html.ps-noscroll` sperrt Scrollen. Fußzeile mit Impressum bleibt sichtbar (ECG/MedienG). Geprüft 2560×1440 … 1100×700. **Tablet (1024×768) und Handy bleiben scrollbar** (sonst würde die Zeichnung winzig). Flache Bildschirme (`max-height: 50rem`): Knöpfe niedriger, Statuszeile max. 2 Zeilen.
+- Hintergrund der Zeichnung = Seitenfarbe (`.ps-stage` transparent), keine Trennlinie unter der Anlage, nur schmaler Streifen bis zur Fußzeile.
+
+**Bedienung**
+- Desktop (≥ 64 rem): Ablauf-Knöpfe als **Spalte rechts neben der Zeichnung**; darunter Tablet: 3 je Reihe; Handy: kompakt, nur Name (läuft = Kupfer gefüllt, gesperrt = grau).
+- Knöpfe mit **runden Ecken (8 px)** und Kupfer-Füllung wenn aktiv — Ausnahme von DESIGN.md (2 px), im CSS markiert.
+- **Abläufe heißen A–F** (nicht 01–06), damit sie nicht mit den Positionsnummern 1–12 verwechselt werden.
+- Rechts in der Legendenzeile: Knöpfe **Info** und **Positionen** (mit Symbol). Info = modales `<dialog>` „So arbeitet die Anlage“ (Abläufe mit Live-Zustand) mit **Glas-Optik** (Ausnahme von DESIGN.md „keine Glasoptik“, markiert). Positionen = auf dem Desktop **nicht modales Feld genau über der Knopfspalte** (oben bündig Info-Knopf, unten bis Straße, `placePanel()` in `panel.ts`), nur Nummer + Name; schließt mit ×, Esc, Knopf, Klick daneben. Tablet/Handy: Pop-up in der Mitte. Kein Pop-up scrollt: `fitDialog()` verkleinert die Schrift bei Bedarf (alles in em; 320×568 → 10 px).
+- Abschnitte „So arbeitet die Anlage“/„Positionen“ unter der Simulation **entfernt** (stecken in den Pop-ups).
+- Handy-Legende ausgeblendet, Info/Positionen sichtbar; Bereichs-Reiter + Zoom wie bisher (Bereichsboxen an viewBox angepasst).
+
+**Zeichnung (`scene.ts`, `view.ts`, `anlagensimulation.css`)**
+- Alle SVG-Texte ~20–25 % größer (Label 13,5 / Wert 24 / Sub 13 / Tag 12,5 / Tiny 10,5 / Bildschirm 13,5 · 20 / Positionsnummer r 11, Schrift 12). Prüfskript `textcheck`: 0 Überschneidungen.
+- SalzManager-Bildschirm neu vermessen, „VISUALISIERUNG · ANLAGE“ entfernt; Werte je Zelle in bis zu 3 Zeilen; wechselnde Texte tragen `data-max` und werden in `view.ts` per Messung mit „…“ gekürzt (statt Zeichenzahl).
+- Positionsnummer 10 weg von der Zapfsäule, Nr. 6 versetzt; „AUFBEREITER“ mittig; Ring zeigt „68%“ ohne Sperrung.
+- Zapfschlauch-Abgang **unterhalb des RFID-Lesers** (`LAYOUT.zapfstelle.outletY` = 514), Schlauch läuft weich nach unten.
+- Behoben: CSS-Regeln, die beim Entfernen des Tempo-Schalters beschädigt wurden (`.ps-reset:active` hatte Stil der Zwischenüberschriften); veraltete `min-width: 46rem` der Zeichnung (erzeugte 15 px Scrollbalken).
+
+**Handy-Test im WLAN**
+- `npm run dev:handy` (= `astro dev --host`), Adresse **http://macbook-air-von-simon.local:4321** (Bonjour-Name bleibt gleich, auch wenn die IP wechselt). `astro.config.mjs` → `server.allowedHosts: ['macbook-air-von-simon.local']` (klein geschrieben; gilt auch für `astro preview`). Android-Chrome löst `.local` evtl. nicht auf → IP aus der „Network“-Zeile.
+- Vite-Warnung „Failed to run dependency scan“ behoben: wörtliches `<script>` in Kommentaren (`ConsentManager.astro`, `CookieConsent.astro`) umformuliert. **Regel:** in `.astro`-Dateien nie `<script>`/`</script>` als Text in Kommentaren. Nach dem Fix muss der Dev-Server einmal neu gestartet werden (nicht von mir geprüft).
+
+**Prüfskripte:** `scripts/sim-pruefung/` (README dort) — fit, scroll, text, dlg, panel, smoke. Vor jedem Commit an der Simulation laufen lassen.
+
+**Offen**
+- Pushen (auf Anweisung). Danach `develop → main` für Live.
+- Safari und echtes iPhone ungetestet (inkl. Glas-Optik, Scrollsperre, `.local`).
+- Fachlich prüfen: angenommene Werte in `src/content/anlagensimulation.ts` (Tank 50 m³, Aufbereiter 7 m³, Leistungen; Obernberg-Screenshot zeigt eher 1,14 kg/l).
+- Tablet quer (1024×768) scrollt noch (Knöpfe unter der Zeichnung).
+- `DESIGN.md` nennt runde Knöpfe/Glasoptik nicht — bei Bedarf als Ausnahme dokumentieren.
+
 ## Letzte Änderungen (Session 2026-10-04/05) — Anlagensimulation und Aufräumen
 
 **Anlagensimulation** (neu, `/anlagensimulation`): interaktive Silo- und Soleanlage im Schnitt — Salzsilo 600 t, Dosierschnecke, Soleaufbereiter, Pumpen- und Ventilkasten (P1/P2/P3, alle Ventile), Soletank, Zapfstelle, RFID-Leser, Steuerung, SalzManager-Bildschirm. Sechs Abläufe per Knopf (Sole herstellen/umwälzen, Tank entleeren, Sole entnehmen mit Multihog-Sprühfahrzeug, Salz entnehmen, Salz anliefern). Knopf **„Unsere Anlagen“** am Ende jedes Produkttexts auf `/produkte-technik` (Desktop, Mobil, noscript). Handy: Bereichs-Reiter, Zeichnung zoomt per viewBox, schwenkt beim Start eines Ablaufs mit. Details: `docs/animationen/anlagensimulation.md`. **Annahmen fachlich prüfen** (Tank 50 m³, Aufbereiter 7 m³, Leistungen; Obernberg-Screenshot zeigt eher 1,14 kg/l). **Ungetestet:** Safari, echtes iPhone.
