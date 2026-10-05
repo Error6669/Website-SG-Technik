@@ -143,6 +143,8 @@ Aussagen hängen an Werten statt im Fließtext zu stehen — ändert sich die La
 
 ## Letzte Änderungen (Session 2026-10-05, Teil 2) — Anlagensimulation am Handy · committet und gepusht auf `develop`
 
+**Stand Ende der Session:** Alles ist auf `develop` committet und gepusht, der Working Tree ist sauber. `develop` = `origin/develop` = `c6e2f91`. `main` (live) ist unverändert. Commits: `73f72b1` (Handy-Umbau der Simulation, Hero-Kennzahlen), `4c43b75` (Hinweis bei Querformat), `c6e2f91` (Knopftext „Interaktive Anlage öffnen“).
+
 Nur die mobile Ansicht (< 48 rem) wurde geändert, am PC bleibt die Simulation unverändert. Details: `docs/animationen/anlagensimulation.md`.
 
 - **Knopf „Ansicht“** (links in der Zeile, Info/Positionen rechts) ersetzt die Bereichs-Reiter. Er öffnet eine Auswahl: Gesamt, Silo, Aufbereiter, Soletank, Zapfstelle und neu **SalzManager** (Zoom auf den Bildschirm in der Zeichnung).
@@ -156,7 +158,19 @@ Nur die mobile Ansicht (< 48 rem) wurde geändert, am PC bleibt die Simulation u
 
 - **Nur Hochformat am Handy (ganze Website):** `src/components/PortraitNotice.astro` ist in `BaseLayout.astro` eingebunden. Bei Querformat, Höhe ≤ 32 rem und Fingerbedienung (`hover: none`, `pointer: coarse`) deckt ein Hinweis („Bitte drehen Sie Ihr Handy ins Hochformat“) die Seite ab. Die Seite dahinter scrollt nicht, offene Pop-ups sind bis zum Zurückdrehen ausgeblendet. Reines CSS. Tablets quer und flache PC-Fenster sind nicht betroffen.
 
-**Geprüft** (Chrome headless, CDP): fit/dlg/scroll/panel grün, Ablauf-Zoom und Fingertipp per Protokoll, Scrollsperre per Mausrad, `tsc` 0, `astro build` sauber. Der Detector meldet nur den bekannten Fund in `sg-technik-logo.js`. **Ungetestet:** Safari und echtes iPhone (Scrollsperre, Doppeltipp, Glas-Optik).
+**Geprüft** (Chrome headless, CDP): fit/dlg/scroll/panel grün, Ablauf-Zoom und Fingertipp per Protokoll, Scrollsperre per Mausrad, `tsc` 0, `astro build` sauber. Der Detector meldet nur den bekannten Fund in `sg-technik-logo.js`. **Ungetestet:** Safari und echtes iPhone (Scrollsperre, Doppeltipp, Glas-Optik, Hinweis bei Querformat).
+Zum Querformat-Test: In Chrome headless bleibt die Touch-Emulation (`pointer: coarse`) beim Zurückstellen hängen. Fälle mit Maus/PC daher in einem frischen Browser prüfen.
+
+**Offen (gesammelt, ersetzt die Liste in Teil 1)**
+- `develop → main` für Live (nur auf Anweisung).
+- Am echten iPhone/Safari prüfen: Handy-Simulation, Pop-ups, Scrollsperre, Doppeltipp, Hinweis bei Querformat.
+- Steuerung (Pos. 11) liegt in keinem Ausschnitt. Möglich: Zapfstellen-Ausschnitt nach rechts erweitern (wird dann etwas kleiner). Noch nicht entschieden.
+- SalzManager-Ansicht am Handy: Der Bildschirm wird nur ca. 133 px hoch, die kleinen Texte sind sehr klein. Rückmeldung des Nutzers steht aus.
+- Tablet (~768 px): Hero-Kennzahlen „100 – 980 t“ und „15.000 l/h“ brechen um.
+- Tablet quer (1024×768): Die Simulation scrollt noch (Knöpfe unter der Zeichnung).
+- Fachlich prüfen: angenommene Werte in `src/content/anlagensimulation.ts` (Tank 50 m³, Aufbereiter 7 m³, Leistungen; Obernberg-Screenshot zeigt eher 1,14 kg/l).
+- `DESIGN.md` nennt runde Knöpfe und Glas-Optik nicht. Bei Bedarf als Ausnahme dokumentieren.
+- Seitentitel der Simulation lautet noch „Unsere Anlagen — SG Technik GmbH“ (bewusst nicht geändert).
 
 ## Session 2026-10-05, Teil 1 — Feinschliff Anlagensimulation · gepusht
 
@@ -190,7 +204,7 @@ Auf `develop` committet (zwei Commits nach `df55032`), zusammen mit Teil 2 gepus
 
 **Prüfskripte:** `scripts/sim-pruefung/` (README dort) — fit, scroll, text, dlg, panel, smoke. Vor jedem Commit an der Simulation laufen lassen.
 
-**Offen**
+**Offen** *(überholt — siehe gesammelte Liste in Teil 2)*
 - `develop → main` für Live.
 - Safari und echtes iPhone ungetestet (inkl. Glas-Optik, Scrollsperre, `.local`).
 - Fachlich prüfen: angenommene Werte in `src/content/anlagensimulation.ts` (Tank 50 m³, Aufbereiter 7 m³, Leistungen; Obernberg-Screenshot zeigt eher 1,14 kg/l).
