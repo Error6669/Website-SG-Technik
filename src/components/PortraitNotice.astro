@@ -1,0 +1,49 @@
+---
+// Hinweis „Bitte Hochformat“: Die Website ist am Handy nur für das Hochformat
+// ausgelegt. Dreht jemand das Handy quer, deckt dieser Hinweis die ganze Seite
+// ab, bis das Gerät wieder hochkant gehalten wird. Reines CSS, kein Skript.
+//
+// Erkannt wird ein Handy im Querformat an: Querformat, Fensterhöhe höchstens
+// 32 rem (Handys quer ≈ 320–440 px, Tablets quer ≥ 744 px) und Bedienung per
+// Finger ohne Maus. Ein flaches Browserfenster am Computer bleibt also
+// unberührt.
+---
+
+<div class="portrait-notice fixed inset-0 z-[100] flex-col items-center justify-center gap-5 bg-navy-900 px-8 text-center">
+  <svg class="h-14 w-14 text-copper-500" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+    {/* Handy hochkant, daneben ein Pfeil, der zum Drehen auffordert */}
+    <rect x="14" y="6" width="20" height="36" rx="3" stroke="currentColor" stroke-width="2" />
+    <path d="M21 37h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    <path d="M40 14a14 14 0 0 1 0 20" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    <path d="M37 32l3 2.5 2.5-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  </svg>
+  <p class="max-w-sm text-lg font-semibold leading-snug text-fog-50">Bitte drehen Sie Ihr Handy ins Hochformat.</p>
+  <p class="max-w-sm text-sm leading-relaxed text-slate-300">
+    Unsere Website ist am Handy für das Hochformat ausgelegt. Danke für Ihr Verständnis!
+  </p>
+</div>
+
+<style>
+  .portrait-notice {
+    display: none;
+  }
+
+  @media (orientation: landscape) and (max-height: 32rem) and (hover: none) and (pointer: coarse) {
+    .portrait-notice {
+      display: flex;
+    }
+    /* Seite dahinter steht still. Offene Pop-ups (Cookie-Hinweis, Info …)
+       liegen in der obersten Ebene über allem und würden den Hinweis
+       verdecken — sie werden ausgeblendet, bis das Handy wieder hochkant ist. */
+    :global(html),
+    :global(body) {
+      overflow: hidden !important;
+    }
+    :global(dialog[open]) {
+      visibility: hidden;
+    }
+    :global(dialog::backdrop) {
+      display: none;
+    }
+  }
+</style>

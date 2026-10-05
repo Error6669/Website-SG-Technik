@@ -154,6 +154,8 @@ Nur die mobile Ansicht (< 48 rem) wurde geändert, am PC bleibt die Simulation u
 - **Pop-ups am Handy:** Beide haben Glas-Optik. Das Info-Pop-up ist kleiner (≤ 72 % der Höhe), hat feste Schrift und darf scrollen. Ist ein Pop-up offen, ist die Seite dahinter gesperrt (`html.ps-dlg-lock`). `dlgcheck.mjs` lässt das Scrollen im Info-Pop-up am Handy zu.
 - **Startseite (`Hero.astro`):** Die Kennzahlen umbrechen am Handy nicht mehr („100 – 980 t“, „15.000 l/h“), die Schrift wird auf schmalen Handys kleiner. Ab 640 px ist alles unverändert. Offen: Auf dem Tablet (~768 px, 4 Kacheln) brechen beide Werte weiterhin um.
 
+- **Nur Hochformat am Handy (ganze Website):** `src/components/PortraitNotice.astro` ist in `BaseLayout.astro` eingebunden. Bei Querformat, Höhe ≤ 32 rem und Fingerbedienung (`hover: none`, `pointer: coarse`) deckt ein Hinweis („Bitte drehen Sie Ihr Handy ins Hochformat“) die Seite ab. Die Seite dahinter scrollt nicht, offene Pop-ups sind bis zum Zurückdrehen ausgeblendet. Reines CSS. Tablets quer und flache PC-Fenster sind nicht betroffen.
+
 **Geprüft** (Chrome headless, CDP): fit/dlg/scroll/panel grün, Ablauf-Zoom und Fingertipp per Protokoll, Scrollsperre per Mausrad, `tsc` 0, `astro build` sauber. Der Detector meldet nur den bekannten Fund in `sg-technik-logo.js`. **Ungetestet:** Safari und echtes iPhone (Scrollsperre, Doppeltipp, Glas-Optik).
 
 ## Session 2026-10-05, Teil 1 — Feinschliff Anlagensimulation · gepusht
