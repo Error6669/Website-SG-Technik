@@ -1,0 +1,1070 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SG Technik Website-Bauplan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: Bauplan wie die Website selbst ("The Site Plan") — flach, Haarlinien, ein Kupfer-Akzent.
+   Oben der Weg Quellcode → Browser, darunter der Verbindungsplan in fünf Spalten mit Detailfeld, unten der Ordnerbaum. */
+:root {
+  --bg: #fbfcfc;
+  --surface: #f3f5f7;
+  --ink: #0d2436;
+  --ink-2: #183a59;
+  --muted: #526376;
+  --line: rgba(24, 58, 89, .14);
+  --line-strong: rgba(24, 58, 89, .32);
+  --accent: #b15a2e;
+  --accent-soft: #f7e5d7;
+  --up: #2f5f88;
+  --up-soft: #e1ebf4;
+  --edge: rgba(24, 58, 89, .16);
+  --font-body: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b1c2b; --surface: #112739; --ink: #e8eef3; --ink-2: #c9d6e2; --muted: #8ea2b6;
+    --line: rgba(201, 214, 226, .14); --line-strong: rgba(201, 214, 226, .32);
+    --accent: #d98a5c; --accent-soft: #3a2416; --up: #7fb0dc; --up-soft: #16314a;
+    --edge: rgba(201, 214, 226, .16); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b1c2b; --surface: #112739; --ink: #e8eef3; --ink-2: #c9d6e2; --muted: #8ea2b6;
+  --line: rgba(201, 214, 226, .14); --line-strong: rgba(201, 214, 226, .32);
+  --accent: #d98a5c; --accent-soft: #3a2416; --up: #7fb0dc; --up-soft: #16314a;
+  --edge: rgba(201, 214, 226, .16); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.55; }
+.wrap { max-width: 1480px; margin: 0 auto; padding-inline: 24px; padding-block: 40px 80px; }
+@media (max-width: 600px) { .wrap { padding-inline: 16px; padding-block: 24px 56px; } }
+h1, h2, h3 { text-wrap: balance; margin: 0; color: var(--ink); }
+h1 { font-size: clamp(1.8rem, 3.2vw, 2.6rem); font-weight: 700; letter-spacing: -.01em; line-height: 1.15; }
+h2 { font-size: 1.35rem; font-weight: 600; }
+h3 { font-size: 1rem; font-weight: 600; }
+p { margin: 0; }
+code, .mono { font-family: var(--font-mono); font-size: .86em; }
+.eyebrow { display: flex; align-items: center; gap: 12px; font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: .14em; color: var(--muted); }
+.eyebrow::before { content: ""; width: 24px; height: 1px; background: var(--accent); }
+.lead { margin-top: 14px; max-width: 70ch; color: var(--muted); font-size: 1.02rem; }
+section { margin-top: 56px; }
+.sec-head { display: grid; gap: 8px; margin-bottom: 20px; }
+.sec-head p { color: var(--muted); max-width: 75ch; }
+
+/* --- Weg zur fertigen Seite --- */
+.flow { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-top: 1px solid var(--line-strong); border-bottom: 1px solid var(--line-strong); }
+.step { padding: 18px 18px 20px; border-left: 1px solid var(--line); display: grid; gap: 8px; align-content: start; position: relative; min-width: 0; }
+.step:first-child { border-left: 0; padding-left: 0; }
+.step .n { font-family: var(--font-mono); font-size: 12px; color: var(--accent); letter-spacing: .1em; }
+.step h3 { font-size: 1.02rem; }
+.step p { color: var(--muted); font-size: .9rem; }
+.step code { color: var(--ink-2); }
+.step:not(:last-child)::after { content: "→"; position: absolute; right: -9px; top: 16px; background: var(--bg); color: var(--accent); font-size: 15px; line-height: 1; padding: 2px 0; z-index: 1; }
+.devnote { margin-top: 12px; font-size: .9rem; color: var(--muted); }
+.devnote code { color: var(--ink-2); }
+@media (max-width: 980px) {
+  .flow { grid-template-columns: minmax(0, 1fr); }
+  .step { border-left: 0; border-top: 1px solid var(--line); padding-left: 0; }
+  .step:first-child { border-top: 0; }
+  .step:not(:last-child)::after { content: "↓"; right: auto; left: auto; top: auto; bottom: -10px; left: 0; }
+}
+
+/* --- Verbindungsplan --- */
+.pick { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 18px; }
+.pick span { font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-right: 4px; }
+.chip { font: inherit; font-size: .86rem; padding: 5px 11px; border: 1px solid var(--line-strong); background: transparent; color: var(--ink-2); border-radius: 2px; cursor: pointer; }
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.legend { display: flex; flex-wrap: wrap; gap: 18px; font-size: .85rem; color: var(--muted); margin-bottom: 14px; }
+.legend i { display: inline-block; width: 22px; height: 0; border-top: 2px solid; vertical-align: middle; margin-right: 6px; }
+.lg-down { border-color: var(--accent); }
+.lg-up { border-color: var(--up); }
+.lg-all { border-color: var(--line-strong); }
+
+.plan { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 28px; align-items: start; }
+@media (max-width: 1240px) { .plan { grid-template-columns: minmax(0, 1fr); } .detail { order: -1; } }
+.graph-scroll { overflow-x: auto; }
+.graph { position: relative; display: grid; grid-template-columns: repeat(5, minmax(150px, 1fr)); gap: 0 44px; min-width: 980px; padding-bottom: 8px; }
+.graph svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.col { position: relative; z-index: 1; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.col-head { padding-bottom: 10px; margin-bottom: 4px; border-bottom: 1px solid var(--line-strong); }
+.col-head b { display: block; font-size: .95rem; }
+.col-head small { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); }
+.grp { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-top: 12px; }
+.node { font: inherit; text-align: left; display: grid; gap: 1px; width: 100%; padding: 6px 9px; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 2px; cursor: pointer; transition: opacity .15s, border-color .15s, background .15s; }
+.node .nm { font-family: var(--font-mono); font-size: 12.5px; font-weight: 500; overflow-wrap: anywhere; }
+.node .sub { font-size: 11.5px; color: var(--muted); line-height: 1.35; }
+.node:hover { border-color: var(--line-strong); }
+.node:focus-visible, .chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.graph.has-sel .node { opacity: .32; }
+.graph.has-sel .node.on-down, .graph.has-sel .node.on-up, .graph.has-sel .node.sel { opacity: 1; }
+.node.on-down { border-color: var(--accent); background: var(--accent-soft); }
+.node.on-up { border-color: var(--up); background: var(--up-soft); }
+.node.sel { border-color: var(--accent); background: var(--accent); }
+.node.sel .nm, .node.sel .sub { color: var(--bg); }
+path.e { fill: none; stroke: var(--edge); stroke-width: 1.1; transition: stroke .15s, opacity .15s; }
+.graph.has-sel path.e { opacity: .25; }
+.graph.has-sel path.e.down { stroke: var(--accent); stroke-width: 1.7; opacity: 1; }
+.graph.has-sel path.e.up { stroke: var(--up); stroke-width: 1.7; opacity: 1; }
+.hint-narrow { display: none; font-size: .85rem; color: var(--muted); margin-bottom: 10px; }
+@media (max-width: 1060px) { .hint-narrow { display: block; } }
+
+/* --- Detailfeld --- */
+.detail { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); border-top: 2px solid var(--accent); background: var(--surface); padding: 18px 18px 20px; display: grid; gap: 14px; min-width: 0; max-height: calc(100vh - 32px); overflow: auto; }
+@media (max-width: 1240px) { .detail { position: static; max-height: none; } }
+.detail .kind { font-family: var(--font-mono); font-size: 11.5px; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); }
+.detail .path { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-2); overflow-wrap: anywhere; }
+.detail .desc { color: var(--ink); font-size: .93rem; }
+.facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 14px; font-size: .86rem; margin: 0; }
+.facts dt { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); padding-top: 2px; }
+.facts dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.rel h4 { margin: 0 0 6px; font-size: 11.5px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .1em; font-weight: 500; }
+.rel.down h4 { color: var(--accent); }
+.rel.up h4 { color: var(--up); }
+.rel ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.rel button { font-family: var(--font-mono); font-size: 11.5px; padding: 3px 7px; border-radius: 2px; cursor: pointer; background: var(--bg); color: var(--ink-2); border: 1px solid var(--line-strong); }
+.rel.down button:hover { border-color: var(--accent); }
+.rel.up button:hover { border-color: var(--up); }
+.rel .none { font-size: .85rem; color: var(--muted); }
+.wire { display: grid; gap: 0; border: 1px solid var(--line-strong); position: relative; background: var(--bg); }
+.wire .blk { padding: 7px 10px; border-top: 1px solid var(--line); font-size: 12px; display: flex; justify-content: space-between; gap: 8px; }
+.wire .blk:first-child { border-top: 0; }
+.wire .blk b { font-family: var(--font-mono); font-weight: 500; }
+.wire .blk span { color: var(--muted); text-align: right; }
+.wire .blk.frame { background: var(--surface); }
+.wire .blk.main { min-height: 34px; }
+.wire.has-ov .blk { padding-right: 30px; }
+.wire .overlay { position: absolute; right: 0; top: 0; bottom: 0; width: 18px; background: repeating-linear-gradient(180deg, var(--accent) 0 6px, transparent 6px 11px); opacity: .55; }
+.wire-cap { font-size: 12px; color: var(--muted); margin-top: 6px; }
+.empty { color: var(--muted); font-size: .92rem; }
+
+/* --- Ordnerbaum --- */
+.tree-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 40px; }
+@media (max-width: 900px) { .tree-grid { grid-template-columns: minmax(0, 1fr); } }
+.tree { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line-strong); }
+.tree li { display: grid; grid-template-columns: minmax(150px, 13.5rem) minmax(0, 1fr); gap: 4px 16px; padding: 9px 0; border-bottom: 1px solid var(--line); }
+@media (max-width: 520px) { .tree li { grid-template-columns: minmax(0, 1fr); } }
+.tree .f { font-family: var(--font-mono); font-size: 12.5px; font-weight: 500; overflow-wrap: anywhere; }
+.tree .f.d1 { padding-left: 1.1rem; }
+.tree .f.d2 { padding-left: 2.2rem; }
+.tree .t { font-size: .88rem; color: var(--muted); }
+.tag { display: inline-block; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; padding: 1px 6px; margin-right: 6px; border-radius: 2px; vertical-align: 1px; }
+.tag.live { background: var(--accent-soft); color: var(--accent); }
+.tag.gen { background: var(--up-soft); color: var(--up); }
+.tag.work { border: 1px solid var(--line-strong); color: var(--muted); }
+.tag.priv { border: 1px dashed var(--line-strong); color: var(--muted); }
+.taglegend { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 14px; font-size: .85rem; color: var(--muted); }
+/* --- Aufbau erklärt --- */
+.times { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--line-strong); border-bottom: 1px solid var(--line-strong); margin-bottom: 28px; }
+.times > div { padding: 16px 20px 18px 0; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.times > div + div { padding-left: 20px; border-left: 1px solid var(--line); }
+.times p { color: var(--muted); font-size: .92rem; }
+@media (max-width: 760px) { .times { grid-template-columns: minmax(0, 1fr); } .times > div + div { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); } }
+.when { display: inline-block; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; padding: 1px 6px; border-radius: 2px; vertical-align: 1px; }
+.when.build { background: var(--up-soft); color: var(--up); }
+.when.browser { background: var(--accent-soft); color: var(--accent); }
+.blocks { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line-strong); }
+.blocks > li { display: grid; grid-template-columns: minmax(180px, 15rem) minmax(0, 1fr) minmax(0, 19rem); gap: 10px 28px; padding: 18px 0 20px; border-bottom: 1px solid var(--line); }
+@media (max-width: 1060px) { .blocks > li { grid-template-columns: minmax(0, 1fr); } }
+.blocks .bh { display: grid; gap: 6px; align-content: start; }
+.blocks .bh h3 { font-size: 1.05rem; }
+.blocks .bh code { color: var(--ink-2); font-size: 12px; overflow-wrap: anywhere; }
+.blocks .bt { display: grid; gap: 8px; min-width: 0; font-size: .94rem; }
+.blocks .bt p { max-width: 72ch; }
+.blocks .bx { font-size: .86rem; color: var(--muted); display: grid; gap: 8px; align-content: start; min-width: 0; }
+.blocks .bx b { color: var(--ink); font-weight: 600; }
+.anat { font-family: var(--font-mono); font-size: 12px; line-height: 1.6; background: var(--surface); border-left: 2px solid var(--line-strong); padding: 10px 12px; margin: 0; overflow-x: auto; white-space: pre; color: var(--ink-2); }
+.anat i { font-style: normal; color: var(--muted); }
+.seq { counter-reset: s; list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-top: 1px solid var(--line-strong); }
+.seq li { counter-increment: s; display: grid; grid-template-columns: 2.2rem minmax(0, 1fr); gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: .93rem; }
+.seq li::before { content: counter(s); font-family: var(--font-mono); font-size: 12px; color: var(--accent); padding-top: 2px; }
+.subhead { margin: 34px 0 12px; }
+/* Detailfeld: ausführliche Erklärung */
+.more h4, .edit h4 { margin: 0 0 6px; font-size: 11.5px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .1em; font-weight: 500; color: var(--ink-2); }
+.more ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 7px; font-size: .88rem; }
+.more li::marker { color: var(--accent); }
+.edit p { font-size: .88rem; border-left: 2px solid var(--accent); padding-left: 10px; }
+footer.note { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); font-size: .85rem; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Dev3_website · Branch develop</p>
+    <h1 style="margin-top:12px">Website-Bauplan SG Technik</h1>
+    <p class="lead">Wo jede Datei liegt und wie aus ihr die fertige Website <code>sg-technik.at</code> wird. Zuerst der Weg vom Quellcode in den Browser und die Bausteine, aus denen die Website besteht. Danach der Verbindungsplan aller Dateien unter <code>src/</code> und <code>public/</code>: Ein Klick auf eine Datei erklärt genau, was sie tut. Am Ende der ganze Projektordner.</p>
+  </header>
+
+  <section aria-labelledby="h-flow">
+    <div class="sec-head">
+      <h2 id="h-flow">Vom Quellcode zur fertigen Seite</h2>
+      <p>Die Website ist eine statische Astro-Seite. Beim Bauen entstehen fertige HTML-Dateien. Ein Server, der zur Laufzeit Seiten zusammensetzt, wird nicht gebraucht.</p>
+    </div>
+    <div class="flow">
+      <div class="step">
+        <span class="n">1 · QUELLEN</span>
+        <h3>Projektordner</h3>
+        <p><code>src/</code> enthält Seiten, Komponenten, Inhalte, Skripte, Stile und Bilder. <code>public/</code> enthält Dateien, die unverändert ausgeliefert werden: Schriften, Logos und <code>_headers</code>.</p>
+      </div>
+      <div class="step">
+        <span class="n">2 · BAUEN</span>
+        <h3><code>npm run build</code></h3>
+        <p>Astro 7 setzt jede Seite aus Layout und Komponenten zu HTML zusammen. Vite bündelt die Skripte, Tailwind 4 erzeugt das CSS. Fotos werden in mehrere WebP-Größen umgerechnet. Einstellung: <code>astro.config.mjs</code>.</p>
+      </div>
+      <div class="step">
+        <span class="n">3 · ERGEBNIS</span>
+        <h3><code>dist/</code></h3>
+        <p>Pro Seite ein Ordner mit <code>index.html</code>. In <code>dist/_astro/</code> liegen die gebündelten JS- und CSS-Dateien sowie rund 300 optimierte Bilder. Dazu kommen <code>fonts/</code>, <code>logo/</code> und <code>_headers</code>.</p>
+      </div>
+      <div class="step">
+        <span class="n">4 · HOSTING</span>
+        <h3>Netlify</h3>
+        <p>Netlify liefert <code>dist/</code> über sein Netz aus und setzt die Sicherheitsheader aus <code>_headers</code>. Sein Formulardienst nimmt das Kontaktformular an, prüft es auf Spam und leitet es per E-Mail weiter.</p>
+      </div>
+      <div class="step">
+        <span class="n">5 · BROWSER</span>
+        <h3>Fertige Website</h3>
+        <p>Das HTML ist sofort lesbar. Kleine Skripte bauen danach das animierte Logo, die Winterdienst-Straße, die Serpentine, die Galerie und die Anlagensimulation auf. Cookies und lokalen Speicher nutzt die Seite nicht.</p>
+      </div>
+    </div>
+    <p class="devnote">Beim Entwickeln wird nichts gebaut: <code>npm run dev</code> startet einen Server auf <code>localhost:4321</code>, der jede Änderung sofort anzeigt. <code>npm run dev:handy</code> macht ihn im WLAN unter <code>macbook-air-von-simon.local:4321</code> erreichbar.</p>
+  </section>
+
+  <section aria-labelledby="h-aufbau">
+    <div class="sec-head">
+      <h2 id="h-aufbau">So ist die Website aufgebaut</h2>
+      <p>Die Website funktioniert wie ein Baukasten. Jede Seite wird aus fertigen Bausteinen zusammengesetzt. Texte und Zahlen stehen getrennt davon in eigenen Dateien. Um zu verstehen, was eine Datei tut, muss man vor allem wissen, <b>wann</b> ihr Code läuft.</p>
+    </div>
+    <div class="times">
+      <div>
+        <h3><span class="when build">beim Bauen</span> auf dem Mac oder bei Netlify</h3>
+        <p>Bei <code>npm run build</code> führt Astro den Vorbereitungsteil jeder <code>.astro</code>-Datei aus, holt Texte aus <code>src/content/</code> und schreibt daraus fertiges HTML. Danach gibt es diesen Code nicht mehr. Der Besucher bekommt nur das Ergebnis, eine gewöhnliche HTML-Datei.</p>
+      </div>
+      <div>
+        <h3><span class="when browser">im Browser</span> beim Besucher</h3>
+        <p>Nur der Code in <code>&lt;script&gt;</code>-Blöcken und in <code>src/scripts/</code> wird mitgeschickt und läuft beim Besucher. Er sorgt für Bewegung und Bedienung: Menü, Zahlen-Zählen, Animationen, Galerie, Simulation. Ohne JavaScript ist jede Seite trotzdem vollständig lesbar.</p>
+      </div>
+    </div>
+
+    <ul class="blocks">
+      <li>
+        <div class="bh"><h3>Seiten</h3><code>src/pages/*.astro</code><span><span class="when build">beim Bauen</span></span></div>
+        <div class="bt">
+          <p>Jede Datei ist eine Adresse der Website, und der Dateiname bestimmt die URL: <code>referenzen.astro</code> wird zu <code>sg-technik.at/referenzen</code>, <code>index.astro</code> zur Startseite.</p>
+          <p>Eine Seite enthält kaum eigenen Inhalt. Sie legt fest, welche Bausteine in welcher Reihenfolge erscheinen, und gibt Titel und Beschreibung für Suchmaschinen an das Layout weiter. Ausnahmen sind Impressum, Datenschutz und Cookie-Richtlinie, deren Text direkt in der Seite steht.</p>
+        </div>
+        <div class="bx"><p><b>Beispiel:</b> <code>leistungen.astro</code> besteht nur aus BaseLayout, ProcessSection, CtaBand und WinterRoad.</p><p><b>Hier änderst du:</b> Reihenfolge der Abschnitte, Seitentitel. Eine neue Seite ist eine neue Datei hier plus ein Eintrag in <code>navigation.ts</code>.</p></div>
+      </li>
+      <li>
+        <div class="bh"><h3>Layout</h3><code>src/layouts/BaseLayout.astro</code><span><span class="when build">beim Bauen</span></span></div>
+        <div class="bt">
+          <p>Der gemeinsame Rahmen, in den jede Seite gesteckt wird. Er enthält alles, was auf jeder Seite gleich ist: den unsichtbaren <code>&lt;head&gt;</code> mit Titel, Beschreibung und Favicon, oben den Header, unten den Footer und die globalen Stile.</p>
+          <p>Die Stelle <code>&lt;slot /&gt;</code> im Layout markiert, wo der Inhalt der jeweiligen Seite eingesetzt wird.</p>
+        </div>
+        <div class="bx"><p><b>Hier änderst du:</b> alles, was auf allen Seiten gleichzeitig erscheinen oder anders sein soll.</p></div>
+      </li>
+      <li>
+        <div class="bh"><h3>Komponenten</h3><code>src/components/*.astro</code><span><span class="when build">beim Bauen</span> <span class="when browser">im Browser</span></span></div>
+        <div class="bt">
+          <p>Wiederverwendbare Bausteine, jeweils ein Abschnitt oder ein Element der Seite. Eine Komponente kann auf mehreren Seiten stehen (CtaBand steht auf vier) und selbst andere Komponenten enthalten (Hero enthält LogoMark). Sie bekommt ihre Texte aus <code>src/content/</code>.</p>
+          <p>Jede <code>.astro</code>-Datei hat bis zu vier Teile:</p>
+<pre class="anat">---
+import { hero } from '../content/site';   <i>← Vorbereitung, läuft beim Bauen</i>
+---
+&lt;section class="bg-paper py-20"&gt;          <i>← HTML mit Tailwind-Klassen</i>
+  &lt;h1&gt;{hero.headline}&lt;/h1&gt;                <i>← {…} setzt Daten ein</i>
+&lt;/section&gt;
+&lt;style&gt; … &lt;/style&gt;                       <i>← gilt nur für diese Komponente</i>
+&lt;script&gt; … &lt;/script&gt;                     <i>← läuft im Browser</i></pre>
+        </div>
+        <div class="bx"><p><b>Hier änderst du:</b> Aussehen und Aufbau eines Abschnitts, also Anordnung, Abstände, Farben und das Verhalten beim Klicken.</p></div>
+      </li>
+      <li>
+        <div class="bh"><h3>Browser-Skripte</h3><code>src/scripts/</code><span><span class="when browser">im Browser</span></span></div>
+        <div class="bt">
+          <p>TypeScript-Code für alles, was sich bewegt oder auf Eingaben reagiert und für einen <code>&lt;script&gt;</code>-Block in einer Komponente zu groß ist: das animierte Logo, die Winterdienst-Straße, die Serpentine auf der Danke-Seite und die Anlagensimulation.</p>
+          <p>Vite bündelt die Skripte beim Bauen zu kleinen JavaScript-Dateien in <code>dist/_astro/</code>. Die Komponente entscheidet, wann ein Skript geladen wird. Die Straße wird zum Beispiel erst nachgeladen, wenn das Fenster breit genug ist. Alle Animationen bleiben still, wenn im Betriebssystem „Bewegung reduzieren“ eingeschaltet ist.</p>
+        </div>
+        <div class="bx"><p><b>Hier änderst du:</b> wie eine Animation oder die Simulation funktioniert. Für Mengen, Tempo und Größen reichen meist die Stellwerte in <code>src/content/</code>.</p></div>
+      </li>
+      <li>
+        <div class="bh"><h3>Inhalte &amp; Stellwerte</h3><code>src/content/*.ts</code><span><span class="when build">beim Bauen</span> <span class="when browser">teils im Browser</span></span></div>
+        <div class="bt">
+          <p>Daten statt Darstellung. <b>Inhalte</b> sind Texte, Firmendaten, Menüpunkte, Referenzprojekte und Rechtsangaben. <b>Stellwerte</b> sind Zahlen, mit denen sich eine Animation oder die Simulation einstellen lässt, ohne den Code zu verstehen, ähnlich wie Sollwerte an einer Anlage.</p>
+          <p>Die Komponenten lesen diese Dateien. Wer einen Text oder Wert ändert, muss das HTML also nicht anfassen. Braucht ein Browser-Skript die Werte, etwa die Straße oder die Simulation, kommen sie beim Bauen mit ins JavaScript.</p>
+        </div>
+        <div class="bx"><p><b>Beispiele:</b> <code>site.ts</code> enthält die Kennzahlen im Hero („15.000 l/h“). <code>winterdienst.ts</code> regelt Schneemenge, Salzmenge und Fahrzeuggröße. <code>anlagensimulation.ts</code> enthält Siloinhalt, Löseleistung und Zeitraffer.</p><p><b>Hier änderst du:</b> Texte, Zahlen, Projekte, Rechtsangaben und Stellwerte.</p></div>
+      </li>
+      <li>
+        <div class="bh"><h3>Stile, Bilder, Schriften</h3><code>src/styles/ · src/assets/ · public/</code><span><span class="when build">beim Bauen</span></span></div>
+        <div class="bt">
+          <p><code>global.css</code> lädt Tailwind und legt die Farben (Navy, Kupfer, Papierweiß) und Schriften fest. Die meisten Stile stehen als Tailwind-Klassen direkt im HTML der Komponenten, zum Beispiel <code>text-navy-800</code> für die Schriftfarbe oder <code>py-20</code> für den Abstand oben und unten.</p>
+          <p>Bilder in <code>src/assets/</code> optimiert Astro beim Bauen. Es rechnet sie in WebP und mehrere Größen um, damit ein Handy kein Desktop-Foto laden muss. Dateien in <code>public/</code> werden unverändert kopiert und sind unter ihrem Pfad erreichbar, etwa <code>/fonts/…</code> oder <code>/logo/…</code>.</p>
+        </div>
+        <div class="bx"><p><b>Hier änderst du:</b> Farben und Schriften für die ganze Website (<code>global.css</code>), Fotos (<code>src/assets/</code>) und Logos (<code>public/logo/</code>). Die Regeln des Designs stehen in <code>DESIGN.md</code>.</p></div>
+      </li>
+    </ul>
+
+    <h3 class="subhead">Beispiel: Jemand öffnet <code>sg-technik.at/leistungen</code></h3>
+    <ol class="seq">
+      <li><span>Netlify schickt die fertige Datei <code>dist/leistungen/index.html</code>. Darin stehen Header, die sieben Schritte, das Kontaktband und der Footer schon vollständig als HTML. Astro hat sie beim Bauen aus <code>leistungen.astro</code>, BaseLayout, ProcessSection, CtaBand und den Texten in <code>site.ts</code> zusammengesetzt.</span></li>
+      <li><span>Der Browser lädt die CSS-Datei aus <code>/_astro/</code> und die Schriften aus <code>/fonts/</code>. Die Seite ist jetzt fertig lesbar.</span></li>
+      <li><span>Das Skript im Header verbindet das Handy-Menü mit seinem Knopf und schaltet die Schalter für die Zierde frei, etwa den für die Straße. Dass „Leistungen“ im Menü als aktuelle Seite markiert ist, hat Astro schon beim Bauen ins HTML geschrieben.</span></li>
+      <li><span>Das Skript von WinterRoad prüft, ob das Fenster mindestens 85 rem breit ist und „Bewegung reduzieren“ aus ist. Nur dann lädt es <code>winter-road</code>, <code>route-leistungen</code> und die Stellwerte aus <code>winterdienst</code> nach.</span></li>
+      <li><span><code>route-leistungen.ts</code> misst die Lage der Schritte und legt den Straßenverlauf fest. <code>scene.ts</code> rechnet daraus einmal die verschneite und die geräumte Straße vor.</span></li>
+      <li><span>Beim Scrollen fährt das Räumfahrzeug mit. <code>winter-road.ts</code> malt nur noch den gerade geräumten Streifen nach und streut Salz.</span></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="h-plan">
+    <div class="sec-head">
+      <h2 id="h-plan">Verbindungsplan</h2>
+      <p>Jede Linie bedeutet: Die linke Datei nutzt die rechte. Klick auf eine Datei erklärt rechts genau, was in ihr passiert, wann ihr Code läuft und was man dort ändert. Im Plan leuchtet auf, was sie braucht (kupfer) und wer sie braucht (blau). Für eine Seite siehst du rechts zusätzlich, aus welchen Bausteinen sie besteht.</p>
+    </div>
+    <div class="pick" role="group" aria-label="Seite wählen">
+      <span>Seite</span>
+      <div id="pagechips" style="display:contents"></div>
+      <button class="chip" type="button" id="clear">Auswahl aufheben</button>
+    </div>
+    <div class="legend">
+      <span><i class="lg-down"></i>wird von der Auswahl genutzt</span>
+      <span><i class="lg-up"></i>nutzt die Auswahl</span>
+      <span><i class="lg-all"></i>alle übrigen Verbindungen</span>
+    </div>
+    <p class="hint-narrow">Auf schmalen Bildschirmen lässt sich der Plan seitlich verschieben.</p>
+    <div class="plan">
+      <div class="graph-scroll">
+        <div class="graph" id="graph"><svg id="edges" aria-hidden="true"></svg></div>
+      </div>
+      <aside class="detail" id="detail" aria-live="polite"></aside>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-tree">
+    <div class="sec-head">
+      <h2 id="h-tree">Der ganze Projektordner</h2>
+      <p>Nur ein Teil des Ordners landet auf der Website. Der Rest ist Arbeitsmaterial, Dokumentation oder bleibt bewusst außerhalb von Git.</p>
+    </div>
+    <div class="taglegend">
+      <span><span class="tag live">Website</span>wird gebaut und ausgeliefert</span>
+      <span><span class="tag gen">erzeugt</span>entsteht automatisch</span>
+      <span><span class="tag work">Arbeit</span>Doku, Prüfung, Werkzeuge</span>
+      <span><span class="tag priv">lokal</span>per .gitignore nicht in Git</span>
+    </div>
+    <div class="tree-grid">
+      <ul class="tree">
+        <li><span class="f">src/</span><span class="t"><span class="tag live">Website</span>Alles, woraus Astro die Seiten baut.</span></li>
+        <li><span class="f d1">pages/</span><span class="t">9 Seiten. Der Dateiname ist die Adresse: <code>leistungen.astro</code> → <code>/leistungen</code>.</span></li>
+        <li><span class="f d1">layouts/</span><span class="t"><code>BaseLayout.astro</code>, der gemeinsame Rahmen jeder Seite.</span></li>
+        <li><span class="f d1">components/</span><span class="t">16 Bausteine wie Header, Hero, Kontakt, Galerie oder die Animationen.</span></li>
+        <li><span class="f d1">content/</span><span class="t">13 TypeScript-Dateien mit Texten, Firmendaten und Stellwerten. Inhalte ändert man hier, nicht im Markup.</span></li>
+        <li><span class="f d1">scripts/</span><span class="t">Code, der im Browser läuft: Logo, Serpentine, <code>winterdienst/</code> (9 Dateien) und <code>anlagensimulation/</code> (9 Dateien).</span></li>
+        <li><span class="f d1">styles/</span><span class="t"><code>global.css</code> (Tailwind, Schriften, Farben) und <code>anlagensimulation.css</code>.</span></li>
+        <li><span class="f d1">assets/</span><span class="t">Fotos und Texturen, die Astro beim Bauen optimiert: <code>referenzen/</code> (7 Projekte, 32 JPG), <code>wald/</code>, <code>winterdienst/</code>, Serpentinen-Luftbild.</span></li>
+        <li><span class="f">public/</span><span class="t"><span class="tag live">Website</span>Wird 1:1 nach <code>dist/</code> kopiert: <code>fonts/</code> (6 WOFF2, IBM Plex und Montserrat fürs Logo), <code>logo/</code> (3 SVG), <code>_headers</code>.</span></li>
+        <li><span class="f">astro.config.mjs</span><span class="t"><span class="tag live">Website</span>Domain <code>sg-technik.at</code>, Tailwind-Plugin, erlaubter Handy-Hostname.</span></li>
+        <li><span class="f">package.json</span><span class="t"><span class="tag live">Website</span>Abhängigkeiten (Astro, Tailwind, TypeScript) und Befehle (<code>dev</code>, <code>build</code>, <code>preview</code>). Dazu <code>package-lock.json</code>, <code>tsconfig.json</code>, <code>.nvmrc</code> (Node 24).</span></li>
+        <li><span class="f">dist/</span><span class="t"><span class="tag gen">erzeugt</span><span class="tag priv">lokal</span>Die fertige Website nach <code>npm run build</code>. Das wird ausgeliefert.</span></li>
+        <li><span class="f">node_modules/ · .astro/</span><span class="t"><span class="tag gen">erzeugt</span><span class="tag priv">lokal</span>Installierte Pakete und Zwischenspeicher von Astro.</span></li>
+      </ul>
+      <ul class="tree">
+        <li><span class="f">docs/</span><span class="t"><span class="tag work">Arbeit</span>Technische Doku.</span></li>
+        <li><span class="f d1">animationen/</span><span class="t">Herkunft der Prototypen, Winterdienst-Straße, Anlagensimulation.</span></li>
+        <li><span class="f d1">datenschutz/</span><span class="t">Arbeitsplan, Consent-Konzept, Checkliste, Wiedervorlage-PDF.</span></li>
+        <li><span class="f">scripts/</span><span class="t"><span class="tag work">Arbeit</span>Werkzeuge außerhalb der Website: <code>sim-pruefung/</code> (Browserprüfungen), Texturen-Generator, Wiedervorlage-PDF.</span></li>
+        <li><span class="f">CLAUDE.md · PRODUCT.md · DESIGN.md</span><span class="t"><span class="tag work">Arbeit</span>Anweisungen, Positionierung und Designsystem („The Site Plan“). Dazu <code>.impeccable/design.json</code> mit den Farb-Tokens.</span></li>
+        <li><span class="f">README.md · PROJECT_STATUS.md</span><span class="t"><span class="tag work">Arbeit</span>Projektüberblick und Stand.</span></li>
+        <li><span class="f">Logo/</span><span class="t"><span class="tag work">Arbeit</span>Logo-Originale (PNG, SVG, PDF). Die Webfassungen liegen in <code>public/logo/</code>.</span></li>
+        <li><span class="f">Rechtstexte/</span><span class="t"><span class="tag priv">lokal</span>Gesetze zu den Rechtsseiten. Nur die README mit der Zuordnung ist in Git.</span></li>
+        <li><span class="f">Nachweise/</span><span class="t"><span class="tag priv">lokal</span>Durchgangsordner für Nachweise zur Datenschutz-Freigabe. Nur die README ist in Git.</span></li>
+        <li><span class="f">Unterlagen/</span><span class="t"><span class="tag priv">lokal</span>Briefing und Verarbeitungsverzeichnis. Nur die README ist in Git.</span></li>
+        <li><span class="f">Fotos/</span><span class="t"><span class="tag priv">lokal</span>Original-Projektfotos und Videos (rund 270 MB). Die Webkopien liegen in <code>src/assets/referenzen/</code>.</span></li>
+        <li><span class="f">.claude/</span><span class="t"><span class="tag work">Arbeit</span>Einstellungen und Skills für Claude Code.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer class="note">Stand 05.10.2026, abgeleitet aus den Imports im Code (Branch develop, Commit c6e2f91 plus lokale Änderungen). Zeilenzahlen stammen aus den Dateien selbst.</footer>
+</div>
+
+<script>
+// Spalten von links nach rechts: wer nutzt, steht links von dem, was genutzt wird.
+const COLS = [
+  { key: 'pages', title: 'Seiten', path: 'src/pages/' },
+  { key: 'comp', title: 'Layout & Komponenten', path: 'src/layouts/ · src/components/' },
+  { key: 'scripts', title: 'Browser-Skripte', path: 'src/scripts/' },
+  { key: 'content', title: 'Inhalte & Stellwerte', path: 'src/content/' },
+  { key: 'static', title: 'Stile, Bilder, Schriften', path: 'src/styles/ · src/assets/ · public/' },
+];
+
+// kind: Art der Datei; out: was davon im Browser ankommt
+const N = [
+  // ---------- Seiten ----------
+  { id: 'p-index', col: 0, nm: 'index.astro', sub: '/ · Startseite', path: 'src/pages/index.astro', lines: 22, kind: 'Seite', url: '/', dist: 'dist/index.html',
+    desc: 'Startseite. Stellt Hero, „Über uns“, Aufruf und Kontakt untereinander. Rechts daneben läuft die Winterdienst-Straße über alle Abschnitte.',
+    deps: ['BaseLayout', 'Hero', 'AboutSection', 'CtaBand', 'ContactSection', 'WinterRoad'],
+    compose: [['Hero', 'Logo-Animation, Kennzahlen'], ['AboutSection', 'Über uns, Waldfoto'], ['CtaBand', 'Aufruf zum Kontakt'], ['ContactSection', 'Formular → Netlify']], overlay: 'WinterRoad (route="startseite")' },
+  { id: 'p-leistungen', col: 0, nm: 'leistungen.astro', sub: '/leistungen', path: 'src/pages/leistungen.astro', lines: 18, kind: 'Seite', url: '/leistungen', dist: 'dist/leistungen/index.html',
+    desc: 'Ablauf in sieben Schritten von der Anfrage bis zum Notdienst. Auch hier fährt die Winterdienst-Straße mit, auf einer eigenen Route.',
+    deps: ['BaseLayout', 'ProcessSection', 'CtaBand', 'WinterRoad'],
+    compose: [['ProcessSection', '7 Schritte'], ['CtaBand', 'Aufruf zum Kontakt']], overlay: 'WinterRoad (route="leistungen")' },
+  { id: 'p-produkte', col: 0, nm: 'produkte-technik.astro', sub: '/produkte-technik', path: 'src/pages/produkte-technik.astro', lines: 13, kind: 'Seite', url: '/produkte-technik', dist: 'dist/produkte-technik/index.html',
+    desc: 'Produktkategorien mit technischen Daten. Die eigentliche Arbeit macht ProductsTechSection.',
+    deps: ['BaseLayout', 'ProductsTechSection', 'CtaBand'],
+    compose: [['ProductsTechSection', 'Kategorien, Daten, Knopf zur Simulation'], ['CtaBand', 'Aufruf zum Kontakt']] },
+  { id: 'p-referenzen', col: 0, nm: 'referenzen.astro', sub: '/referenzen', path: 'src/pages/referenzen.astro', lines: 13, kind: 'Seite', url: '/referenzen', dist: 'dist/referenzen/index.html',
+    desc: 'Referenzprojekte mit Fotogalerie.',
+    deps: ['BaseLayout', 'ReferencesSection', 'CtaBand'],
+    compose: [['ReferencesSection', '7 Projekte, Galerie'], ['CtaBand', 'Aufruf zum Kontakt']] },
+  { id: 'p-anlage', col: 0, nm: 'anlagensimulation.astro', sub: '/anlagensimulation', path: 'src/pages/anlagensimulation.astro', lines: 31, kind: 'Seite', url: '/anlagensimulation', dist: 'dist/anlagensimulation/index.html',
+    desc: 'Interaktive Silo- und Soleanlage. Erreichbar über „Interaktive Anlage öffnen“ auf Produkte & Technik. Die Seite enthält nur den Rahmen, die Anlage entsteht im Browser.',
+    deps: ['BaseLayout', 'PlantSimulation'],
+    compose: [['PlantSimulation', 'Zeichnung, Knöpfe, SalzManager']] },
+  { id: 'p-danke', col: 0, nm: 'danke.astro', sub: '/danke', path: 'src/pages/danke.astro', lines: 44, kind: 'Seite', url: '/danke', dist: 'dist/danke/index.html',
+    desc: 'Bestätigung nach dem Absenden des Kontaktformulars. Im Hintergrund fahren Fahrzeuge über eine verschneite Serpentine.',
+    deps: ['BaseLayout', 'SerpentineBackdrop'],
+    compose: [['SerpentineBackdrop', 'Luftbild + Fahrzeuge, dazu Dankestext']] },
+  { id: 'p-impressum', col: 0, nm: 'impressum.astro', sub: '/impressum', path: 'src/pages/impressum.astro', lines: 132, kind: 'Seite', url: '/impressum', dist: 'dist/impressum/index.html',
+    desc: 'Impressum. Firmen-, Firmenbuch- und Gewerbedaten kommen aus legal.ts, Kontakt aus site.ts.',
+    deps: ['BaseLayout', 'legal', 'site'], compose: [['(Text direkt in der Seite)', 'Daten aus legal.ts, site.ts']] },
+  { id: 'p-datenschutz', col: 0, nm: 'datenschutz.astro', sub: '/datenschutz', path: 'src/pages/datenschutz.astro', lines: 415, kind: 'Seite', url: '/datenschutz', dist: 'dist/datenschutz/index.html',
+    desc: 'Datenschutzerklärung. Der Text steht in der Seite. Hoster, Fristen, Auftragsverarbeiter und Drittlandangaben werden aus privacy.ts eingesetzt.',
+    deps: ['BaseLayout', 'legal', 'privacy', 'site'], compose: [['(Text direkt in der Seite)', 'Schaltstellen in privacy.ts']] },
+  { id: 'p-cookie', col: 0, nm: 'cookie-richtlinie.astro', sub: '/cookie-richtlinie', path: 'src/pages/cookie-richtlinie.astro', lines: 159, kind: 'Seite', url: '/cookie-richtlinie', dist: 'dist/cookie-richtlinie/index.html',
+    desc: 'Cookie-Richtlinie. Kategorien und Dienste kommen aus consent.ts. Solange es keine optionalen Dienste gibt, zeigt sie „Speicherung verwalten“ statt Widerruf.',
+    deps: ['BaseLayout', 'consent'], compose: [['(Text direkt in der Seite)', 'Kategorien aus consent.ts']] },
+
+  // ---------- Layout & Komponenten ----------
+  { id: 'BaseLayout', col: 1, grp: 'layouts/', nm: 'BaseLayout.astro', sub: 'Rahmen jeder Seite', path: 'src/layouts/BaseLayout.astro', lines: 67, kind: 'Layout',
+    desc: 'Erzeugt <html> und <head> mit Titel, Beschreibung und Favicon. Danach folgen Sprungmarke, Header, <main> mit dem Seiteninhalt (slot), Footer, Cookie-Consent und der Hochformat-Hinweis. Bindet global.css ein.',
+    deps: ['Header', 'Footer', 'CookieConsent', 'PortraitNotice', 'global-css', 'public-logo'] },
+  { id: 'Header', col: 1, grp: 'components/', nm: 'Header.astro', sub: 'Kopfzeile, Menü', path: 'src/components/Header.astro', lines: 453, kind: 'Komponente',
+    desc: 'Fixierte Kopfzeile mit Logo und Navigation. Markiert die aktuelle Seite und hat ein Handy-Menü mit eigenem Skript.', deps: ['navigation', 'site'] },
+  { id: 'Footer', col: 1, nm: 'Footer.astro', sub: 'Fußzeile', path: 'src/components/Footer.astro', lines: 30, kind: 'Komponente',
+    desc: 'Fußzeile mit Impressum, Datenschutz und Cookie-Richtlinie. Der Link „Cookie-Einstellungen“ erscheint erst, wenn consent.ts optionale Dienste enthält.', deps: ['consent'] },
+  { id: 'CookieConsent', col: 1, nm: 'CookieConsent.astro', sub: 'Banner (derzeit aus)', path: 'src/components/CookieConsent.astro', lines: 274, kind: 'Komponente',
+    desc: 'Einwilligungs-Banner und Einstellungsdialog. Wird derzeit nicht ausgegeben, weil consent.ts keine einwilligungspflichtigen Dienste enthält (hasOptionalServices = false).', deps: ['consent', 'ConsentManager'] },
+  { id: 'ConsentManager', col: 1, nm: 'ConsentManager.astro', sub: 'Consent-Skript', path: 'src/components/ConsentManager.astro', lines: 263, kind: 'Komponente',
+    desc: 'Enthält nur das Browser-Skript des Consent-Systems. Es ist eine eigene Datei, damit Astro das Skript nur mitliefert, wenn das Banner wirklich gebraucht wird. Die Einstellungen bekommt es als JSON von CookieConsent.', deps: [] },
+  { id: 'PortraitNotice', col: 1, nm: 'PortraitNotice.astro', sub: 'Hinweis Hochformat', path: 'src/components/PortraitNotice.astro', lines: 49, kind: 'Komponente',
+    desc: 'Deckt die Seite ab, wenn ein Handy quer gehalten wird. Reines CSS, kein Skript.', deps: [] },
+  { id: 'Hero', col: 1, nm: 'Hero.astro', sub: 'Startseiten-Kopf', path: 'src/components/Hero.astro', lines: 208, kind: 'Komponente',
+    desc: 'Großer Einstieg der Startseite mit animiertem Logo, Überschrift und Kennzahlen.', deps: ['LogoMark', 'site'] },
+  { id: 'LogoMark', col: 1, nm: 'LogoMark.astro', sub: 'animiertes Logo', path: 'src/components/LogoMark.astro', lines: 53, kind: 'Komponente',
+    desc: 'Platz für das animierte Logo. Das Skript baut das SVG mit Intro und Salz-Silo-Loop auf und meldet am Ende „sgt:intro-done“. Darauf wartet die Winterdienst-Straße.', deps: ['logo-js', 'public-logo'] },
+  { id: 'AboutSection', col: 1, nm: 'AboutSection.astro', sub: 'Über uns', path: 'src/components/AboutSection.astro', lines: 139, kind: 'Komponente',
+    desc: '„Über uns“ auf dem verschneiten Waldfoto. Das Foto ist mit data-wd-forest markiert, daraus zeichnet canopy.ts die Bäume über der Straße.', deps: ['site', 'a-wald'] },
+  { id: 'CtaBand', col: 1, nm: 'CtaBand.astro', sub: 'Aufruf zum Kontakt', path: 'src/components/CtaBand.astro', lines: 16, kind: 'Komponente',
+    desc: 'Schmales Band mit Aufruf zur Kontaktaufnahme, am Ende von vier Seiten.', deps: ['site'] },
+  { id: 'ContactSection', col: 1, nm: 'ContactSection.astro', sub: 'Kontaktformular', path: 'src/components/ContactSection.astro', lines: 123, kind: 'Komponente',
+    desc: 'Kontaktdaten und Formular. Mit data-netlify="true" und Honeypot-Feld nimmt Netlify die Einsendung an und leitet danach auf /danke weiter.', deps: ['site'] },
+  { id: 'WinterRoad', col: 1, nm: 'WinterRoad.astro', sub: 'Winterdienst-Straße', path: 'src/components/WinterRoad.astro', lines: 236, kind: 'Komponente',
+    desc: 'Räumfahrzeug, das beim Scrollen am rechten Rand eine verschneite Straße räumt und streut. Lädt seine Skripte erst bei Bedarf: nur ab 85 rem Breite und nicht bei „Bewegung reduzieren“. Die Route hängt von der Seite ab, in Safari kommt smooth-wheel dazu.',
+    deps: ['wd-winter-road', 'wd-route', 'wd-route-l', 'wd-canopy', 'wd-smooth', 'winterdienst'] },
+  { id: 'ProcessSection', col: 1, nm: 'ProcessSection.astro', sub: '7 Schritte', path: 'src/components/ProcessSection.astro', lines: 52, kind: 'Komponente',
+    desc: 'Die sieben Leistungsschritte, Texte aus site.ts.', deps: ['site'] },
+  { id: 'ProductsTechSection', col: 1, nm: 'ProductsTechSection.astro', sub: 'Produkte & Technik', path: 'src/components/ProductsTechSection.astro', lines: 634, kind: 'Komponente',
+    desc: 'Kategorien mit Text links und technischen Daten rechts. Gewechselt wird per Klick, gescrollt wird normal. Ohne JavaScript steht alles in einem noscript-Block. Jeder Text endet mit „Interaktive Anlage öffnen“.', deps: ['produkteTechnik'] },
+  { id: 'ReferencesSection', col: 1, nm: 'ReferencesSection.astro', sub: 'Galerie', path: 'src/components/ReferencesSection.astro', lines: 912, kind: 'Komponente',
+    desc: 'Referenzprojekte mit Fotogalerie. Holt alle JPG unter src/assets/referenzen/*/ per import.meta.glob. Astro rechnet sie in WebP in mehreren Größen um.', deps: ['referenzen', 'a-ref'] },
+  { id: 'SerpentineBackdrop', col: 1, nm: 'SerpentineBackdrop.astro', sub: 'Danke-Hintergrund', path: 'src/components/SerpentineBackdrop.astro', lines: 148, kind: 'Komponente',
+    desc: 'Luftbild einer verschneiten Serpentine, über die Fahrzeuge auf einem handgezeichneten Pfad fahren.', deps: ['a-serp', 'serpentine', 'road-anim'] },
+  { id: 'PlantSimulation', col: 1, nm: 'PlantSimulation.astro', sub: 'Anlagensimulation', path: 'src/components/PlantSimulation.astro', lines: 48, kind: 'Komponente',
+    desc: 'Leerer Behälter. Das ganze Markup der Simulation erzeugt plant-sim.ts im Browser, deshalb liegen die Stile global in anlagensimulation.css.', deps: ['as-css', 'as-plant'] },
+
+  // ---------- Skripte ----------
+  { id: 'logo-js', col: 2, nm: 'sg-technik-logo.js', sub: 'Logo-Animation', path: 'src/scripts/sg-technik-logo.js', lines: 292, kind: 'Browser-Skript',
+    desc: 'Baut das Logo als SVG auf: Ring, Chevrons und Schrift fügen sich zusammen, danach läuft der Salz-Silo-Loop. Er ruht beim Scrollen.', deps: [] },
+  { id: 'road-anim', col: 2, nm: 'road-animation.ts', sub: 'Fahrzeuge Serpentine', path: 'src/scripts/road-animation.ts', lines: 229, kind: 'Browser-Skript',
+    desc: 'Lässt Fahrzeuge entlang eines Pfads fahren (requestAnimationFrame). Grundlage der Danke-Seite. Die Fahrzeugzeichnung dient auch der Anlagensimulation als Vorbild.', deps: [] },
+  { id: 'wd-winter-road', col: 2, grp: 'winterdienst/', nm: 'winter-road.ts', sub: 'Hauptlogik Straße', path: 'src/scripts/winterdienst/winter-road.ts', lines: 793, kind: 'Browser-Skript',
+    desc: 'Koppelt Fahrzeug, Räumspur und Salzstreuung an den Scroll-Fortschritt.', deps: ['winterdienst', 'wd-plow', 'wd-path', 'wd-scene'] },
+  { id: 'wd-route', col: 2, nm: 'route.ts', sub: 'Route Startseite', path: 'src/scripts/winterdienst/route.ts', lines: 114, kind: 'Browser-Skript',
+    desc: 'Berechnet den Straßenverlauf der Startseite aus vier Stellen im Markup (data-wd-anchor).', deps: ['wd-lane', 'wd-winter-road'] },
+  { id: 'wd-route-l', col: 2, nm: 'route-leistungen.ts', sub: 'Route Leistungen', path: 'src/scripts/winterdienst/route-leistungen.ts', lines: 65, kind: 'Browser-Skript',
+    desc: 'Straßenverlauf der Leistungsseite: drei weite Bögen entlang der sieben Schritte.', deps: ['wd-lane', 'wd-winter-road'] },
+  { id: 'wd-lane', col: 2, nm: 'lane.ts', sub: 'Fahrbahn, Spur', path: 'src/scripts/winterdienst/lane.ts', lines: 112, kind: 'Browser-Skript',
+    desc: 'Gemeinsame Grundlage beider Routen: Fahrbahnbreite, Spur im freien Rand, geschwungene Verbindungen.', deps: [] },
+  { id: 'wd-scene', col: 2, nm: 'scene.ts', sub: 'Straßenbilder', path: 'src/scripts/winterdienst/scene.ts', lines: 460, kind: 'Browser-Skript',
+    desc: 'Rechnet zwei deckungsgleiche Bilder der ganzen Strecke vor, einmal verschneit und einmal geräumt. Beim Scrollen werden nur Ausschnitte übereinandergeblendet.', deps: ['winterdienst', 'wd-plow', 'wd-path'] },
+  { id: 'wd-path', col: 2, nm: 'road-path.ts', sub: 'Pfad abtasten', path: 'src/scripts/winterdienst/road-path.ts', lines: 181, kind: 'Browser-Skript',
+    desc: 'Macht aus dem Straßenpfad eine gleichmäßig abgetastete Linie mit Position und Richtung für jede Strecke.', deps: [] },
+  { id: 'wd-plow', col: 2, nm: 'plow.ts', sub: 'Räumschild', path: 'src/scripts/winterdienst/plow.ts', lines: 20, kind: 'Browser-Skript',
+    desc: 'Dreht das Räumschild immer quer zur Straße, nicht quer zum Fahrzeug.', deps: ['winterdienst', 'wd-path'] },
+  { id: 'wd-canopy', col: 2, nm: 'canopy.ts', sub: 'Bäume über Straße', path: 'src/scripts/winterdienst/canopy.ts', lines: 223, kind: 'Browser-Skript',
+    desc: 'Zeichnet Baumkronen aus dem Waldfoto von „Über uns“ über die Fahrbahn.', deps: ['wd-path'] },
+  { id: 'wd-smooth', col: 2, nm: 'smooth-wheel.ts', sub: 'nur Safari', path: 'src/scripts/winterdienst/smooth-wheel.ts', lines: 92, kind: 'Browser-Skript',
+    desc: 'Rollt die Mausrad-Rasten in Safari weich aus, damit Seite und Fahrzeug nicht springen.', deps: [] },
+  { id: 'as-plant', col: 2, grp: 'anlagensimulation/', nm: 'plant-sim.ts', sub: 'Einstieg, Takt', path: 'src/scripts/anlagensimulation/plant-sim.ts', lines: 180, kind: 'Browser-Skript',
+    desc: 'Einstieg der Simulation: baut alles in das leere Element und startet den Takt.', deps: ['anlage', 'as-camera', 'as-model', 'as-panel', 'as-proc', 'as-scene', 'as-view'] },
+  { id: 'as-model', col: 2, nm: 'model.ts', sub: 'Zustand', path: 'src/scripts/anlagensimulation/model.ts', lines: 295, kind: 'Browser-Skript',
+    desc: 'Zustand der Anlage und Taktgeber, ohne DOM. Die Ansicht liest den Zustand in jedem Bild.', deps: ['anlage'] },
+  { id: 'as-proc', col: 2, nm: 'processes.ts', sub: 'Abläufe', path: 'src/scripts/anlagensimulation/processes.ts', lines: 505, kind: 'Browser-Skript',
+    desc: 'Abläufe wie „Sole herstellen“ oder „Salz entnehmen“ als Folge von Schritten. Belegt Pumpen und Zufahrten, damit sich Abläufe nicht in die Quere kommen.', deps: ['anlage', 'as-format', 'as-model'] },
+  { id: 'as-panel', col: 2, nm: 'panel.ts', sub: 'Knöpfe, Listen', path: 'src/scripts/anlagensimulation/panel.ts', lines: 418, kind: 'Browser-Skript',
+    desc: 'Bedienleiste, Statuszeile, Ablaufliste und Positionsliste als HTML.', deps: ['anlage', 'as-format', 'as-proc'] },
+  { id: 'as-scene', col: 2, nm: 'scene.ts', sub: 'Zeichnung (SVG)', path: 'src/scripts/anlagensimulation/scene.ts', lines: 546, kind: 'Browser-Skript',
+    desc: 'Zeichnet die Anlage einmal als SVG im Schnitt: Silo, Aufbereiter, Soletank, SalzManager.', deps: ['anlage'] },
+  { id: 'as-view', col: 2, nm: 'view.ts', sub: 'Zustand → Bild', path: 'src/scripts/anlagensimulation/view.ts', lines: 433, kind: 'Browser-Skript',
+    desc: 'Überträgt in jedem Bild Füllstände, Ventile und Fahrzeuge auf die Zeichnung. Schreibt nur geänderte Werte.', deps: ['anlage', 'as-format', 'as-model', 'as-scene', 'as-veh'] },
+  { id: 'as-veh', col: 2, nm: 'vehicles.ts', sub: 'Fahrzeuge', path: 'src/scripts/anlagensimulation/vehicles.ts', lines: 262, kind: 'Browser-Skript',
+    desc: 'Streu-LKW und Silo-LKW in Seitenansicht als SVG.', deps: ['anlage', 'as-model'] },
+  { id: 'as-camera', col: 2, nm: 'camera.ts', sub: 'Handy-Ausschnitt', path: 'src/scripts/anlagensimulation/camera.ts', lines: 123, kind: 'Browser-Skript',
+    desc: 'Zeigt auf dem Handy einen Bereich der Anlage, wählbar über das Menü „Ansicht“ oder per Fingertipp.', deps: ['anlage'] },
+  { id: 'as-format', col: 2, nm: 'format.ts', sub: 'Zahlenformat', path: 'src/scripts/anlagensimulation/format.ts', lines: 12, kind: 'Browser-Skript',
+    desc: 'Zahlen im österreichischen Format und Soledichte aus der Konzentration.', deps: [] },
+
+  // ---------- Inhalte ----------
+  { id: 'site', col: 3, nm: 'site.ts', sub: 'Texte, Kontakt', path: 'src/content/site.ts', lines: 116, kind: 'Inhalt',
+    desc: 'Firmenname, Hero-Texte, Kennzahlen, „Über uns“, Leistungsschritte, Aufruf und Kontaktdaten.', deps: [] },
+  { id: 'navigation', col: 3, nm: 'navigation.ts', sub: 'Menüpunkte', path: 'src/content/navigation.ts', lines: 13, kind: 'Inhalt',
+    desc: 'Die sechs Menüpunkte: Home, Über uns, Leistungen, Produkte & Technik, Referenzen, Kontakt.', deps: [] },
+  { id: 'legal', col: 3, nm: 'legal.ts', sub: 'Firmenbuch, Gewerbe', path: 'src/content/legal.ts', lines: 47, kind: 'Inhalt',
+    desc: 'Pflichtangaben: Firma, Anschrift, Firmenbuch, Geschäftsführer, Gewerbe- und Kammerdaten.', deps: [] },
+  { id: 'privacy', col: 3, nm: 'privacy.ts', sub: 'Schaltstellen DSGVO', path: 'src/content/privacy.ts', lines: 353, kind: 'Inhalt',
+    desc: 'Variable Teile der Datenschutzerklärung: Hoster, Protokollfristen, Microsoft 365, Administration, Spam-Filter, Speicherdauer, Stand.', deps: [] },
+  { id: 'consent', col: 3, nm: 'consent.ts', sub: 'Cookie-Kategorien', path: 'src/content/consent.ts', lines: 129, kind: 'Inhalt',
+    desc: 'Einzige Quelle für Consent-Kategorien und Dienste. Neue Statistik- oder Marketingdienste kommen nur hier hinein, dann schalten sich Banner und Fußzeilen-Link von selbst ein.', deps: [] },
+  { id: 'produkteTechnik', col: 3, nm: 'produkteTechnik.ts', sub: 'Kategorien', path: 'src/content/produkteTechnik.ts', lines: 65, kind: 'Inhalt',
+    desc: 'Bündelt pro Kategorie den Text aus services.ts mit den Daten aus technicalData.ts. Die Reihenfolge ist die Anzeigereihenfolge.', deps: ['services', 'technicalData'] },
+  { id: 'services', col: 3, nm: 'services.ts', sub: 'Leistungstexte', path: 'src/content/services.ts', lines: 70, kind: 'Inhalt',
+    desc: 'Fließtexte zu Lagerung, Soleaufbereitung, Pumpstation, Automatisierung und Service.', deps: [] },
+  { id: 'technicalData', col: 3, nm: 'technicalData.ts', sub: 'Technische Daten', path: 'src/content/technicalData.ts', lines: 54, kind: 'Inhalt',
+    desc: 'Dieselben Fakten als kurze Datenliste.', deps: [] },
+  { id: 'referenzen', col: 3, nm: 'referenzen.ts', sub: 'Projekte', path: 'src/content/referenzen.ts', lines: 83, kind: 'Inhalt',
+    desc: 'Metadaten der Referenzprojekte. Die Fotos liegen in src/assets/referenzen/<slug>/, Datei 01 ist das Titelbild.', deps: [] },
+  { id: 'serpentine', col: 3, nm: 'serpentine.ts', sub: 'Pfad Serpentine', path: 'src/content/serpentine.ts', lines: 62, kind: 'Inhalt',
+    desc: 'Von Hand digitalisierter Straßenpfad und Fahrplan der Serpentine, in Pixeln des Originalfotos.', deps: ['road-anim'] },
+  { id: 'winterdienst', col: 3, nm: 'winterdienst.ts', sub: 'Stellwerte Straße', path: 'src/content/winterdienst.ts', lines: 136, kind: 'Inhalt',
+    desc: 'Stellwerte der Winterdienst-Straße sowie Verweise auf Fahrzeugbild und Texturen.', deps: ['a-wd'] },
+  { id: 'anlage', col: 3, nm: 'anlagensimulation.ts', sub: 'Stellwerte Anlage', path: 'src/content/anlagensimulation.ts', lines: 144, kind: 'Inhalt',
+    desc: 'Echte Anlagenwerte (Tonnen, m³, l/h) und Zeitraffer: 1 Sekunde am Bildschirm entspricht 3 Minuten in der Anlage.', deps: [] },
+
+  // ---------- Stile, Bilder, Schriften ----------
+  { id: 'global-css', col: 4, grp: 'styles/', nm: 'global.css', sub: 'Tailwind, Farben', path: 'src/styles/global.css', lines: 126, kind: 'Stil',
+    desc: 'Importiert Tailwind 4, bindet die eigenen Schriften per @font-face ein und legt Farben und Schriftrollen fest. Wird zu dist/_astro/BaseLayout.*.css.', deps: ['public-fonts'] },
+  { id: 'as-css', col: 4, nm: 'anlagensimulation.css', sub: 'Stile Simulation', path: 'src/styles/anlagensimulation.css', lines: 1196, kind: 'Stil',
+    desc: 'Alle Stile der Anlagensimulation, global, weil ihr Markup erst im Browser entsteht.', deps: [] },
+  { id: 'a-ref', col: 4, grp: 'assets/', nm: 'referenzen/', sub: '7 Projekte · 32 JPG', path: 'src/assets/referenzen/<projekt>/01–05.jpg', lines: null, kind: 'Bilder',
+    desc: 'Gmunden, Kittsee, Mitterweißenbach, Mondsee, Obernberg, Steinerkirchen, Trieben-Selzthal. Astro erzeugt daraus WebP in mehreren Breiten in dist/_astro/.', deps: [] },
+  { id: 'a-wald', col: 4, nm: 'wald/winterwald.webp', sub: 'Über-uns-Foto', path: 'src/assets/wald/winterwald.webp', lines: null, kind: 'Bild',
+    desc: 'Verschneiter Wald von oben, die Straße ist herausgerechnet.', deps: [] },
+  { id: 'a-serp', col: 4, nm: 'waldstrasse-serpentine.jpg', sub: 'Danke-Foto', path: 'src/assets/waldstrasse-serpentine.jpg', lines: null, kind: 'Bild',
+    desc: 'Luftbild der Serpentine (3141 × 1764 px).', deps: [] },
+  { id: 'a-wd', col: 4, nm: 'winterdienst/', sub: '8 Texturen (WebP)', path: 'src/assets/winterdienst/{road,snow,ice,noise,vehicle}/', lines: null, kind: 'Bilder',
+    desc: 'Asphalt, Schnee, Reif, Rauschmasken sowie Fahrzeug und Schild (noch Platzhalter). Erzeugt von scripts/winterdienst-texturen.py.', deps: [] },
+  { id: 'public-fonts', col: 4, grp: 'public/', nm: 'fonts/', sub: '6 WOFF2', path: 'public/fonts/', lines: null, kind: 'Schriften',
+    desc: 'IBM Plex Sans (400, 600, 700), Plex Mono (500) und Montserrat (500, 600) für das Logo. Vom eigenen Server, keine externen Schriftdienste.', deps: [] },
+  { id: 'public-logo', col: 4, nm: 'logo/', sub: '3 SVG', path: 'public/logo/', lines: null, kind: 'Bilder',
+    desc: 'Logo hell und invertiert sowie die ruhende Bildmarke. sg-technik-logo.svg dient zugleich als Favicon.', deps: [] },
+  { id: 'public-headers', col: 4, nm: '_headers', sub: 'Sicherheitsheader', path: 'public/_headers', lines: 10, kind: 'Netlify-Einstellung',
+    desc: 'X-Frame-Options, nosniff, Referrer- und Permissions-Policy für alle Pfade. Eine Content-Security-Policy fehlt bewusst noch. Diese Datei nutzt nur Netlify, keine Seite verweist auf sie.', deps: [] },
+];
+
+// Ausführliche Erklärung je Datei: wann der Code läuft, was genau passiert, wo man etwas ändert.
+const MORE = {
+  'p-index': { when: 'build', more: [
+    'Astro liest beim Bauen diese Datei und setzt Hero, AboutSection, CtaBand und ContactSection in genau dieser Reihenfolge in den Inhaltsbereich von BaseLayout ein.',
+    'Alle Abschnitte liegen in einem gemeinsamen <div class="relative">. Er ist der Bezugsrahmen für WinterRoad, die sich als Streifen über seine ganze Höhe legt.',
+    'Vier Stellen in den Abschnitten tragen ein data-wd-anchor: die Kennzahlen im Hero (start), „Wofür wir stehen“ in AboutSection (values), CtaBand (cta) und das Nachrichtenfeld im Formular (end). route.ts legt die Straße durch diese Punkte.',
+    '„Über uns“ und „Kontakt“ im Menü sind keine eigenen Seiten. Sie springen auf /#ueber-uns und /#kontakt innerhalb dieser Seite.',
+    'Titel und Beschreibung für Suchmaschinen stehen als Attribute an <BaseLayout>.'],
+    edit: 'Reihenfolge der Abschnitte und Seitentitel hier. Die Texte stehen in site.ts.' },
+  'p-leistungen': { when: 'build', more: [
+    'Besteht nur aus ProcessSection und CtaBand, umschlossen von einem <div class="relative"> für die Straße.',
+    'WinterRoad bekommt route="leistungen" und lädt deshalb route-leistungen.ts statt route.ts. Die Straße läuft in drei Bögen an den sieben Schritten entlang.',
+    'Die Überschrift <h1> der Seite steht in ProcessSection.'],
+    edit: 'Die Texte der sieben Schritte stehen in site.ts (process).' },
+  'p-produkte': { when: 'build', more: [
+    'Die Seite selbst ist nur 13 Zeilen lang. Alles Weitere steckt in ProductsTechSection.',
+    'Am Ende jedes Produkttexts führt der Knopf „Interaktive Anlage öffnen“ auf /anlagensimulation.'],
+    edit: 'Produkttexte in services.ts, technische Daten in technicalData.ts, Reihenfolge in produkteTechnik.ts.' },
+  'p-referenzen': { when: 'build', more: [
+    'Die Seite selbst ist nur 13 Zeilen lang. Alles Weitere steckt in ReferencesSection.',
+    'Beim Bauen erzeugt Astro aus den 32 Fotos rund 300 WebP-Dateien in verschiedenen Größen.'],
+    edit: 'Neue Referenz: Fotos nach src/assets/referenzen/<name>/ legen (01.jpg ist das Titelbild) und Eintrag in referenzen.ts ergänzen.' },
+  'p-anlage': { when: 'build', more: [
+    'Die Seite enthält nur den Rahmen: einen Zurück-Link zu Produkte & Technik und eine Überschrift, die nur Screenreader und Suchmaschinen sehen.',
+    'Der Rest entsteht erst im Browser. PlantSimulation liefert ein leeres Element, in das plant-sim.ts Zeichnung, Knöpfe und SalzManager baut.',
+    'Auf großen Bildschirmen füllen Kopfzeile, Simulation und Fußzeile genau das Fenster, ohne Scrollen.'],
+    edit: 'Mengen, Leistungen und Zeitraffer in anlagensimulation.ts. Aussehen in anlagensimulation.css.' },
+  'p-danke': { when: 'build', more: [
+    'Ziel des Kontaktformulars: Nach dem Absenden leitet Netlify hierher weiter (action="/danke" im Formular).',
+    'Der Textblock liegt mittig über SerpentineBackdrop. Ein dunkler Schleier hält die helle Schrift lesbar.',
+    'Ein Knopf führt zurück zur Startseite.'],
+    edit: 'Text direkt hier in der Seite.' },
+  'p-impressum': { when: 'build', more: [
+    'Pflichtangaben nach ECG, UGB und Gewerbeordnung. Die Daten werden beim Bauen aus legal.ts eingesetzt (Firma, FN 624545 z, UID, Geschäftsführer, Gewerbe, Kammer).',
+    'E-Mail und Telefon kommen aus site.ts. So stehen sie überall gleich.'],
+    edit: 'Firmendaten in legal.ts, Kontaktdaten in site.ts.' },
+  'p-datenschutz': { when: 'build', more: [
+    'Der Fließtext der acht Punkte steht direkt in dieser Seite.',
+    'Alles, was sich am Betrieb ändern kann, wird aus privacy.ts eingesetzt: Hoster (Netlify) mit Anschrift und Links, Protokollfristen, Microsoft 365, A1 Digital als Administrator, Spam-Filter Akismet, Speicherdauer und „Stand“.',
+    'Manche Absätze erscheinen nur, wenn privacy.ts sie einschaltet, etwa „Administration“ (mailAdmin) oder „Spam-Prüfung“ (formSpam). Ist ein Wert null, fällt der Absatz beim Bauen weg.'],
+    edit: 'Betriebsangaben in privacy.ts. Den Text selbst nur hier ändern und rechtlich prüfen lassen.' },
+  'p-cookie': { when: 'build', more: [
+    'Listet die drei Kategorien aus consent.ts: Notwendig, Statistik, Marketing. Zu jeder Kategorie erscheinen ihre Dienste oder der Hinweis, dass keine im Einsatz sind.',
+    'Solange hasOptionalServices falsch ist, zeigt die Seite „Speicherung verwalten“. Sobald ein optionaler Dienst eingetragen wird, erscheint stattdessen „Einwilligung ändern oder widerrufen“ mit Knopf zu den Einstellungen.'],
+    edit: 'Dienste und Kategorien nur in consent.ts.' },
+
+  BaseLayout: { when: 'build', more: [
+    'Schreibt das Gerüst jeder Seite: <html lang="de">, <head> mit Zeichensatz, Viewport, Favicon (/logo/sg-technik-logo.svg), Beschreibung und Titel. Titel und Beschreibung bekommt es von der Seite.',
+    'Der <body> ist mindestens bildschirmhoch. <main> füllt den freien Platz, damit der Footer auch auf kurzen Seiten unten bleibt.',
+    'Ganz oben steht eine unsichtbare Sprungmarke „Zum Inhalt springen“ für Tastatur und Screenreader.',
+    '<slot /> in <main> ist der Platz, an dem Astro den Inhalt der jeweiligen Seite einsetzt.',
+    'Ein <noscript>-Stil sorgt dafür, dass ohne JavaScript das Handy-Menü offen steht und Produkte & Technik alle Produkte untereinander zeigt.',
+    'Bindet global.css ein. Astro macht daraus eine gemeinsame CSS-Datei für alle Seiten.'],
+    edit: 'Alles, was auf jeder Seite gleich ist.' },
+  Header: { when: 'both', more: [
+    'Beim Bauen: Logo, Menüpunkte aus navigation.ts und Kontakt-Knopf aus site.ts. Der Menüpunkt der aktuellen Seite wird über den Pfad markiert. Anker wie /#kontakt zählen nicht als eigene Seite.',
+    'Die Kopfzeile ist fest oben fixiert (fixed, z-50) und dunkelblau.',
+    'Drei Schalter für die Zierde: Logo-Animation, Straße mit Räumfahrzeug und Waldbild. Ein Schalter setzt eine Klasse wie fx-off-road am <html> und sendet das Ereignis sg:fx, auf das Logo und Straße hören. Bewusst ohne Speicherung, beim nächsten Seitenaufruf ist alles wieder an.',
+    'Im Browser: Das Handy-Menü öffnet und schließt per Knopf, Escape oder Klick daneben. Ein gedrückter Link bleibt sichtbar gedrückt, bis die neue Seite lädt.',
+    'Auf der Startseite markiert das Skript „Über uns“ oder „Kontakt“ je nach Scroll-Position.'],
+    edit: 'Menüpunkte in navigation.ts. Aussehen und Schalter hier.' },
+  Footer: { when: 'build', more: [
+    'Copyright mit dem aktuellen Jahr, das beim Bauen eingesetzt wird.',
+    'Links zu Impressum, Datenschutz und Cookie-Richtlinie.',
+    'Der Knopf „Cookie-Einstellungen“ wird nur gebaut, wenn consent.ts optionale Dienste enthält. Derzeit fehlt er.'],
+    edit: 'Links und Text hier.' },
+  CookieConsent: { when: 'build', more: [
+    'Ruhezustand (heute): Keine einwilligungspflichtigen Dienste, also gibt die Komponente gar nichts aus. Kein Banner, kein Skript, kein Speichern im Browser.',
+    'Sobald in consent.ts ein Statistik- oder Marketingdienst steht, baut sie automatisch ein Banner mit gleichwertigen Knöpfen „Alle ablehnen“ und „Alle akzeptieren“ sowie einen Einstellungsdialog.',
+    'Die Einstellungen gibt sie als JSON-Block (id sg-consent-config) an ConsentManager weiter.',
+    'Die Auswahl würde dann 12 Monate unter „sg-consent“ im Browser gespeichert.'],
+    edit: 'Nichts hier. Dienste nur in consent.ts eintragen.' },
+  ConsentManager: { when: 'browser', more: [
+    'Enthält nur das Browser-Skript des Consent-Systems: Banner zeigen, Auswahl speichern, Dienste erst nach Einwilligung laden, Widerruf.',
+    'Eigene Datei aus technischem Grund: Astro liefert Skripte von Komponenten aus, die nie gerendert werden, nicht mit aus. Weil CookieConsent diese Komponente nur bei optionalen Diensten einbindet, enthält die Website heute kein Byte Consent-JavaScript.',
+    'Nie direkt einbinden, Einstieg ist immer CookieConsent.'],
+    edit: 'Nur bei Änderungen am Ablauf der Einwilligung.' },
+  PortraitNotice: { when: 'build', more: [
+    'Die Website ist am Handy nur fürs Hochformat ausgelegt. Hält jemand das Handy quer, deckt dieser Hinweis die Seite ab.',
+    'Erkannt wird das rein per CSS: Querformat, Fensterhöhe höchstens 32 rem und Bedienung per Finger. Ein flaches Browserfenster am Computer ist nicht betroffen.'],
+    edit: 'Text und Bedingungen hier.' },
+  Hero: { when: 'both', more: [
+    'Beim Bauen: Überschrift „Silo- und Soleanlagen für den Winterdienst“, Untertitel, Einleitung, Knöpfe und die vier Kennzahlen aus site.ts.',
+    'LogoMark steht zweimal im Markup: am Handy neben der Überschrift, am Desktop groß daneben. Je nach Breite ist eines davon ausgeblendet.',
+    'Im Browser: Die Kennzahlen zählen beim Sichtbarwerden etwa 2 Sekunden auf ihren Wert zu, von links nach rechts gestaffelt. Große Werte zählen hoch, kleine wie „± 2 %“ zählen von oben herunter, damit nie ein besserer Wert als der echte zu sehen ist.',
+    'Ohne JavaScript steht der richtige Wert sofort da.',
+    'Die Kennzahlenleiste ist der Startpunkt der Winterdienst-Straße (data-wd-anchor="start").'],
+    edit: 'Texte und Kennzahlen in site.ts (hero, stats).' },
+  LogoMark: { when: 'both', more: [
+    'Beim Bauen: Ein quadratischer Platzhalter mit dem fertigen Logo als Bild. Ohne JavaScript bleibt dieses Standbild stehen.',
+    'Im Browser baut sg-technik-logo.js das Logo als SVG auf. Ring, Chevrons und Schrift fügen sich zusammen, danach rieselt Salz in den Silo (Loop).',
+    'Am Ende des Intros sendet es das Ereignis sgt:intro-done. Die Winterdienst-Straße wartet darauf, damit beides zusammen nicht ruckelt.',
+    'Der Loop ruht während des Scrollens und lässt sich in der Kopfzeile abschalten.'],
+    edit: 'Animation in sg-technik-logo.js.' },
+  AboutSection: { when: 'build', more: [
+    'Abschnitt „Über uns“ (Anker #ueber-uns) mit Text, Werten („Wofür wir stehen“) und Kunden aus site.ts.',
+    'Hintergrund ist das Foto eines verschneiten Walds von oben, unter einem dunkelblauen Schleier für die helle Schrift. Astro optimiert das Foto beim Bauen.',
+    'Das Foto trägt data-wd-forest, der Schleier data-wd-shade. Damit findet canopy.ts die Stelle, an der die Straße durch den Wald führt.',
+    'Über den Schalter „Waldbild“ in der Kopfzeile verschwindet das Foto (Klasse fx-off-forest), der Abschnitt wird dann schlicht.'],
+    edit: 'Texte in site.ts (about, values, customers).' },
+  CtaBand: { when: 'build', more: [
+    'Schmales helles Band mit Überschrift, kurzem Text und Knopf zum Kontakt, aus site.ts (closingCta).',
+    'Steht am Ende von Startseite, Leistungen, Produkte & Technik und Referenzen.',
+    'Trägt data-wd-anchor="cta". Bis hierher kehrt die Straße auf der Startseite in den rechten Rand zurück.'],
+    edit: 'Text in site.ts.' },
+  ContactSection: { when: 'build', more: [
+    'Dunkler Abschnitt mit Anker #kontakt: links Kontaktdaten aus site.ts, rechts das Formular.',
+    'Das Formular hat data-netlify="true". Netlify erkennt es beim Hochladen und nimmt Einsendungen selbst an, ein eigener Server ist nicht nötig. action="/danke" ist die Seite nach dem Absenden.',
+    'Spamschutz: ein unsichtbares Feld „bot-field“ (Honeypot) und Netlifys Spamfilter (Akismet). Pflichtfelder und Längen im Browser sind nur Bedienhilfe.',
+    'Netlify leitet die Nachricht per E-Mail an das Microsoft-365-Postfach weiter.',
+    'Das Nachrichtenfeld ist der Endpunkt der Winterdienst-Straße (data-wd-anchor="end").'],
+    edit: 'Felder hier, Kontaktdaten in site.ts. Spamfilter und Weiterleitung im Netlify-Dashboard.' },
+  WinterRoad: { when: 'browser', more: [
+    'Beim Bauen entsteht nur ein leeres <div data-winter-road>. Der Rest passiert im Browser.',
+    'Start nur, wenn das Fenster mindestens 85 rem breit ist, „Bewegung reduzieren“ aus ist und der Schalter in der Kopfzeile nicht aus steht.',
+    'Läuft oben gerade das Logo-Intro, wartet sie darauf (höchstens 2,6 s), außer man scrollt vorher.',
+    'Lädt dann winter-road.ts, die passende Route (route.ts oder route-leistungen.ts je nach route-Attribut) und die Stellwerte aus winterdienst.ts nach.',
+    'Gibt es ein Waldfoto mit data-wd-forest, kommt canopy.ts dazu. In Safari kommt smooth-wheel.ts dazu.',
+    'Wird das Fenster schmaler oder die Straße abgeschaltet, baut sie sich vollständig ab. Testhilfen in der Adresse: ?wd-debug, ?wd-p=0.5, ?wd-wheel=off.'],
+    edit: 'Wann sie startet: hier. Wie sie aussieht: winterdienst.ts. Wo sie verläuft: route.ts oder route-leistungen.ts.' },
+  ProcessSection: { when: 'build', more: [
+    'Überschrift der Leistungsseite und die sieben Schritte als nummerierte Liste aus site.ts (process).',
+    'Der letzte Schritt (Notdienst) ist farbig hervorgehoben.',
+    'Die Liste trägt data-wd-anchor="steps", entlang dieser Liste führt route-leistungen.ts die Straße.'],
+    edit: 'Texte in site.ts.' },
+  ProductsTechSection: { when: 'both', more: [
+    'Fünf Kategorien: Streusalzlagerung, Soleaufbereiter und -lagerung, Solepumpstation, Automatisierung, Service und Notdienst.',
+    'Desktop: links der Umschalter, rechts der Text der aktiven Kategorie in einem eigenen Scrollbereich. Gescrollt wird normal durch Text und Seite, die Kategorie wechselt nur per Klick.',
+    'Handy: oben eine klebende Leiste mit den Namen zum Wischen, darunter das aktive Produkt (Daten, dann Text). Der aktive Name wird mittig gestellt.',
+    'Ohne JavaScript stehen alle Produkte untereinander in einem <noscript>-Block.',
+    'Jeder Text endet mit „Interaktive Anlage öffnen“ (Link zu /anlagensimulation).'],
+    edit: 'Inhalte in services.ts und technicalData.ts. Aufbau und Verhalten hier.' },
+  ReferencesSection: { when: 'both', more: [
+    'Holt beim Bauen per import.meta.glob alle Fotos aus src/assets/referenzen/*/ und ordnet sie über den Ordnernamen den Projekten in referenzen.ts zu.',
+    'Astro erzeugt pro Foto WebP in 560, 840 und 1120 px Breite sowie kleine Vorschaubilder. Der Browser wählt die passende Größe.',
+    'Desktop: links ein Strom aus Bildern auf farbigen Flächen (nur Navy und Kupfer), rechts ein mitlaufendes Panel mit Projektliste und Vorschaubildern.',
+    'Im Browser: Ein Scrollspy erkennt, welches Foto in der Bildmitte liegt, und markiert Projekt und Vorschaubild. Klick auf ein Projekt oder Vorschaubild springt weich dorthin.',
+    'Handy: oben eine klebende, wischbare Projektleiste. Auf allen Geräten öffnet ein Klick auf ein Foto eine Lightbox (<dialog>) zum Durchblättern.'],
+    edit: 'Projekte in referenzen.ts, Fotos in src/assets/referenzen/.' },
+  SerpentineBackdrop: { when: 'both', more: [
+    'Beim Bauen: Das Luftbild wird auf 1600 px und WebP verkleinert (rund 300 kB statt 550 kB).',
+    'Die Bühne behält immer das Seitenverhältnis des Fotos, sonst würden die Fahrzeuge von der Straße rutschen. Den formatfüllenden Zuschnitt übernimmt die Bühnengröße.',
+    'Im Browser startet road-animation.ts die Fahrzeuge mit Pfad und Fahrplan aus serpentine.ts.',
+    'Ein dauerhaft sichtbarer Pause-Knopf, weil eine Endlos-Animation laut WCAG anhaltbar sein muss. Bei „Bewegung reduzieren“ steht ein Standbild, der Knopf entfällt.'],
+    edit: 'Fahrzeuge und Tempo in serpentine.ts.' },
+  PlantSimulation: { when: 'both', more: [
+    'Liefert beim Bauen nur einen Rahmen und ein leeres Element. Alles Sichtbare baut plant-sim.ts im Browser.',
+    'Berechnet aus dem freien Platz im Fenster, wie groß die Anlage werden darf, damit Zeichnung und Knöpfe ohne Scrollen hineinpassen.',
+    'Weil das Markup erst im Browser entsteht, greifen die komponentenbezogenen Stile von Astro nicht. Daher liegen alle Stile global in anlagensimulation.css.'],
+    edit: 'Stellwerte in anlagensimulation.ts, Aussehen in anlagensimulation.css.' },
+
+  'logo-js': { when: 'browser', more: [
+    'Sucht jedes Element mit der Klasse .sgt-logo und baut darin das Logo als SVG auf.',
+    'Intro: Ring, Chevrons und Schriftzug erscheinen nacheinander. Danach startet der Salz-Silo-Loop.',
+    'Optionen per data-Attribut: data-intro="false", data-loop="false", data-speed.',
+    'Hört auf den Schalter in der Kopfzeile (Klasse fx-off-logo, Ereignis sg:fx). Dann steht das fertige Logo still.'],
+    edit: 'Ablauf und Tempo der Logo-Animation.' },
+  'road-anim': { when: 'browser', more: [
+    'Lässt Fahrzeuge auf einem Pfad fahren, der in Pixeln des Fotos gegeben ist. Positionen werden in Prozent der Bühne gerechnet und passen deshalb bei jeder Größe.',
+    'Jedes Fahrzeug hat Typ, Farbe, Startzeit, Fahrtdauer, Richtung und Spurversatz.',
+    'Takt mit requestAnimationFrame. Bei „Bewegung reduzieren“ wird nur ein Standbild gesetzt.',
+    'Die Machart der Fahrzeuge (Grundfarbe plus Abstufungen) haben die Fahrzeuge der Anlagensimulation übernommen.'],
+    edit: 'Verhalten der Fahrzeuge. Pfad und Fahrplan in serpentine.ts.' },
+  'wd-winter-road': { when: 'browser', more: [
+    'Kern der Winterdienst-Straße: Koppelt Fahrzeug, Räumspur und Salzstreuung an die Scroll-Position.',
+    'Die Straße ist ein Bild in voller Länge, das fest in der Seite liegt und mit ihr scrollt. Das Skript malt nur den schmalen Streifen nach, der gerade geräumt und gestreut wurde.',
+    'Das Fahrzeug besteht aus einzelnen Bildern (Schatten, Karosserie, Räumschild), die verschoben statt neu gezeichnet werden. Eine kleine Zeichenfläche zeigt fliegenden Schnee und Salz.',
+    'Das Fahrzeug fährt der Sollposition nach statt zu springen. Bei schnellem Scrollen bleibt es kurz zurück und holt dann auf.',
+    'Im dunklen Kontaktbereich wird die Straße abgedunkelt.'],
+    edit: 'Ablauf der Animation. Mengen und Größen in winterdienst.ts.' },
+  'wd-route': { when: 'browser', more: [
+    'Misst im Browser die vier Ankerpunkte der Startseite: start, values, cta und end.',
+    'Die Straße kommt neben der letzten Kennzahl (24 h) von rechts herein, schwenkt bei „Wofür wir stehen“ zur Mitte, ist am Kontaktband zurück im Rand und läuft neben dem Nachrichtenfeld wieder hinaus.',
+    'Dazwischen pendelt sie im freien Rand, damit kein Stück gerade ist. Wird bei jeder Größenänderung neu berechnet.'],
+    edit: 'Verlauf der Straße auf der Startseite.' },
+  'wd-route-l': { when: 'browser', more: [
+    'Verlauf auf der Leistungsseite: Die Straße kommt oben unter der Kopfzeile hervor, dort wartet das Fahrzeug.',
+    'Sie läuft in drei weiten Bögen an den sieben Schritten entlang und verschwindet unten unter der Fußzeile. Der mittlere Bogen schwingt in den freien Platz neben den Texten.'],
+    edit: 'Verlauf der Straße auf der Leistungsseite.' },
+  'wd-lane': { when: 'browser', more: [
+    'Gemeinsame Grundlage beider Routen: Fahrbahnbreite, die Spur im freien Rand rechts neben dem Inhalt und geschwungene Verbindungsstücke.',
+    'Alle Werte sind CSS-Pixel in der Fläche der Straße.'],
+    edit: 'Fahrbahnbreite und Randabstand.' },
+  'wd-scene': { when: 'browser', more: [
+    'Rechnet beim Aufbau zwei deckungsgleiche Bilder der ganzen Strecke: verschneit und geräumt.',
+    'Fahrbahn, Schneeränder, Fahrspuren, Reif und Räumspur leiten sich alle aus dem Pfad ab. Ein anderer Verlauf braucht deshalb keine neue Grafik.',
+    'Die Fototexturen (Asphalt, Schnee, Reif) werden doppelt so groß und zweimal gedreht übereinandergelegt, damit sich Risse nicht sichtbar wiederholen.',
+    'Legt für jedes Salzkorn einen festen Landeplatz fest. Neben der Straße bleibt alles durchsichtig.'],
+    edit: 'Aussehen von Fahrbahn und Schnee.' },
+  'wd-path': { when: 'browser', more: [
+    'Macht aus dem berechneten Straßenpfad eine gleichmäßig abgetastete Linie.',
+    'Für jede zurückgelegte Strecke liefert sie Position und Fahrtrichtung. Daraus folgen Fahrzeugstellung, Räumspur und Salz.',
+    'Verlängert die Linie an beiden Enden gerade, damit die Straße über den Bildschirmrand hinausläuft.'],
+    edit: 'Selten nötig.' },
+  'wd-plow': { when: 'browser', more: [
+    'Berechnet die Richtung des Räumschilds an jeder Stelle.',
+    'Das Schild steht immer quer zur Straße, nicht quer zum Fahrzeug. In Kurven dreht es sich gegenüber dem Fahrzeug, wie in Wirklichkeit.'],
+    edit: 'Schildwinkel und -größe in winterdienst.ts (plow).' },
+  'wd-canopy': { when: 'browser', more: [
+    'Wo die Straße durch das Waldfoto von „Über uns“ führt, zeichnet es einen weichen Schatten der Baumreihe auf die Schneewälle.',
+    'Kann zusätzlich Baumkronen über die Fahrbahn ragen lassen, ausgeschnitten aus dem Waldfoto selbst. Derzeit auf Wunsch ausgeschaltet (Anteil 0).',
+    'Bekommt denselben dunkelblauen Schleier wie das Foto, damit Wald und Schatten zusammenpassen.'],
+    edit: 'Stellwerte oben in der Datei (Kronenanteil, Radien, Abstände).' },
+  'wd-smooth': { when: 'browser', more: [
+    'Nur in Safari: Safari scrollt beim Mausrad ruckweise etwa alle 100 ms um eine Raste, die Seite und das Fahrzeug springen.',
+    'Das Skript erkennt Mausrad-Gesten an ihren Werten und rollt sie selbst weich aus. Touchpad, Tastatur und Bildlaufleiste bleiben beim Browser.',
+    'Nur aktiv, solange die Straße zu sehen ist.'],
+    edit: 'Selten nötig. ?wd-wheel=off schaltet es zum Vergleichen ab.' },
+  'as-plant': { when: 'browser', more: [
+    'Einstieg der Simulation: Baut Zeichnung (scene), Bedienleiste (panel), Modell (model) und Ansicht (view) in das leere Element.',
+    'Startet den Takt mit requestAnimationFrame. Der Zeitschritt ist auf 0,1 s gedeckelt, damit die Anlage nach einem Tabwechsel nicht um Minuten springt.',
+    'Außerhalb des Bildschirms ruht die Simulation (IntersectionObserver).',
+    'Passt die Größe an das Fenster an, sodass Anlage und Knöpfe ohne Scrollen passen.'],
+    edit: 'Zusammenspiel der Teile.' },
+  'as-model': { when: 'browser', more: [
+    'Der Zustand der Anlage ohne jede Darstellung: Füllstände von Silo, Aufbereiter und Soletank, Konzentration, Pumpen P1 bis P3, Ventile, Fahrzeuge mit Ladung und RFID-Chip.',
+    'Rohrströmungen werden nicht gespeichert. view.ts leitet sie aus Pumpen und Ventilen ab, so kann nie eine Leitung mit geschlossenem Ventil fließen.',
+    'Enthält den Taktgeber, der die Abläufe Schritt für Schritt vorantreibt.'],
+    edit: 'Was die Anlage „weiß“.' },
+  'as-proc': { when: 'browser', more: [
+    'Sechs Abläufe A bis F: Sole herstellen, Sole umwälzen, Soletank entleeren, Sole entnehmen, Salz entnehmen, Salz anliefern.',
+    'Jeder Ablauf ist eine Folge von Schritten: Ventile öffnen, Pumpe starten, warten bis Füllstand erreicht und so weiter.',
+    'Abläufe belegen Betriebsmittel wie Pumpe oder Zufahrt. Was dasselbe braucht, kann nicht gleichzeitig laufen. Sole herstellen und Salz holen gehen parallel.',
+    'Wird ein Ablauf gestoppt, gehen Pumpen und Ventile wieder in Ruhestellung.'],
+    edit: 'Neue oder geänderte Abläufe.' },
+  'as-panel': { when: 'browser', more: [
+    'Erzeugt die Bedienleiste mit den runden Knöpfen A bis F zum Starten und Stoppen.',
+    'Dazu Statuszeile, Ablaufliste, die Positionsliste (Nummern 1 bis 12 wie in der Zeichnung) und die Pop-ups.',
+    'Am Handy kommt eine Meldungsliste unter dem SalzManager dazu.'],
+    edit: 'Knöpfe, Texte der Bedienung.' },
+  'as-scene': { when: 'browser', more: [
+    'Zeichnet die Anlage einmal als SVG, flach wie eine technische Zeichnung: Silo, Aufbereiter, Pumpen- und Ventilkasten, Soletank, Zapfstelle, Schaltschrank und den SalzManager-Bildschirm.',
+    'Silo, Aufbereiter und Soletank sind aufgeschnitten, damit Füllstände sichtbar sind.',
+    'Alles, was sich bewegt, trägt ein data-ref. Daran stellt view.ts es in jedem Bild nach.',
+    'Nur Navy und Kupfer, einzige Ausnahme sind die rot-grünen Ampeln.'],
+    edit: 'Aussehen der Zeichnung. Maße stehen in anlagensimulation.ts (LAYOUT).' },
+  'as-view': { when: 'browser', more: [
+    'Überträgt in jedem Bild den Zustand aus model.ts auf die Zeichnung: Füllstände, Ventilstellungen, fließende Leitungen, Fahrzeugpositionen, drehende Räder, Anzeigen im SalzManager.',
+    'Schreibt nur Werte, die sich geändert haben. Das spart auf schwachen Geräten spürbar Rechenzeit.',
+    'Zu lange Texte werden mit „…“ gekürzt. Beschriftungen unter der Sole werden hell gesetzt.'],
+    edit: 'Wie Zustände dargestellt werden.' },
+  'as-veh': { when: 'browser', more: [
+    'Zeichnet die Fahrzeuge der Simulation von der Seite: Sprühfahrzeug, Streu-LKW und Silo-LKW.',
+    'Jedes Fahrzeug hat einen Haltepunkt, etwa den Streuaufbau unter dem Siloauslauf oder die Kupplung am Heck.',
+    'Die Räder drehen sich, view.ts dreht dazu die Speichen.'],
+    edit: 'Aussehen der Fahrzeuge.' },
+  'as-camera': { when: 'browser', more: [
+    'Am Handy wäre die ganze Anlage zu klein. Deshalb zeigt die Zeichnung dort einen Bereich: Silo, Aufbereiter, Soletank, Zapfstelle oder SalzManager.',
+    'Gewählt wird über das Menü „Ansicht“ oder per Tipp in die Zeichnung, ein Doppeltipp führt zurück zur ganzen Anlage. Abläufe wechseln die Ansicht selbst.',
+    'Umgesetzt über die viewBox des SVG, die Zeichnung wird beim Zoomen also schärfer. Ab 48 rem Breite gilt immer die ganze Anlage.'],
+    edit: 'Ausschnitte und Zoomverhalten. Bereiche in anlagensimulation.ts (AREAS).' },
+  'as-format': { when: 'browser', more: [
+    'Zahlen im österreichischen Format: Komma als Dezimalzeichen, Punkt als Tausendertrennzeichen.',
+    'Berechnet die Soledichte aus der Konzentration (22 % entsprechen 1,17 kg/l).'],
+    edit: 'Selten nötig.' },
+
+  site: { when: 'build', more: [
+    'Die meisten sichtbaren Texte der Website: Firmenname, Hero-Überschrift, Einleitung, Knöpfe, die vier Kennzahlen (100 – 980 t, 15.000 l/h, ± 2 %, 24 h).',
+    '„Über uns“, „Wofür wir stehen“, Kunden, die sieben Leistungsschritte, der Text des Kontaktbands und die Kontaktdaten.',
+    'Gelesen von Header, Hero, AboutSection, CtaBand, ContactSection, ProcessSection, Impressum und Datenschutz.'],
+    edit: 'Texte und Kennzahlen.' },
+  navigation: { when: 'build', more: [
+    'Die sechs Menüpunkte mit Ziel: Home (/), Über uns (/#ueber-uns), Leistungen, Produkte & Technik, Referenzen, Kontakt (/#kontakt).',
+    'Header baut daraus das Desktop- und das Handy-Menü.'],
+    edit: 'Menüpunkte und Reihenfolge.' },
+  legal: { when: 'build', more: [
+    'Rechtlich verbindliche Angaben: Firma, Anschrift, Firmenbuchnummer FN 624545 z, Landesgericht Linz, UID, beide Geschäftsführer, Kammer.',
+    'Gewerbe: Fachorganisationen, die drei Gewerbeberechtigungen mit GISA-Zahl und die Rechtsvorschrift (Gewerbeordnung 1994).',
+    'Quelle: Firmenbuchauszug und WKO/GISA. Vor dem Live-Gang rechtlich prüfen.'],
+    edit: 'Firmendaten.' },
+  privacy: { when: 'build', more: [
+    'Alle Schaltstellen der Datenschutzerklärung an einem Ort.',
+    'hosting: Netlify mit Anschrift, Links zu Datenschutz, Unterauftragsverarbeitern und Vertrag, Protokollfristen (90 Tage online, 12 Monate offline), Grundlage der USA-Übermittlung.',
+    'mail: Microsoft 365 mit Datenstandort EU. mailAdmin: A1 Digital als Administrator, entfällt bei null. formSpam: Akismet.',
+    'retention: Speicherdauer der Anfragen. stand: „Oktober 2026“.'],
+    edit: 'Wenn sich Hoster, Verträge oder Fristen ändern.' },
+  consent: { when: 'build', more: [
+    'Einzige Quelle für das Cookie-System: Kategorien Notwendig, Statistik und Marketing mit Texten und Diensten.',
+    'hasOptionalServices wird automatisch berechnet. Es ist heute falsch, weil keine Statistik- oder Marketingdienste eingetragen sind.',
+    'Speicherschlüssel „sg-consent“, Version und Ablauf nach 12 Monaten.',
+    'Gelesen von Footer, CookieConsent und Cookie-Richtlinie.'],
+    edit: 'Neuen Dienst eintragen. Banner, Footer-Link und Richtlinie passen sich von selbst an.' },
+  produkteTechnik: { when: 'build', more: [
+    'Fügt für jede der fünf Kategorien den Text aus services.ts und die Daten aus technicalData.ts zusammen.',
+    'Die Reihenfolge hier ist die Reihenfolge auf der Seite.'],
+    edit: 'Zuordnung und Reihenfolge.' },
+  services: { when: 'build', more: [
+    'Fließtexte zu den fünf Leistungen: Streusalzlagerung, Soleaufbereitung und -lagerung, Solepumpstation, Automatisierungstechnik, Wartung, Service und Notdienst.'],
+    edit: 'Produkttexte.' },
+  technicalData: { when: 'build', more: [
+    'Dieselben Fakten wie in services.ts als kurze Datenliste, die rechts oder oben neben dem Text steht.',
+    'Keine neuen Inhalte, nur eine andere Darstellung.'],
+    edit: 'Technische Daten.' },
+  referenzen: { when: 'build', more: [
+    'Sieben Projekte in Anzeigereihenfolge: Mondsee, Mitterweißenbach, Steinerkirchen, Gmunden, Obernberg, Trieben-Selzthal, Kittsee.',
+    'Je Projekt: slug (gleich dem Fotoordner), Titel, Ort, Anlagentyp, Auftraggeber, optional Kapazität, Jahr und ein Satz Beschreibung. Kapazität und Jahr erscheinen nur, wenn sie eingetragen sind.'],
+    edit: 'Projektangaben und Reihenfolge.' },
+  serpentine: { when: 'browser', more: [
+    'Von Hand am Foto digitalisierter Straßenpfad, in Pixeln des Originals (3141 × 1764).',
+    'Fahrplan: welche Fahrzeuge in welcher Farbe, wann und wie schnell fahren.',
+    'Die Punkte nicht skalieren, die Umrechnung macht road-animation.ts.'],
+    edit: 'Fahrzeuge und Tempo auf der Danke-Seite.' },
+  winterdienst: { when: 'browser', more: [
+    'Stellwerte der Straße: Fahrbahnbreite, Fahrzeuggröße, Schnee-, Reif-, Spur- und Salzmenge, Breite der Räumspur, Schneewurf.',
+    'Räumschild, Bildqualität, Lichtrichtung und die Farbe des Nachtschattens im Kontaktbereich.',
+    'Verweise auf Fahrzeugbild, Schild und Texturen in src/assets/winterdienst/. Fahrzeug und Schild sind noch Platzhalter.'],
+    edit: 'Aussehen der Straße. Doku: docs/animationen/winterdienst-strasse.md.' },
+  anlage: { when: 'browser', more: [
+    'PLANT: echte Anlagenwerte wie Siloinhalt, Konzentration, Löseleistung, Tankgröße, Zapfleistung und Fahrzeugladungen. Startuhrzeit 5:30.',
+    'timeScale 180: 1 Sekunde am Bildschirm entspricht 3 Minuten in der Anlage.',
+    'LAYOUT: Maße und Lage aller Teile in der Zeichnung. AREAS: die Ausschnitte für das Handy.'],
+    edit: 'Mengen, Leistungen, Tempo und Anordnung. Doku: docs/animationen/anlagensimulation.md.' },
+
+  'global-css': { when: 'build', more: [
+    'Erste Zeile @import "tailwindcss": Tailwind 4 erzeugt beim Bauen nur die Klassen, die im Code wirklich vorkommen.',
+    '@font-face für IBM Plex Sans, Plex Mono und Montserrat (Logo) aus /fonts/. Keine externen Schriftdienste.',
+    '@theme legt Farben (navy, copper, slate, mist, fog, paper, band, line) und Schriftrollen fest. Daraus entstehen Klassen wie text-navy-800.',
+    'Wird in dist/_astro/BaseLayout.*.css gebündelt und auf jeder Seite geladen.'],
+    edit: 'Farben und Schriften der ganzen Website. Regeln in DESIGN.md.' },
+  'as-css': { when: 'build', more: [
+    'Alle Stile der Anlagensimulation: Rahmen, Knöpfe A bis F (rund, Kupfer), Pop-ups, Positionsliste, Handy-Ansicht.',
+    'Global statt komponentenbezogen, weil das Markup erst im Browser entsteht.',
+    'Setzt seine Farbvariablen selbst, weil Tailwind nur benutzte Variablen ausgibt.'],
+    edit: 'Aussehen der Simulation.' },
+  'a-ref': { when: 'build', more: [
+    'Ein Ordner pro Projekt mit 3 bis 5 Fotos. 01.jpg ist das Titelbild.',
+    'Astro erzeugt beim Bauen daraus WebP-Dateien in mehreren Breiten. Die Originale liegen in Fotos/ und sind nicht in Git.'],
+    edit: 'Fotos austauschen oder ergänzen.' },
+  'a-wald': { when: 'build', more: [
+    'Hintergrund von „Über uns“. Die Straße wurde aus dem Foto herausgerechnet, an ihrer Stelle verläuft die gezeichnete Winterdienst-Straße.',
+    'Bei 1600 px Breite ist die Straße im Foto so breit wie die gezeichnete.'],
+    edit: 'Herkunft: docs/animationen/README.md.' },
+  'a-serp': { when: 'build', more: [
+    'Luftbild der verschneiten Serpentine für die Danke-Seite.',
+    'Wird auf 1600 px und WebP verkleinert. Der Pfad in serpentine.ts bezieht sich auf das Original.'],
+    edit: 'Nur zusammen mit dem Pfad in serpentine.ts tauschen.' },
+  'a-wd': { when: 'build', more: [
+    'Asphalt, Schnee, grober Schnee, Reif, zwei Rauschmasken sowie Fahrzeug und Räumschild.',
+    'Erzeugt von scripts/winterdienst-texturen.py aus Poly-Haven-Fotos (CC0).',
+    'Fahrzeug und Schild tragen „PLATZHALTER“ im Namen und sollen durch echte Bilder ersetzt werden.'],
+    edit: 'Neue Bilder hier ablegen und in winterdienst.ts eintragen.' },
+  'public-fonts': { when: 'build', more: [
+    'Wird unverändert nach dist/fonts/ kopiert und von global.css unter /fonts/ geladen.',
+    'Eigene Auslieferung statt Google Fonts: keine Datenübertragung an Dritte, deshalb steht in der Datenschutzerklärung „keine externen Schriftarten“.'],
+    edit: 'Schriftdateien.' },
+  'public-logo': { when: 'build', more: [
+    'sg-technik-logo.svg (hell), sg-technik-logo-invert.svg (für dunklen Grund) und sg-technik-mark-static.svg (ruhende Bildmarke).',
+    'Unverändert nach dist/logo/ kopiert. BaseLayout nutzt das Logo als Favicon, LogoMark als Standbild.'],
+    edit: 'Logos. Originale liegen in Logo/.' },
+  'public-headers': { when: 'build', more: [
+    'Wird nach dist/_headers kopiert. Netlify liest die Datei und setzt die Header für alle Pfade.',
+    'X-Frame-Options DENY verhindert das Einbetten in fremde Seiten. nosniff, Referrer-Policy und Permissions-Policy sperren Kamera, Mikrofon, Standort und Ähnliches.',
+    'Eine Content-Security-Policy fehlt noch. Sie muss erst im Report-Only-Modus getestet werden.'],
+    edit: 'Sicherheitsheader.' },
+};
+N.forEach((n) => Object.assign(n, MORE[n.id] || {}));
+const WHEN = { build: '<span class="when build">beim Bauen</span>', browser: '<span class="when browser">im Browser</span>', both: '<span class="when build">beim Bauen</span> <span class="when browser">im Browser</span>' };
+
+const byId = Object.fromEntries(N.map((n) => [n.id, n]));
+const users = Object.fromEntries(N.map((n) => [n.id, []]));
+N.forEach((n) => n.deps.forEach((d) => users[d].push(n.id)));
+
+const walk = (start, next) => {
+  const seen = new Set(); const stack = [...next(start)];
+  while (stack.length) { const id = stack.pop(); if (seen.has(id)) continue; seen.add(id); stack.push(...next(id)); }
+  return seen;
+};
+
+const graph = document.getElementById('graph');
+const svg = document.getElementById('edges');
+const detail = document.getElementById('detail');
+const els = {};
+
+COLS.forEach((c, i) => {
+  const col = document.createElement('div');
+  col.className = 'col';
+  col.innerHTML = `<div class="col-head"><b>${c.title}</b><small>${c.path}</small></div>`;
+  N.filter((n) => n.col === i).forEach((n) => {
+    if (n.grp) { const g = document.createElement('div'); g.className = 'grp'; g.textContent = n.grp; col.append(g); }
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'node'; b.dataset.id = n.id;
+    b.innerHTML = `<span class="nm">${n.nm}</span><span class="sub">${n.sub}</span>`;
+    b.addEventListener('click', () => select(state === n.id ? null : n.id, true));
+    col.append(b); els[n.id] = b;
+  });
+  graph.append(col);
+});
+
+const chips = document.getElementById('pagechips');
+N.filter((n) => n.col === 0).forEach((n) => {
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'chip'; b.textContent = n.url; b.dataset.id = n.id;
+  b.addEventListener('click', () => select(n.id, false));
+  chips.append(b);
+});
+document.getElementById('clear').addEventListener('click', () => select(null));
+
+const paths = [];
+function drawEdges() {
+  const g = graph.getBoundingClientRect();
+  svg.setAttribute('viewBox', `0 0 ${g.width} ${g.height}`);
+  svg.innerHTML = '';
+  paths.length = 0;
+  N.forEach((n) => n.deps.forEach((d) => {
+    const a = els[n.id].getBoundingClientRect(), b = els[d].getBoundingClientRect();
+    const ay = a.top + a.height / 2 - g.top, by = b.top + b.height / 2 - g.top;
+    let dPath;
+    if (byId[d].col > n.col) {
+      const x1 = a.right - g.left, x2 = b.left - g.left, k = Math.max(30, (x2 - x1) * 0.45);
+      dPath = `M${x1},${ay} C${x1 + k},${ay} ${x2 - k},${by} ${x2},${by}`;
+    } else if (byId[d].col < n.col) {
+      // Rückwärts (Inhalt → Skript): unten herum in einem flachen Bogen
+      const x1 = a.left - g.left, x2 = b.right - g.left, k = Math.max(30, (x1 - x2) * 0.45);
+      dPath = `M${x1},${ay} C${x1 - k},${ay} ${x2 + k},${by} ${x2},${by}`;
+    } else {
+      // Gleiche Spalte: Bogen rechts neben der Spalte
+      const x = a.right - g.left, bulge = 14 + Math.min(26, Math.abs(by - ay) * 0.12);
+      dPath = `M${x},${ay} C${x + bulge},${ay} ${x + bulge},${by} ${x},${by}`;
+    }
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p.setAttribute('d', dPath); p.setAttribute('class', 'e');
+    svg.append(p); paths.push({ el: p, from: n.id, to: d });
+  }));
+  paint();
+}
+
+let state = null;
+function paint() {
+  const sel = state;
+  graph.classList.toggle('has-sel', !!sel);
+  const down = sel ? walk(sel, (id) => byId[id].deps) : new Set();
+  const up = sel ? walk(sel, (id) => users[id]) : new Set();
+  N.forEach((n) => {
+    const e = els[n.id];
+    e.classList.toggle('sel', n.id === sel);
+    e.classList.toggle('on-down', down.has(n.id));
+    e.classList.toggle('on-up', up.has(n.id) && !down.has(n.id));
+    e.setAttribute('aria-pressed', n.id === sel ? 'true' : 'false');
+  });
+  paths.forEach(({ el, from, to }) => {
+    const isDown = sel && (from === sel || down.has(from)) && down.has(to);
+    const isUp = sel && (to === sel || up.has(to)) && up.has(from);
+    el.classList.toggle('down', !!isDown);
+    el.classList.toggle('up', !isDown && !!isUp);
+    if (isDown || isUp) svg.append(el);
+  });
+  document.querySelectorAll('#pagechips .chip').forEach((c) => c.setAttribute('aria-pressed', c.dataset.id === sel ? 'true' : 'false'));
+  renderDetail(sel, down, up);
+}
+
+const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const relList = (ids) => ids.length
+  ? `<ul>${ids.map((id) => `<li><button type="button" data-go="${id}">${byId[id].nm}</button></li>`).join('')}</ul>`
+  : '<p class="none">keine</p>';
+
+function renderDetail(sel, down, up) {
+  if (!sel) {
+    detail.innerHTML = `<p class="kind">Übersicht</p><h3>Wähle eine Datei oder Seite</h3>
+      <p class="empty">Der Plan zeigt ${N.length} Bausteine mit ${paths.length} Verbindungen. Ein guter Einstieg ist eine Seite oben, etwa <b>/</b> für die Startseite.</p>
+      <dl class="facts"><dt>Seiten</dt><dd>9 (.astro in src/pages)</dd><dt>Komponenten</dt><dd>16 + 1 Layout</dd><dt>Skripte</dt><dd>20 Dateien</dd><dt>Inhalte</dt><dd>13 Dateien</dd></dl>`;
+    return;
+  }
+  const n = byId[sel];
+  const direct = n.deps, directUp = users[sel];
+  let html = `<p class="kind">${n.kind} ${n.when ? WHEN[n.when] : ''}</p><h3 class="mono" style="font-size:1rem">${n.nm}</h3><p class="path">${n.path}</p><p class="desc">${n.desc}</p>`;
+  html += '<dl class="facts">';
+  if (n.url) html += `<dt>Adresse</dt><dd>sg-technik.at${n.url}</dd><dt>Ergebnis</dt><dd>${n.dist}</dd>`;
+  if (n.lines) html += `<dt>Zeilen</dt><dd>${n.lines}</dd>`;
+  html += `<dt>Hängt ab von</dt><dd>${down.size} Datei${down.size === 1 ? '' : 'en'} (direkt ${direct.length})</dd>`;
+  if (!n.url) html += `<dt>Genutzt auf</dt><dd>${[...up].filter((id) => byId[id].col === 0).map((id) => byId[id].url).join(', ') || 'keiner Seite direkt'}</dd>`;
+  html += '</dl>';
+  if (n.compose) {
+    html += `<div><div class="wire${n.overlay ? ' has-ov' : ''}" aria-label="Aufbau der fertigen Seite">
+      <div class="blk frame"><b>Header</b><span>aus BaseLayout</span></div>
+      ${n.compose.map(([c, t]) => `<div class="blk main"><b>${c}</b><span>${t}</span></div>`).join('')}
+      <div class="blk frame"><b>Footer</b><span>aus BaseLayout</span></div>
+      ${n.overlay ? '<div class="overlay" title="Winterdienst-Straße"></div>' : ''}
+    </div><p class="wire-cap">So ist die fertige Seite von oben nach unten aufgebaut.${n.overlay ? ` Kupferstreifen rechts: ${n.overlay}, liegt über allen Abschnitten.` : ''} Unsichtbar dazu: CookieConsent und PortraitNotice.</p></div>`;
+  }
+  if (n.more) html += `<div class="more"><h4>Was hier genau passiert</h4><ul>${n.more.map((m) => `<li>${esc(m)}</li>`).join('')}</ul></div>`;
+  if (n.edit) html += `<div class="edit"><h4>Hier änderst du</h4><p>${esc(n.edit)}</p></div>`;
+  html += `<div class="rel down"><h4>Nutzt direkt</h4>${relList(direct)}</div>`;
+  html += `<div class="rel up"><h4>Wird direkt genutzt von</h4>${relList(directUp)}</div>`;
+  detail.innerHTML = html;
+  detail.querySelectorAll('[data-go]').forEach((b) => b.addEventListener('click', () => select(b.dataset.go, true)));
+}
+
+function select(id, fromGraph) {
+  state = id;
+  paint();
+  if (id && window.matchMedia('(max-width: 1240px)').matches && !fromGraph) detail.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+
+select('p-index');
+drawEdges();
+new ResizeObserver(drawEdges).observe(graph);
+document.fonts && document.fonts.ready.then(drawEdges);
+</script>
+</body>
+</html>
