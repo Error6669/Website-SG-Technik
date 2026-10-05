@@ -20,8 +20,6 @@ export interface PlantSimulation {
 }
 
 export interface PlantSimulationOptions {
-  /** Startbereich auf schmalen Bildschirmen. */
-  area?: AreaId;
   /** Umgebender Rahmen (PlantSimulation.astro), der seine Breite aus --ps-fit
    *  ableitet; ohne Rahmen gilt der Wert nur für die Simulation selbst. */
   frame?: HTMLElement;
@@ -47,15 +45,37 @@ export function mountPlantSimulation(root: HTMLElement, options: PlantSimulation
   const view = createView(svg, sim);
   const panel = bindPanel(root, ctrl);
   ctrl.onChange(() => panel.update());
-  const camera = createCamera(root, svg, options.area ?? 'gesamt', () => sim.reducedMotion);
-  // Startet ein Ablauf, schwenkt die Ansicht auf dem Handy dorthin. Der
-  // Listener der Bedienung läuft vorher (früher registriert) und hat den
-  // Ablauf dann schon gestartet.
-  const onStart = (e: MouseEvent): void => {
-    const id = (e.target as HTMLElement).closest<HTMLElement>('[data-action]')?.dataset.action as ProcessId | undefined;
-    if (id && ctrl.active.has(id)) camera.follow(id);
+  const camera = createCamera(root, svg, () => sim.reducedMotion);
+  // Ansicht auf dem Handy folgt den Abläufen: Startet oder endet einer, zeigt
+  // sie die ganze Anlage. Erst wenn alles Laufende nur noch in einem Teil
+  // passiert (Fahrzeug steht, Pumpe läuft …), zoomt sie dorthin — frühestens
+  // nach HOLD Sekunden, damit das Gesamtbild auch zu sehen ist. Gewechselt
+  // wird nur, wenn sich das Ziel ändert; dazwischen bleibt die Wahl im Menü
+  // „Ansicht“ bestehen.
+  const HOLD = 1.5;
+  let running = new Set<ProcessId>();
+  let hold = 0;
+  let autoArea: AreaId | null = null;
+  ctrl.onChange(() => {
+    const now = new Set(ctrl.active.keys());
+    const changed = now.size !== running.size || [...now].some((id) => !running.has(id));
+    running = now;
+    if (!changed) return;
+    hold = HOLD;
+    autoArea = 'gesamt';
+    camera.show('gesamt');
+  });
+  const autoCamera = (dt: number): void => {
+    if (hold > 0) {
+      hold -= dt;
+      return;
+    }
+    if (!ctrl.active.size) return;
+    const area = ctrl.focus() ?? 'gesamt';
+    if (area === autoArea) return;
+    autoArea = area;
+    camera.show(area);
   };
-  root.addEventListener('click', onStart);
   sim.message('Anlage betriebsbereit');
 
   // Anlage und Knöpfe müssen nach dem Laden zusammen im Fenster stehen, ohne
@@ -128,6 +148,7 @@ export function mountPlantSimulation(root: HTMLElement, options: PlantSimulation
     if (visible) {
       sim.tick(dt);
       view.render();
+      autoCamera(dt);
       camera.tick(dt);
       // Texte der Bedienung reichen zehnmal pro Sekunde.
       sincePanel += dt;
@@ -152,7 +173,6 @@ export function mountPlantSimulation(root: HTMLElement, options: PlantSimulation
       window.removeEventListener('resize', onResize);
       window.removeEventListener('orientationchange', onOrientation);
       document.documentElement.classList.remove('ps-noscroll');
-      root.removeEventListener('click', onStart);
       ctrl.reset();
       root.innerHTML = '';
     },

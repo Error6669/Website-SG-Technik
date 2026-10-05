@@ -972,9 +972,9 @@
 }
 
 /* ── Schmale Bildschirme ──────────────────────────────────────────────────
-   Bereichs-Reiter über der Zeichnung und SalzManager-Werte als lesbares Feld.
-   Ab 48 rem zeigt die Zeichnung immer die ganze Anlage, beides entfällt. */
-.ps-areas,
+   Knopf „Ansicht“ (Ausschnitt wählen) und SalzManager-Werte als lesbares
+   Feld. Ab 48 rem zeigt die Zeichnung immer die ganze Anlage, beides entfällt. */
+.ps-view,
 .ps-smm {
   display: none;
 }
@@ -989,33 +989,102 @@
   .ps-bar {
     padding: 0.5rem 0;
   }
-  .ps-areas {
-    display: flex;
-    gap: 0.375rem;
-    overflow-x: auto;
-    padding: 0.625rem 0;
-    scrollbar-width: none;
+  /* „Ansicht“: Knopf in der Zeile von Info und Positionen, darunter die
+     Auswahl als Liste über der Zeichnung. */
+  /* Pop-ups am Handy beide mit Glas-Optik (auf Wunsch, 05.10.2026): stärker
+     weichgezeichnet als am Desktop, damit der Text vor der Zeichnung gut
+     lesbar bleibt. */
+  .ps-dlg[data-dlg] {
+    border-color: rgba(251, 252, 252, 0.7);
+    background: rgba(251, 252, 252, 0.7);
+    -webkit-backdrop-filter: blur(20px) saturate(1.15); /* impeccable-disable-line glassmorphism -- Glas-Optik auf Wunsch des Auftraggebers, Pop-ups am Handy */
+    backdrop-filter: blur(20px) saturate(1.15); /* impeccable-disable-line glassmorphism -- Glas-Optik auf Wunsch des Auftraggebers, Pop-ups am Handy */
   }
-  .ps-areas::-webkit-scrollbar {
+  .ps-dlg[data-dlg]::backdrop {
+    background: rgba(13, 36, 54, 0.12);
+  }
+  .ps-dlg[data-dlg] .ps-dlg-head {
+    border-bottom-color: rgba(24, 58, 89, 0.18);
+  }
+
+  /* Info-Pop-up: kleiner als das Fenster, feste Schrift, der Inhalt scrollt
+     (auf Wunsch, nur am Handy — sonst passt fitDialog die Schrift ein). */
+  .ps-dlg[data-dlg='info'] {
+    width: calc(100vw - 2.5rem);
+    max-height: min(72svh, 36rem);
+  }
+  .ps-dlg[data-dlg='info'] .ps-dlg-body {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0 1rem 0.75rem;
+    font-size: 1rem;
+  }
+  .ps-dlg[data-dlg='info'] .ps-row {
+    padding: 0.875em 0;
+  }
+  .ps-dlg[data-dlg='info'] .ps-row:last-child {
+    border-bottom: 0;
+  }
+  .ps-dlg[data-dlg='info'] .ps-row .ps-row-text {
+    margin-top: 0.375em;
+    color: var(--color-navy-900);
+    font-size: 0.9375em;
+    line-height: 1.55;
+  }
+  .ps-dlg[data-dlg='info'] .ps-row .ps-row-state {
+    margin-top: 0.5em;
+    font-size: 0.8125em;
+  }
+
+  /* „Ansicht“ steht links, Info und Positionen rechts. */
+  .ps-tools {
+    flex: 1;
+  }
+  .ps-view {
+    display: block;
+    position: relative;
+    margin-right: auto;
+  }
+  .ps-view-menu {
+    position: absolute;
+    top: calc(100% + 0.375rem);
+    left: 0;
+    z-index: 20;
+    display: grid;
+    gap: 0.25rem;
+    min-width: 11rem;
+    padding: 0.375rem;
+    border: 1px solid var(--color-slate-300);
+    border-radius: 8px; /* impeccable-disable-line design-system-radius -- runde Knöpfe auf Wunsch des Auftraggebers (04.10.2026) */
+    background: var(--color-paper);
+  }
+  .ps-view-menu[hidden] {
     display: none;
   }
-  .ps-areas button {
-    flex: none;
-    padding: 0.5rem 0.875rem;
-    border: 1px solid var(--color-slate-300);
-    border-radius: 999px; /* impeccable-disable-line design-system-radius -- Bereichs-Reiter als Pillen, passend zu den runden Knöpfen der Simulation */
-    background: var(--color-paper);
+  .ps-view-menu button {
+    padding: 0.625rem 0.75rem;
+    border: 0;
+    border-radius: 6px; /* impeccable-disable-line design-system-radius -- runde Knöpfe auf Wunsch des Auftraggebers (04.10.2026) */
+    background: transparent;
     color: var(--color-navy-800);
-    font: 600 0.875rem/1 var(--font-body);
+    font: 600 0.9375rem/1.2 var(--font-body);
+    text-align: left;
     cursor: pointer;
     transition:
       background-color 0.15s ease,
       color 0.15s ease;
   }
-  .ps-areas button[aria-pressed='true'] {
-    border-color: var(--color-navy-800);
+  .ps-view-menu button[aria-pressed='true'] {
     background: var(--color-navy-800);
     color: var(--color-fog-50);
+  }
+  .ps-tool[aria-expanded='true'] {
+    border-color: var(--color-navy-800);
+  }
+  /* Kein „Zurücksetzen“ auf dem Handy: Neu laden setzt die Anlage ebenso
+     zurück, der Platz geht an Zeichnung und Knöpfe. */
+  .ps-reset {
+    display: none;
   }
 
   /* Die Zeichnung zeigt hier einen Ausschnitt in voller Breite, ohne seitliches
@@ -1023,8 +1092,12 @@
   .ps-stage {
     overflow: hidden;
   }
+  /* Antippen wählt einen Bereich, Doppeltipp führt zurück (camera.ts) —
+     der Browser soll dabei nicht selbst die Seite zoomen. */
   .ps-svg {
     min-width: 0;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .ps-smm {
@@ -1066,10 +1139,31 @@
     color: var(--color-slate-600);
     font: 400 0.75rem/1.3 var(--font-body);
   }
-  .ps-smm-msg {
-    margin-top: 0.625rem !important;
-    color: var(--color-slate-600);
+  .ps-smm-log {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ps-smm-log li {
+    display: grid;
+    grid-template-columns: 3.25rem minmax(0, 1fr);
+    gap: 0.5rem;
+    padding: 0.4375rem 0;
+    border-bottom: 1px solid var(--color-line);
+    color: var(--color-navy-800);
     font-size: 0.875rem;
+    line-height: 1.4;
+  }
+  .ps-smm-log li span {
+    color: var(--color-slate-600);
+    font: 500 0.8125rem/1.6 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+  .ps-smm-log li:last-child {
+    border-bottom: 0;
+  }
+  .ps-smm-log li.is-warn {
+    color: var(--color-copper-600);
   }
 }
 
@@ -1092,4 +1186,11 @@
 html.ps-noscroll,
 html.ps-noscroll body {
   overflow: hidden;
+}
+
+/* Pop-up offen: Seite dahinter steht still (setzt panel.ts). */
+html.ps-dlg-lock,
+html.ps-dlg-lock body {
+  overflow: hidden;
+  overscroll-behavior: none;
 }

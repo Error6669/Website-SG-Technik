@@ -141,9 +141,24 @@ Aussagen hängen an Werten statt im Fließtext zu stehen — ändert sich die La
 
 **Verifiziert:** `npm run build` nach jedem Schritt sauber (8 Seiten). Gerendertes HTML per `curl` gegengeprüft — Abschnitt 6 vorhanden, Animation auf `/danke`, Startseite ohne Header-Streifen. **Nicht visuell geprüft** (kein Screenshot-Vergleich).
 
-## Letzte Änderungen (Session 2026-10-05) — Feinschliff Anlagensimulation · **committet, NICHT gepusht**
+## Letzte Änderungen (Session 2026-10-05, Teil 2) — Anlagensimulation am Handy · committet und gepusht auf `develop`
 
-Auf `develop` committet (zwei Commits nach `df55032`), auf Wunsch **nicht gepusht** — `origin/develop` steht noch auf `df55032`. Prüfstand am Ende: `tsc` 0, `astro build` 9 Seiten, Detector 0 in allen Sim-Dateien, alle Prüfskripte grün (siehe unten).
+Nur die mobile Ansicht (< 48 rem) wurde geändert, am PC bleibt die Simulation unverändert. Details: `docs/animationen/anlagensimulation.md`.
+
+- **Knopf „Ansicht“** (links in der Zeile, Info/Positionen rechts) ersetzt die Bereichs-Reiter. Er öffnet eine Auswahl: Gesamt, Silo, Aufbereiter, Soletank, Zapfstelle und neu **SalzManager** (Zoom auf den Bildschirm in der Zeichnung).
+- **Start immer mit der Gesamtansicht.** `?bereich=…` und `PRODUCT_AREA` sind entfernt, die Knöpfe „Unsere Anlagen“ verlinken nur noch `/anlagensimulation`.
+- **Fingertipp:** In der Gesamtansicht öffnet ein Tipp den passenden Bereich, ein Doppeltipp führt zurück (`camera.ts`). Die Steuerung (Pos. 11) liegt in keinem Bereich, ein Tipp darauf öffnet die Zapfstelle.
+- **Ansicht folgt den Abläufen** (`plant-sim.ts`): Bei Start und Ende eines Ablaufs zeigt sie die Gesamtansicht (mind. 1,5 s). Ein Bereich wird erst gezeigt, wenn alles Laufende nur noch dort passiert. Den Bereich legt jeder Schritt fest: `ctx.step(text, bereich)` in `processes.ts`. Für „Sole herstellen“ im Dauerbetrieb gibt es den Ausschnitt `produktion` (nur Automatik, nicht im Menü).
+- **Meldungen:** Unter dem SalzManager-Feld stehen alle Meldungen, die neueste oben, höchstens 10 (`LOG_MAX`).
+- **Zurücksetzen** ist am Handy ausgeblendet (neu laden setzt zurück).
+- **Pop-ups am Handy:** Beide haben Glas-Optik. Das Info-Pop-up ist kleiner (≤ 72 % der Höhe), hat feste Schrift und darf scrollen. Ist ein Pop-up offen, ist die Seite dahinter gesperrt (`html.ps-dlg-lock`). `dlgcheck.mjs` lässt das Scrollen im Info-Pop-up am Handy zu.
+- **Startseite (`Hero.astro`):** Die Kennzahlen umbrechen am Handy nicht mehr („100 – 980 t“, „15.000 l/h“), die Schrift wird auf schmalen Handys kleiner. Ab 640 px ist alles unverändert. Offen: Auf dem Tablet (~768 px, 4 Kacheln) brechen beide Werte weiterhin um.
+
+**Geprüft** (Chrome headless, CDP): fit/dlg/scroll/panel grün, Ablauf-Zoom und Fingertipp per Protokoll, Scrollsperre per Mausrad, `tsc` 0, `astro build` sauber. Der Detector meldet nur den bekannten Fund in `sg-technik-logo.js`. **Ungetestet:** Safari und echtes iPhone (Scrollsperre, Doppeltipp, Glas-Optik).
+
+## Session 2026-10-05, Teil 1 — Feinschliff Anlagensimulation · gepusht
+
+Auf `develop` committet (zwei Commits nach `df55032`), zusammen mit Teil 2 gepusht. **Überholt durch Teil 2:** Bereichs-Reiter am Handy, „Kein Pop-up scrollt“ am Handy (gilt nur noch für Positionen), `?bereich=…`. Prüfstand am Ende: `tsc` 0, `astro build` 9 Seiten, Detector 0 in allen Sim-Dateien, alle Prüfskripte grün (siehe unten).
 
 **Seite `/anlagensimulation` (`src/pages/anlagensimulation.astro`, `src/components/PlantSimulation.astro`)**
 - Sichtbare Überschrift entfernt (`<h1 class="sr-only">` bleibt), Einleitungstext entfernt, Kontakt-Streifen (`CtaBand`) auf dieser Seite entfernt, keine Breitenbegrenzung mehr (`px-4 sm:px-6`).
@@ -174,7 +189,7 @@ Auf `develop` committet (zwei Commits nach `df55032`), auf Wunsch **nicht gepush
 **Prüfskripte:** `scripts/sim-pruefung/` (README dort) — fit, scroll, text, dlg, panel, smoke. Vor jedem Commit an der Simulation laufen lassen.
 
 **Offen**
-- Pushen (auf Anweisung). Danach `develop → main` für Live.
+- `develop → main` für Live.
 - Safari und echtes iPhone ungetestet (inkl. Glas-Optik, Scrollsperre, `.local`).
 - Fachlich prüfen: angenommene Werte in `src/content/anlagensimulation.ts` (Tank 50 m³, Aufbereiter 7 m³, Leistungen; Obernberg-Screenshot zeigt eher 1,14 kg/l).
 - Tablet quer (1024×768) scrollt noch (Knöpfe unter der Zeichnung).

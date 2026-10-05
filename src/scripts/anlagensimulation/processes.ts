@@ -15,7 +15,7 @@
 // Aufräumen gehört in `finally`: Wird ein Ablauf gestoppt oder die Anlage
 // zurückgesetzt, müssen Pumpen und Ventile wieder in Ruhestellung gehen.
 
-import { LAYOUT, PLANT } from '../../content/anlagensimulation';
+import { LAYOUT, PLANT, type AreaId } from '../../content/anlagensimulation';
 import { fmt1 } from './format';
 import { Cancelled, Ctx, Sim, initialState, type PlantState, type Vehicle, type VehicleKind } from './model';
 
@@ -95,7 +95,7 @@ const EXIT_RIGHT = LAYOUT.width + 420;
 /** RFID-Anmeldung, an Silo und Zapfstelle gleich: Leser liest, dann Freigabe. */
 async function readChip(ctx: Ctx, v: Vehicle, station: 'rfidSilo' | 'rfidZapf'): Promise<void> {
   const eq = ctx.state.eq;
-  ctx.step(`RFID-Leser liest Chip ${v.chip}`);
+  ctx.step(`RFID-Leser liest Chip ${v.chip}`, station === 'rfidSilo' ? 'silo' : 'zapfstelle');
   eq[station] = 'reading';
   await ctx.wait(1.1);
   eq[station] = 'ok';
@@ -123,7 +123,7 @@ export const PROCESSES: ProcessDef[] = [
       const target = PLANT.brine.concentration;
       try {
         if (s.mixer.m3 < workLevel) {
-          ctx.step('P3 pumpt Wasser von oben in den Aufbereiter');
+          ctx.step('P3 pumpt Wasser von oben in den Aufbereiter', 'aufbereiter');
           eq.vW = true;
           eq.p3 = true;
           eq.agitator = true;
@@ -139,7 +139,7 @@ export const PROCESSES: ProcessDef[] = [
         }
 
         if (s.mixer.conc < target - 0.05) {
-          ctx.step('Dosierschnecke fördert Salz, Rührwerk löst es');
+          ctx.step('Dosierschnecke fördert Salz, Rührwerk löst es', 'aufbereiter');
           eq.screw = true;
           eq.agitator = true;
           await ctx.run((pdt) => {
@@ -154,7 +154,7 @@ export const PROCESSES: ProcessDef[] = [
         }
 
         // Dauerbetrieb: Salz und Wasser laufen nach, P1 fördert dieselbe Menge ab.
-        ctx.step('P1 fördert Sole in den Soletank');
+        ctx.step('P1 fördert Sole in den Soletank', 'produktion');
         eq.vW = true;
         eq.p3 = true;
         eq.screw = true;
@@ -204,7 +204,7 @@ export const PROCESSES: ProcessDef[] = [
       const eq = s.eq;
       const t = s.tank;
       try {
-        ctx.step('P2 wälzt den Soletank um');
+        ctx.step('P2 wälzt den Soletank um', 'soletank');
         eq.vT = true;
         eq.vR = true;
         eq.p2 = true;
@@ -235,7 +235,7 @@ export const PROCESSES: ProcessDef[] = [
       const eq = s.eq;
       const t = s.tank;
       try {
-        ctx.step('P2 pumpt den Soletank über den Ablass ab');
+        ctx.step('P2 pumpt den Soletank über den Ablass ab', 'soletank');
         eq.vT = true;
         eq.vD = true;
         eq.p2 = true;
@@ -269,9 +269,9 @@ export const PROCESSES: ProcessDef[] = [
         ctx.step(`${v.label} fährt zur Zapfstelle`);
         await ctx.drive(v, LAYOUT.stops.brineInlet);
         await readChip(ctx, v, 'rfidZapf');
-        ctx.step('Überfüllschutzstecker wird gesteckt');
+        ctx.step('Überfüllschutzstecker wird gesteckt', 'zapfstelle');
         await ctx.tween(1, (p) => (eq.hose = p));
-        ctx.step('P2 füllt den Fahrzeugtank');
+        ctx.step('P2 füllt den Fahrzeugtank', 'zapfstelle');
         eq.vT = true;
         eq.vZ = true;
         eq.p2 = true;
@@ -300,7 +300,7 @@ export const PROCESSES: ProcessDef[] = [
           stop === 'empty',
         );
         ctx.sim.record({ vehicle: v.label, what: 'Sole', amount: `${fmt1(taken)} m³` });
-        ctx.step('Stecker wird gezogen');
+        ctx.step('Stecker wird gezogen', 'zapfstelle');
         await ctx.tween(0.8, (p) => (eq.hose = 1 - p));
         eq.rfidZapf = 'off';
         ctx.step(`${v.label} fährt ab`);
@@ -332,9 +332,9 @@ export const PROCESSES: ProcessDef[] = [
         await ctx.drive(v, LAYOUT.stops.siloOutlet);
         await readChip(ctx, v, 'rfidSilo');
         eq.lightOut = 'green';
-        ctx.step('Ampel grün – Freigabe');
+        ctx.step('Ampel grün – Freigabe', 'silo');
         await ctx.wait(0.6);
-        ctx.step('Schieber offen, Rüttler läuft – Salz fällt in den Streuer');
+        ctx.step('Schieber offen, Rüttler läuft – Salz fällt in den Streuer', 'silo');
         eq.gate = true;
         const siloBefore = s.silo;
         await ctx.run((pdt) => {
@@ -380,9 +380,9 @@ export const PROCESSES: ProcessDef[] = [
         await ctx.drive(v, LAYOUT.stops.fillPipe);
         eq.lightIn = 'green';
         ctx.sim.message(`${v.label}: Lieferung angemeldet – Ampel Befüllung grün`);
-        ctx.step('Befüllschlauch wird angekuppelt');
+        ctx.step('Befüllschlauch wird angekuppelt', 'silo');
         await ctx.tween(1, (p) => (eq.fillHose = p));
-        ctx.step('Salz wird pneumatisch eingeblasen');
+        ctx.step('Salz wird pneumatisch eingeblasen', 'silo');
         eq.blower = true;
         let given = 0;
         let full = false as boolean;
@@ -401,7 +401,7 @@ export const PROCESSES: ProcessDef[] = [
             : `Lieferung abgeschlossen – ${fmt1(given)} t eingeblasen`,
         );
         ctx.sim.record({ vehicle: v.label, what: 'Lieferung', amount: `+${fmt1(given)} t` });
-        ctx.step('Schlauch wird abgekuppelt');
+        ctx.step('Schlauch wird abgekuppelt', 'silo');
         await ctx.tween(0.8, (p) => (eq.fillHose = 1 - p));
         eq.lightIn = 'red';
         ctx.step(`${v.label} fährt ab`);
@@ -421,6 +421,8 @@ export const PROCESSES: ProcessDef[] = [
 interface Running {
   token: { cancelled: boolean };
   step: string;
+  /** Teil der Anlage, auf den sich der Schritt beschränkt (null = mehrere). */
+  area: AreaId | null;
 }
 
 export class Controller {
@@ -441,6 +443,14 @@ export class Controller {
     return PROCESSES.find((p) => p.id === id)!;
   }
 
+  /** Wo gerade etwas passiert: ein Teil der Anlage, wenn alle laufenden
+   *  Abläufe sich darauf beschränken, sonst null (ganze Anlage). */
+  focus(): AreaId | null {
+    const areas = new Set(Array.from(this.active.values(), (r) => r.area));
+    const [only] = areas;
+    return areas.size === 1 ? only : null;
+  }
+
   /** Grund, warum `id` jetzt nicht starten kann, sonst null. */
   reason(id: ProcessId): string | null {
     if (this.active.has(id)) return null;
@@ -457,10 +467,11 @@ export class Controller {
     if (this.active.has(id) || this.reason(id)) return;
     const def = this.def(id);
     const token = { cancelled: false };
-    const running: Running = { token, step: '' };
+    const running: Running = { token, step: '', area: null };
     this.active.set(id, running);
-    const ctx = new Ctx(this.sim, token, (text) => {
+    const ctx = new Ctx(this.sim, token, (text, area) => {
       running.step = text;
+      running.area = area;
       this.changed();
     });
     this.changed();

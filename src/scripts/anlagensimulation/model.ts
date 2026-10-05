@@ -6,7 +6,7 @@
 // Schaltzuständen von Pumpen und Ventilen abgeleitet — so kann nie eine
 // Leitung „fließen“, deren Ventil zu ist.
 
-import { PLANT } from '../../content/anlagensimulation';
+import { PLANT, type AreaId } from '../../content/anlagensimulation';
 
 export type VehicleKind = 'sprayer' | 'spreader' | 'tanker';
 
@@ -233,16 +233,19 @@ export class Ctx {
   constructor(
     readonly sim: Sim,
     readonly token: Token,
-    private readonly setStep: (text: string) => void,
+    private readonly setStep: (text: string, area: AreaId | null) => void,
   ) {}
 
   get state(): PlantState {
     return this.sim.state;
   }
 
-  /** Text des aktuellen Schritts, wird in der Bedienleiste angezeigt. */
-  step(text: string): void {
-    this.setStep(text);
+  /** Text des aktuellen Schritts, wird in der Bedienleiste angezeigt.
+   *  `area`: Teil der Anlage, auf den sich der Schritt beschränkt — dorthin
+   *  zoomt das Handy; ohne Angabe (Fahrten, Dauerbetrieb über mehrere Teile)
+   *  bleibt die ganze Anlage im Bild. */
+  step(text: string, area: AreaId | null = null): void {
+    this.setStep(text, area);
   }
 
   /** Wartet `seconds` echte Sekunden (Tempo-Faktor eingerechnet). */

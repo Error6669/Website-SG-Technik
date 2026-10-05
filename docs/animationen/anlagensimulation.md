@@ -60,7 +60,7 @@ Pfade relativ zum Projektordner der Website:
 
 ```
 src/pages/anlagensimulation.astro      Seite /anlagensimulation
-src/components/PlantSimulation.astro   Einbau, liest ?bereich=…
+src/components/PlantSimulation.astro   Einbau
 src/content/anlagensimulation.ts       ALLE Stellwerte: Mengen, Leistungen,
                                        Zeitraffer, Geometrie, Handy-Bereiche
 src/styles/anlagensimulation.css       .ps-* (global, Markup entsteht per Skript)
@@ -70,7 +70,7 @@ src/scripts/anlagensimulation/
   scene.ts         die Zeichnung als SVG samt SalzManager-Bildschirm
   vehicles.ts      Fahrzeuge in Seitenansicht
   view.ts          Zustand → Zeichnung, in jedem Bild
-  camera.ts        Ausschnitt auf schmalen Bildschirmen (Bereichs-Reiter)
+  camera.ts        Ausschnitt auf schmalen Bildschirmen (Menü „Ansicht“)
   panel.ts         Bedienleiste, Statuszeile, Ablauf- und Positionsliste,
                    SalzManager-Feld fürs Handy
   format.ts        Zahlenformat de-AT
@@ -117,12 +117,35 @@ Handy kompakt ohne Zustandszeile (läuft = Kupfer, gesperrt = grau). Geprüft
 auf 13 Fenstergrößen von 1920 × 1080 bis 360 × 740, darunter 390 × 664
 (iPhone mit eingeblendeten Safari-Leisten).
 
-**Schmale Bildschirme (< 48 rem):** Bereichs-Reiter Gesamt · Silo ·
-Aufbereiter · Soletank · Zapfstelle über der Zeichnung; sie zoomt per viewBox
-auf den gewählten Ausschnitt (hochformatig, scharf, weil Vektor). Startet ein
-Ablauf, schwenkt die Ansicht selbst dorthin. Die SalzManager-Werte stehen als
-Feld unter den Knöpfen. Startbereich per `?bereich=…`; die Zuordnung Produkt →
-Bereich steht in `PRODUCT_AREA`.
+**Schmale Bildschirme (< 48 rem):** Knopf „Ansicht“ links neben Info und
+Positionen; er öffnet eine Auswahl Gesamt · Silo · Aufbereiter · Soletank ·
+Zapfstelle · SalzManager (schließt nach der Wahl, mit Esc oder Tippen
+daneben). Die Zeichnung zoomt per viewBox auf den gewählten Ausschnitt
+(scharf, weil Vektor). „Ansicht“ steht links, Info und Positionen rechts.
+
+**Ansicht folgt den Abläufen (Handy):** Startet oder endet ein Ablauf, zeigt
+die Zeichnung die ganze Anlage (mindestens 1,5 s). Erst wenn alles Laufende
+nur noch in einem Teil passiert, zoomt sie dorthin, z. B. Streu-LKW steht am
+Silo → Silo, fährt ab → Gesamt. Welcher Schritt zu welchem Teil gehört, steht
+in `processes.ts` (`ctx.step(text, bereich)`); Schritte ohne Bereich (Fahrten,
+Dauerbetrieb über mehrere Teile) und Abläufe in verschiedenen Teilen
+gleichzeitig zeigen die ganze Anlage. Die Logik steht in `plant-sim.ts`.
+Für „Sole herstellen“ im Dauerbetrieb (P1 fördert in den Tank) gibt es den
+Ausschnitt `produktion` (Schnecke bis Soletank); er steht nur der
+Automatik zur Verfügung, nicht im Menü (`auto: true` in `AREAS`).
+
+Unter den Knöpfen stehen die SalzManager-Werte als Feld und darunter alle
+Meldungen seit dem Laden, die neueste oben, höchstens zehn (`LOG_MAX` in
+`panel.ts`). „Zurücksetzen“ gibt es hier nicht (neu laden setzt zurück).
+
+**Start und Fingertipp (Handy):** Nach dem Laden zeigt die Zeichnung immer
+die ganze Anlage (früher per `?bereich=…` wählbar, entfernt). In der ganzen
+Anlage öffnet ein Tipp den Bereich, der zur Stelle am besten passt (unter den
+Bereichen, die den Punkt enthalten, der mit der nächsten Mitte; Bildschirm →
+SalzManager). Ein Doppeltipp führt aus jedem Bereich zurück zur ganzen
+Anlage. Ein Einzeltipp wartet dafür 0,3 s. `touch-action: manipulation`
+verhindert, dass der Browser selbst zoomt. Die Steuerung (Pos. 11) liegt in
+keinem Bereich, ein Tipp darauf öffnet die Zapfstelle.
 
 **Info und Positionen:** zwei Knöpfe rechts in der Legendenzeile. „Info“
 öffnet ein Pop-up (modales `<dialog>`) mit „So arbeitet die Anlage“ (Abläufe
@@ -133,7 +156,11 @@ Zeichnung sichtbar bleibt; es zeigt nur Nummer und Name, schließt mit ×, Esc,
 erneutem Knopfdruck oder Klick daneben. Ohne Knopfspalte (Tablet, Handy)
 öffnet es als Pop-up in der Mitte. Gescrollt werden muss nie: Spalten je nach
 Breite, und passt es trotzdem nicht, verkleinert `fitDialog` in `panel.ts` die
-Schrift (alle Größen im Pop-up in em). Geprüft auf 12 Größen; auf gängigen
+Schrift (alle Größen im Pop-up in em). **Ausnahme Handy (< 48 rem):** Das Info-Pop-up ist kleiner
+(höchstens 72 % der Fensterhöhe), hat feste, größere Schrift und darf scrollen.
+Am Handy haben beide Pop-ups Glas-Optik (stärker weichgezeichnet als am Desktop).
+Ist ein Pop-up (modal) offen, lässt sich dahinter nichts drücken oder scrollen
+(`ps-dlg-lock` am `<html>`); Tippen auf den abgedunkelten Rand schließt es. Geprüft auf 12 Größen; auf gängigen
 Handys 12–16 px, auf 320 × 568 px 10 px. Das Info-Pop-up hat Glas-Optik
 (halbtransparent, weichgezeichnet).
 

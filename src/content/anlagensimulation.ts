@@ -121,32 +121,24 @@ export const LAYOUT = {
  *  fast quadratisch (Breite : Höhe ≈ 0,9) — so füllt die Zeichnung die
  *  Bildschirmbreite und lässt darunter Platz für die Knöpfe. `null` = ganze
  *  Anlage. */
-export type AreaId = 'gesamt' | 'silo' | 'aufbereiter' | 'soletank' | 'zapfstelle';
+export type AreaId = 'gesamt' | 'silo' | 'aufbereiter' | 'soletank' | 'zapfstelle' | 'salzmanager' | 'produktion';
 
-export const AREAS: Array<{ id: AreaId; label: string; box: { x: number; y: number; w: number; h: number } | null }> = [
+export const AREAS: Array<{
+  id: AreaId;
+  label: string;
+  box: { x: number; y: number; w: number; h: number } | null;
+  /** Nur für die automatische Ansicht, nicht im Menü „Ansicht“. */
+  auto?: true;
+}> = [
   { id: 'gesamt', label: 'Gesamt', box: null },
   { id: 'silo', label: 'Silo', box: { x: 60, y: 180, w: 420, h: 450 } },
   { id: 'aufbereiter', label: 'Aufbereiter', box: { x: 340, y: 175, w: 400, h: 455 } },
   { id: 'soletank', label: 'Soletank', box: { x: 500, y: 175, w: 400, h: 455 } },
   { id: 'zapfstelle', label: 'Zapfstelle', box: { x: 690, y: 175, w: 410, h: 455 } },
+  /** Bildschirm in der Zeichnung (LAYOUT.screen) mit schmalem Rand. */
+  { id: 'salzmanager', label: 'SalzManager', box: { x: 436, y: -106, w: 760, h: 282 } },
+  /** Sole herstellen im Dauerbetrieb: Schnecke, Aufbereiter, Pumpenkasten
+   *  und Soletank — alles, was sich dabei bewegt, ohne Silo und Zapfstelle. */
+  { id: 'produktion', label: 'Sole herstellen', box: { x: 290, y: 195, w: 580, h: 435 }, auto: true },
 ];
 
-/** Wohin die Ansicht auf dem Handy schwenkt, wenn ein Ablauf startet. */
-export const PROCESS_AREA = {
-  produce: 'aufbereiter',
-  circulate: 'soletank',
-  drain: 'soletank',
-  brineOut: 'zapfstelle',
-  saltOut: 'silo',
-  saltIn: 'silo',
-} as const satisfies Record<string, AreaId>;
-
-/** Startbereich, wenn man über „Unsere Anlagen“ von einem Produkt kommt
- *  (/anlagensimulation?bereich=…). Schlüssel = slug aus produkteTechnik.ts. */
-export const PRODUCT_AREA: Record<string, AreaId> = {
-  streusalzlagerung: 'silo',
-  soleaufbereitung: 'aufbereiter',
-  solepumpstation: 'zapfstelle',
-  automatisierung: 'gesamt',
-  service: 'gesamt',
-};

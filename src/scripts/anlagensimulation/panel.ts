@@ -22,6 +22,9 @@ const PARTS: string[] = [
   'SalzManager',
 ];
 
+/** Meldungen in der Liste unter dem SalzManager (Handy); ältere fallen weg. */
+const LOG_MAX = 10;
+
 /** Abläufe tragen Buchstaben (A–F), damit sie nicht mit den
  *  Positionsnummern (1–12) in der Zeichnung verwechselt werden. */
 const stepLetter = (i: number): string => String.fromCharCode(65 + i);
@@ -57,6 +60,16 @@ export function panelMarkup(stage: string): string {
       <li><span class="ps-swatch ps-swatch--active"></span>Ventil offen · Pumpe läuft</li>
     </ul>
     <div class="ps-tools">
+      <!-- Nur auf schmalen Bildschirmen: Ausschnitt der Zeichnung wählen. -->
+      <div class="ps-view">
+        <button type="button" class="ps-tool" data-view-toggle aria-haspopup="true" aria-expanded="false" aria-controls="ps-view-menu">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2.75 7V3.75a1 1 0 0 1 1-1H7M13 2.75h3.25a1 1 0 0 1 1 1V7M17.25 13v3.25a1 1 0 0 1-1 1H13M7 17.25H3.75a1 1 0 0 1-1-1V13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><rect x="7" y="7" width="6" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+          Ansicht
+        </button>
+        <div class="ps-view-menu" id="ps-view-menu" role="group" aria-label="Ansicht wählen" hidden>
+          ${AREAS.filter((a) => !a.auto).map((a) => `<button type="button" data-area="${a.id}" aria-pressed="false">${a.label}</button>`).join('')}
+        </div>
+      </div>
       <button type="button" class="ps-tool" data-dialog="info" aria-haspopup="dialog" aria-controls="ps-dlg-info">
         <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="6.2" r="1.1" fill="currentColor"/><path d="M10 9v5.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
         Info
@@ -66,10 +79,6 @@ export function panelMarkup(stage: string): string {
         Positionen
       </button>
     </div>
-  </div>
-
-  <div class="ps-areas" role="group" aria-label="Bereich der Anlage">
-    ${AREAS.map((a) => `<button type="button" data-area="${a.id}" aria-pressed="false">${a.label}</button>`).join('')}
   </div>
 
   <!-- Zeichnung und Bedienung gehören zusammen ins Bild: auf breiten
@@ -96,7 +105,9 @@ export function panelMarkup(stage: string): string {
       <div><dt>Soletank</dt><dd><span data-smm="tank"></span><small data-smm="tankSub"></small></dd></div>
       <div><dt>Entnahmen</dt><dd><span data-smm="totals"></span><small data-smm="totalsSub"></small></dd></div>
     </dl>
-    <p class="ps-smm-msg" data-smm="msg"></p>
+    <!-- Alle Meldungen seit dem Laden, neueste oben, höchstens zehn. -->
+    <h3 class="ps-subhead">Meldungen</h3>
+    <ol class="ps-smm-log" data-smm-log></ol>
   </section>
 
   <!-- Pop-ups zu den Knöpfen „Info“ und „Positionen“. Ihr Inhalt passt sich
@@ -151,6 +162,8 @@ export function bindPanel(root: HTMLElement, ctrl: Controller): Panel {
   );
   const status = q('[data-status]');
   const smm = (k: string) => q(`[data-smm="${k}"]`);
+  const log = q('[data-smm-log]');
+  let lastMsg: unknown;
 
   // Ein gesperrter Knopf bleibt bedienbar (aria-disabled statt disabled):
   // Ein Klick erklärt dann in der Statuszeile, warum es gerade nicht geht.
@@ -166,6 +179,12 @@ export function bindPanel(root: HTMLElement, ctrl: Controller): Panel {
    *  (alle Größen darin sind in em angegeben und schrumpfen mit). */
   const fitDialog = (dlg: HTMLDialogElement): void => {
     const body = dlg.querySelector<HTMLElement>('.ps-dlg-body')!;
+    // Ausnahme Info auf dem Handy: feste, gut lesbare Schrift, dafür scrollt
+    // der Inhalt (styles: .ps-dlg[data-dlg='info'] unter 48 rem).
+    if (dlg === infoDlg && phone.matches) {
+      body.style.fontSize = '';
+      return;
+    }
     let size = 16;
     body.style.fontSize = `${size}px`;
     while (body.scrollHeight > body.clientHeight + 1 && size > 10) {
@@ -173,6 +192,8 @@ export function bindPanel(root: HTMLElement, ctrl: Controller): Panel {
       body.style.fontSize = `${size}px`;
     }
   };
+  const infoDlg = root.querySelector<HTMLDialogElement>('[data-dlg="info"]')!;
+  const phone = window.matchMedia('(max-width: 47.99rem)');
   const openDialogs = (): HTMLDialogElement[] =>
     Array.from(root.querySelectorAll<HTMLDialogElement>('dialog[open]'));
   // „Positionen“ auf breiten Bildschirmen: ein Feld genau über dem Bereich
@@ -221,10 +242,24 @@ export function bindPanel(root: HTMLElement, ctrl: Controller): Panel {
   window.addEventListener('resize', onResize);
   // Das nicht-modale Feld schließt bei Esc und bei einem Klick daneben (der
   // Knopf „Positionen“ selbst schaltet es über onClick um).
+  // Menü „Ansicht“: Die Auswahl selbst übernimmt camera.ts (data-area), hier
+  // nur Öffnen und Schließen — nach der Wahl, mit Esc oder Tippen daneben.
+  const viewBtn = q<HTMLButtonElement>('[data-view-toggle]');
+  const viewMenu = q('.ps-view-menu');
+  const setViewMenu = (open: boolean): void => {
+    viewMenu.hidden = !open;
+    viewBtn.setAttribute('aria-expanded', String(open));
+  };
+
   const onKey = (e: KeyboardEvent): void => {
+    if (e.key === 'Escape' && !viewMenu.hidden) {
+      setViewMenu(false);
+      viewBtn.focus();
+    }
     if (e.key === 'Escape' && partsDlg.open && partsDlg.classList.contains('is-panel')) partsDlg.close();
   };
   const onPointer = (e: PointerEvent): void => {
+    if (!viewMenu.hidden && !viewBtn.parentElement!.contains(e.target as Node)) setViewMenu(false);
     if (!partsDlg.open || !partsDlg.classList.contains('is-panel')) return;
     const t = e.target as Node;
     if (partsDlg.contains(t) || q('[data-dialog="parts"]').contains(t)) return;
@@ -239,10 +274,28 @@ export function bindPanel(root: HTMLElement, ctrl: Controller): Panel {
       if (e.target === dlg) dlg.close();
     }),
   );
+  // Solange ein Pop-up (modal) offen ist, lässt sich dahinter nichts drücken
+  // (das macht showModal) und auch nichts scrollen (Klasse ps-dlg-lock, wie
+  // beim Cookie-Hinweis). Das nicht-modale Positionen-Feld am Desktop sperrt nicht.
+  const lockPage = (on: boolean): void => {
+    document.documentElement.classList.toggle('ps-dlg-lock', on);
+  };
+  const onDialogClose = (): void => {
+    if (!root.querySelector('dialog[open]:modal')) lockPage(false);
+  };
+  root.querySelectorAll<HTMLDialogElement>('dialog').forEach((dlg) => dlg.addEventListener('close', onDialogClose));
 
   const onClick = (e: MouseEvent): void => {
     const target = (e.target as HTMLElement).closest('button');
     if (!target || !root.contains(target)) return;
+    if (target.hasAttribute('data-view-toggle')) {
+      setViewMenu(viewMenu.hidden);
+      return;
+    }
+    if (target.dataset.area) {
+      setViewMenu(false);
+      return;
+    }
     if (target.dataset.dialog) {
       const dlg = root.querySelector<HTMLDialogElement>(`[data-dlg="${target.dataset.dialog}"]`)!;
       if (dlg.open) {
@@ -256,6 +309,7 @@ export function bindPanel(root: HTMLElement, ctrl: Controller): Panel {
         dlg.querySelector<HTMLElement>('[data-close]')?.focus();
       } else {
         dlg.showModal();
+        lockPage(true);
       }
       fitDialog(dlg);
       return;
@@ -295,8 +349,20 @@ export function bindPanel(root: HTMLElement, ctrl: Controller): Panel {
     text(smm('tankSub'), s.tank.m3 < 0.05 ? 'leer' : `${fmt1(s.tank.conc)} % Salz`);
     text(smm('totals'), `${fmt1(s.totals.salt)} t Salz`);
     text(smm('totalsSub'), `${fmt1(s.totals.brine)} m³ Sole`);
-    const last = s.messages[0];
-    text(smm('msg'), last ? `${last.time}  ${last.text}` : '');
+    // Neu aufgebaut nur, wenn eine Meldung dazukommt (neueste steht vorn).
+    if (s.messages[0] !== lastMsg) {
+      lastMsg = s.messages[0];
+      log.replaceChildren(
+        ...s.messages.slice(0, LOG_MAX).map((m) => {
+          const li = document.createElement('li');
+          li.classList.toggle('is-warn', m.warn);
+          const time = document.createElement('span');
+          time.textContent = m.time;
+          li.append(time, m.text);
+          return li;
+        }),
+      );
+    }
 
     const steps: string[] = [];
     for (const p of PROCESSES) {
@@ -338,6 +404,7 @@ export function bindPanel(root: HTMLElement, ctrl: Controller): Panel {
   return {
     update,
     destroy: () => {
+      lockPage(false);
       root.removeEventListener('click', onClick);
       window.removeEventListener('resize', onResize);
       document.removeEventListener('keydown', onKey);

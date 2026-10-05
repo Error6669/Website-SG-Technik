@@ -26,16 +26,17 @@ for (const [w, h] of sizes) {
   await send('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile: w < 600 });
   await send('Page.navigate', { url: process.argv[2] }); await sleep(1500);
   await ev(`[...document.querySelectorAll('button')].find(b=>/Verstanden/.test(b.textContent))?.click()`);
-  const tools = await ev(`(()=>{const t=[...document.querySelectorAll('.ps-tool')].map(b=>b.getBoundingClientRect());return t.every(r=>r.width>0&&r.bottom<=innerHeight&&r.right<=innerWidth)})()`);
+  const tools = await ev(`(()=>{const t=[...document.querySelectorAll('.ps-tool[data-dialog]')].map(b=>b.getBoundingClientRect());return t.every(r=>r.width>0&&r.bottom<=innerHeight&&r.right<=innerWidth)})()`);
   const out = [];
   for (const k of ['info', 'parts']) {
-    const r = await ev(`(async()=>{document.querySelector('[data-dialog=${k}]').click();await new Promise(r=>setTimeout(r,250));const d=document.querySelector('[data-dlg=${k}]');const b=d.querySelector('.ps-dlg-body');const rd=d.getBoundingClientRect();const res={open:d.open,fits:b.scrollHeight<=b.clientHeight+1,inView:rd.top>=0&&rd.bottom<=innerHeight&&rd.right<=innerWidth,font:b.style.fontSize,cols:getComputedStyle(b.firstElementChild).gridTemplateColumns.split(' ').length};return res})()`);
+    const r = await ev(`(async()=>{document.querySelector('[data-dialog=${k}]').click();await new Promise(r=>setTimeout(r,250));const d=document.querySelector('[data-dlg=${k}]');const b=d.querySelector('.ps-dlg-body');const rd=d.getBoundingClientRect();const res={open:d.open,fits:b.scrollHeight<=b.clientHeight+1,scrolls:getComputedStyle(b).overflowY==='auto',inView:rd.top>=0&&rd.bottom<=innerHeight&&rd.right<=innerWidth,font:b.style.fontSize,cols:getComputedStyle(b.firstElementChild).gridTemplateColumns.split(' ').length};return res})()`);
     if (shots.includes(`${w}x${h}-${k}`)) { const s = await send('Page.captureScreenshot', { format: 'png' }); fs.writeFileSync(`${OUT}/dlg-${w}x${h}-${k}.png`, Buffer.from(s.result.data, 'base64')); }
     await ev(`document.querySelector('[data-dlg=${k}] [data-close]').click()`);
     const closed = await ev(`!document.querySelector('[data-dlg=${k}]').open`);
-    const ok = r.open && r.fits && r.inView && closed;
+    // Info auf dem Handy (< 768 px) darf scrollen, statt die Schrift zu verkleinern.
+    const ok = r.open && (r.fits || (k === 'info' && w < 768 && r.scrolls)) && r.inView && closed;
     if (!ok) fails++;
-    out.push(`${k}: ${ok ? 'OK' : 'FEHLER'} Schrift ${r.font}, ${r.cols} Sp.${r.inView ? '' : ' ragt raus'}${closed ? '' : ' schließt nicht'}`);
+    out.push(`${k}: ${ok ? 'OK' : 'FEHLER'} Schrift ${r.font || 'fest'}, ${r.cols} Sp.${r.fits ? '' : ' scrollt'}${r.inView ? '' : ' ragt raus'}${closed ? '' : ' schließt nicht'}`);
   }
   if (!tools) fails++;
   console.log(`${String(w).padStart(4)}×${String(h).padEnd(4)} Knöpfe ${tools ? 'sichtbar' : 'FEHLEN'} | ${out.join(' | ')}`);

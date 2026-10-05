@@ -7,10 +7,8 @@
 // Stile liegen deshalb global in src/styles/anlagensimulation.css.
 // Stellwerte (Mengen, Leistungen, Geometrie): src/content/anlagensimulation.ts.
 //
-// Auf schmalen Bildschirmen zoomt die Zeichnung auf einen Bereich. Mit
-// `?bereich=silo` (aufbereiter, soletank, zapfstelle, gesamt) in der Adresse
-// startet sie dort — so führen die Knöpfe „Unsere Anlagen“ auf
-// /produkte-technik direkt zum passenden Teil.
+// Auf schmalen Bildschirmen zoomt die Zeichnung auf einen Bereich; sie
+// startet immer mit der ganzen Anlage (camera.ts).
 import '../styles/anlagensimulation.css';
 
 interface Props {
@@ -38,14 +36,11 @@ const { chrome = '18rem' } = Astro.props;
 </div>
 
 <script>
-  import { AREAS } from '../content/anlagensimulation';
   import { mountPlantSimulation } from '../scripts/anlagensimulation/plant-sim';
 
   const root = document.querySelector<HTMLElement>('[data-plant-sim]');
   if (root) {
-    const wanted = new URLSearchParams(location.search).get('bereich');
     mountPlantSimulation(root, {
-      area: AREAS.find((a) => a.id === wanted)?.id,
       frame: document.querySelector<HTMLElement>('[data-ps-frame]') ?? undefined,
       fillPage: true,
     });
