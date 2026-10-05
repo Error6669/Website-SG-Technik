@@ -146,7 +146,7 @@ Aussagen hängen an Werten statt im Fließtext zu stehen — ändert sich die La
 Nur die mobile Ansicht (< 48 rem) wurde geändert, am PC bleibt die Simulation unverändert. Details: `docs/animationen/anlagensimulation.md`.
 
 - **Knopf „Ansicht“** (links in der Zeile, Info/Positionen rechts) ersetzt die Bereichs-Reiter. Er öffnet eine Auswahl: Gesamt, Silo, Aufbereiter, Soletank, Zapfstelle und neu **SalzManager** (Zoom auf den Bildschirm in der Zeichnung).
-- **Start immer mit der Gesamtansicht.** `?bereich=…` und `PRODUCT_AREA` sind entfernt, die Knöpfe „Unsere Anlagen“ verlinken nur noch `/anlagensimulation`.
+- **Start immer mit der Gesamtansicht.** `?bereich=…` und `PRODUCT_AREA` sind entfernt, die Knöpfe auf `/produkte-technik` verlinken nur noch `/anlagensimulation` und heißen jetzt **„Interaktive Anlage öffnen“** (vorher „Unsere Anlagen“).
 - **Fingertipp:** In der Gesamtansicht öffnet ein Tipp den passenden Bereich, ein Doppeltipp führt zurück (`camera.ts`). Die Steuerung (Pos. 11) liegt in keinem Bereich, ein Tipp darauf öffnet die Zapfstelle.
 - **Ansicht folgt den Abläufen** (`plant-sim.ts`): Bei Start und Ende eines Ablaufs zeigt sie die Gesamtansicht (mind. 1,5 s). Ein Bereich wird erst gezeigt, wenn alles Laufende nur noch dort passiert. Den Bereich legt jeder Schritt fest: `ctx.step(text, bereich)` in `processes.ts`. Für „Sole herstellen“ im Dauerbetrieb gibt es den Ausschnitt `produktion` (nur Automatik, nicht im Menü).
 - **Meldungen:** Unter dem SalzManager-Feld stehen alle Meldungen, die neueste oben, höchstens 10 (`LOG_MAX`).

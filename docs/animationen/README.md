@@ -9,7 +9,7 @@ ist nur noch der Code in `src/`.
 | Logo (Intro + Silo-Loop) | Startseite, Hero | `src/components/LogoMark.astro`, `src/scripts/sg-technik-logo.js`, statisch: `public/logo/sg-technik-mark-static.svg` | Kommentare in den Dateien |
 | Serpentine mit Fahrzeugen | Danke-Seite (Hintergrund) | `src/components/SerpentineBackdrop.astro`, `src/scripts/road-animation.ts`, `src/content/serpentine.ts`, Foto `src/assets/waldstrasse-serpentine.jpg` | Kommentare in den Dateien |
 | Winterdienst-Straße beim Scrollen | Startseite und Leistungen, rechter Rand | `src/components/WinterRoad.astro`, `src/scripts/winterdienst/`, `src/content/winterdienst.ts`, `src/assets/winterdienst/`, Wald `src/assets/wald/winterwald.webp` | [winterdienst-strasse.md](winterdienst-strasse.md) |
-| Anlagensimulation | `/anlagensimulation` (Knöpfe „Unsere Anlagen“ auf Produkte & Technik) | `src/pages/anlagensimulation.astro`, `src/components/PlantSimulation.astro`, `src/scripts/anlagensimulation/`, `src/content/anlagensimulation.ts`, `src/styles/anlagensimulation.css` | [anlagensimulation.md](anlagensimulation.md) |
+| Anlagensimulation | `/anlagensimulation` (Knöpfe „Interaktive Anlage öffnen“ auf Produkte & Technik) | `src/pages/anlagensimulation.astro`, `src/components/PlantSimulation.astro`, `src/scripts/anlagensimulation/`, `src/content/anlagensimulation.ts`, `src/styles/anlagensimulation.css` | [anlagensimulation.md](anlagensimulation.md) |
 
 ## Herkunft der Bilder
 

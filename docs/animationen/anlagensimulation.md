@@ -1,7 +1,7 @@
 # Anlagensimulation: Silo- und Soleanlage
 
 Auf der Website unter `/anlagensimulation`, erreichbar über die Knöpfe
-„Unsere Anlagen“ am Ende jedes Produkttexts auf `/produkte-technik`. Die
+„Interaktive Anlage öffnen“ am Ende jedes Produkttexts auf `/produkte-technik`. Die
 Simulation zeigt
 eine Silo- und Soleanlage als technische Zeichnung im Schnitt. Zu sehen sind
 ein hoch aufgeständertes Salzsilo mit 600 t (Befüllleitung links), eine
